@@ -1,5 +1,5 @@
 /** @type {import('tailwindcss').Config} */
-module.exports = {
+export default {
   content: [
     "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
@@ -14,7 +14,7 @@ module.exports = {
       fontFamily: {
         poppins: ['Poppins', 'sans-serif'],
         staatliches: ['Staatliches', 'sans-serif'],
-        montserrat: ['Montserrat', 'sans-serif'], 
+        montserrat: ['Montserrat', 'sans-serif'],
         kiwi: ['"Kiwi Maru"', 'serif'],
         prompt: ['Prompt', 'sans-serif'],
       },
