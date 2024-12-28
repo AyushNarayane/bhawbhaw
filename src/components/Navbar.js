@@ -5,6 +5,8 @@ import { FiMenu } from "react-icons/fi";
 import { useSelector, useDispatch } from "react-redux";
 import { useRouter } from "next/navigation";
 import { clearUser } from "@/redux/userSlice";
+import Image from "next/image";
+import ProfileDropdown from "./ProfileDropdown";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -46,11 +48,15 @@ const Navbar = () => {
       <div className="flex justify-between items-center">
         {/* Logo */}
         <div className="flex items-center">
-          <img
-            src="/images/logo.png"
-            alt="BHAW Logo"
-            className="sm:h-10 h-8 w-auto mx-2"
-          />
+          <Link href='/'>
+            <Image
+              src="/images/bhawbhawfavicon.png"
+              alt="BHAW Logo"
+              width={100}
+              height={100}
+              className="max-sm:h-14 h-16 w-auto mx-2 cursor-pointer"
+            />
+          </Link>
         </div>
 
         {/* Navigation Links */}
@@ -124,13 +130,14 @@ const Navbar = () => {
                   />
                 </button>
               </Link>
-              <button onClick={onLogout}>
+              {/* <button onClick={onLogout}>
                 <img
                   src="/images/navbar/profile.png"
                   alt="Profile"
                   className="w-6 h-6 mb-2"
                 />
-              </button>
+              </button> */}
+              <ProfileDropdown />
             </>
           ) : (
             <>
@@ -140,7 +147,7 @@ const Navbar = () => {
                 </button>
               </Link>
               <Link href="/signup" onClick={() => setIsOpen(false)}>
-                <button className="flex items-center justify-between w-full bg-black text-white sm:px-8 px-4 py-2 rounded-full">
+                <button className="flex items-center justify-between w-full bg-[#ef4444] font-semibold hover:bg-[#ffb315] text-white sm:px-8 px-4 py-2 rounded-full">
                   <p>Sign Up <span className="sm:inline-block hidden">Now</span></p>
                   <img
                     src="/images/navbar/image.png"

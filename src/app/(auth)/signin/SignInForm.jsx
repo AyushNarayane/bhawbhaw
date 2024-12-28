@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import logo from "../../../../public/images/signin/Group.jpg";
+import logo from "../../../../public/images/bhawbhawfavicon.png";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import toast, { Toaster } from "react-hot-toast";
@@ -10,6 +10,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { setUser } from "@/redux/userSlice";
 import { signInWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
 import { auth, db } from "../../../../firebaseConfig";
+import Link from "next/link";
 
 const SignInForm = () => {
   const router = useRouter();
@@ -18,6 +19,7 @@ const SignInForm = () => {
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false); // State to toggle password visibility
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -35,9 +37,7 @@ const SignInForm = () => {
 
     try {
       const usersRef = collection(db, "users");
-
       const q = query(usersRef, where("email", "==", email));
-      
       const querySnapshot = await getDocs(q);
 
       if (querySnapshot.empty) {
@@ -73,10 +73,18 @@ const SignInForm = () => {
   };
 
   return (
-    <div className="bg-white max-h-screen p-8 rounded-3xl shadow-lg w-3/4 mx-auto max-lg:w-full lg:pt-10 lg:px-20 lg:pb-32">
+    <div className="bg-white max-h-screen p-8 rounded-3xl shadow-lg w-3/4 my-8 mx-4 max-lg:w-full lg:pt-10 lg:px-20 lg:pb-32">
       <Toaster />
       <div className="flex justify-start mb-7">
-        <Image src={logo} alt="Logo" width={200} height={80} className="h-20" />
+        <Link href="/">
+          <Image
+            src={logo}
+            alt="Logo"
+            width={150}
+            height={150}
+            className="cursor-pointer"
+          />
+        </Link>
       </div>
       <h2 className="text-left text-lg text-baw-light-gray mb-5">Welcome back !!!</h2>
       <h1 className="text-left text-4xl font-bold mb-6">Sign in</h1>
@@ -89,6 +97,7 @@ const SignInForm = () => {
             type="text"
             id="email"
             className="w-full p-3 bg-gray-100 rounded-sm text-gray-900 focus:outline-none focus:border-red-400"
+            placeholder="Enter your email"
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
@@ -98,19 +107,28 @@ const SignInForm = () => {
         <div className="mb-6 font-poppins mt-10">
           <label className="text-black text-sm mb-2 font-poppins flex justify-between" htmlFor="password">
             Password
-            <a href="#" className="text-sm text-gray-500 ml-4">Forgot Password?</a>
+            <Link href="/forget" className="text-sm text-gray-500 ml-4">Forgot Password?</Link>
           </label>
-          <div className="flex justify-between items-center">
+          <div className="flex justify-between items-center bg-gray-100">
             <input
-              type="password"
+              type={showPassword ? "text" : "password"} // Toggle password visibility
               id="password"
               className="w-full p-3 bg-gray-100 rounded-sm text-gray-900 focus:outline-none focus:border-red-400"
+              placeholder="Enter your password"
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="mx-2 text-gray-500"
+            >
+              {showPassword ? "Hide" : "Show"}
+            </button>
           </div>
         </div>
+
         <div className="w-full flex justify-center lg:mt-10">
           <button
             type="submit"
@@ -122,10 +140,19 @@ const SignInForm = () => {
           </button>
         </div>
       </form>
+
+      <div>
+        <p className="text-center mt-4 text-gray-500">
+          <span>Don't have an account? </span>
+          <Link href="/signup" className="text-red-500 font-semibold">
+            Sign up
+          </Link>
+        </p>
+      </div>
     </div>
   );
 };
 
-SignInForm.displayName = "SignInForm"; 
+SignInForm.displayName = "SignInForm";
 
 export default SignInForm;

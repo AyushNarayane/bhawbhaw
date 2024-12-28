@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import logo from "../../../../public/images/signin/Group.jpg";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import toast, { Toaster } from "react-hot-toast";
@@ -10,6 +9,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { setUser } from "@/redux/userSlice";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth, db } from "../../../../firebaseConfig";
+import Link from "next/link";
 
 const SignUpForm = () => {
   const router = useRouter();
@@ -26,7 +26,7 @@ const SignUpForm = () => {
       email: email,
       password: password,
     };
-  
+
     try {
       setLoading(true)
       const response = await fetch('/api/auth/signup', {
@@ -36,9 +36,9 @@ const SignUpForm = () => {
         },
         body: JSON.stringify(combinedData),
       });
-  
+
       const result = await response.json();
-  
+
       if (response.ok) {
         toast.success(result.message);
         setUsername('');
@@ -57,10 +57,18 @@ const SignUpForm = () => {
   };
 
   return (
-    <div className="bg-white p-8 rounded-3xl shadow-lg w-3/4 mx-auto max-lg:w-full lg:pt-10 lg:px-20 lg:pb-10">
+    <div className="bg-white p-8 rounded-3xl shadow-lg w-3/4 my-8 mx-4 max-lg:w-full lg:pt-10 lg:px-20 lg:pb-10">
       <Toaster />
       <div className="flex justify-start mb-7">
-        <Image src={logo} alt="Logo" width={200} height={80} className="h-20" />
+        <Link href="/">
+          <Image
+            src='/images/bhawbhawfavicon.png'
+            alt="Logo"
+            width={150}
+            height={150}
+            className="cursor-pointer"
+          />
+        </Link>
       </div>
       <h2 className="text-left text-lg text-baw-light-gray mb-5">Create Your Account !!!</h2>
       <h1 className="text-left text-4xl font-bold mb-6">Sign Up</h1>
@@ -74,6 +82,7 @@ const SignUpForm = () => {
             type="text"
             id="username"
             className="w-full p-3 bg-gray-100 rounded-sm text-gray-900 focus:outline-none focus:border-red-400"
+            placeholder="Enter your username"
             required
             value={username}
             onChange={(e) => setUsername(e.target.value)}
@@ -88,6 +97,7 @@ const SignUpForm = () => {
             type="text"
             id="email"
             className="w-full p-3 bg-gray-100 rounded-sm text-gray-900 focus:outline-none focus:border-red-400"
+            placeholder="Enter your email"
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
@@ -103,6 +113,7 @@ const SignUpForm = () => {
               type="password"
               id="password"
               className="w-full p-3 bg-gray-100 rounded-sm text-gray-900 focus:outline-none focus:border-red-400"
+              placeholder="Enter your password"
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -120,6 +131,14 @@ const SignUpForm = () => {
           </button>
         </div>
       </form>
+      <div>
+        <p className="text-center mt-4 text-gray-500">
+          <span>Already have an account? </span>
+          <Link href="/signin" className="text-red-500 font-semibold">
+            Sign in
+          </Link>
+        </p>
+      </div>
     </div>
   );
 };

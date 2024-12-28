@@ -27,8 +27,10 @@ export default function ProductCarousel() {
     fetchProducts();
   }, []);
 
+  const activeProducts = productData.filter(product => product.status !== "disabled");
+
   return (
-    <div className="relative px-4 py-8">
+    <div className="relative px-4 py-8 font-prompt">
       <h2 className="text-4xl font-bold text-center mb-6">
         <span className="text-red-500">Products</span>
       </h2>
@@ -52,20 +54,20 @@ export default function ProductCarousel() {
         breakpoints={{
           640: {
             slidesPerView: 1,
-            spaceBetween: 20,
+            spaceBetween: 12,
           },
           768: {
             slidesPerView: 2,
-            spaceBetween: 30,
+            spaceBetween: 12,
           },
           1024: {
             slidesPerView: 3,
-            spaceBetween: 40,
+            spaceBetween: 12,
           },
         }}
       >
-        {productData.map((product) => (
-          <SwiperSlide key={product.id} className="my-5 max-w-[22rem]">
+        {activeProducts.map((product) => (
+          <SwiperSlide key={product.id} className="my-5 max-w-[18rem]">
             <ProductCard
               product={product}
               addToCart={() => addToCart(product)}

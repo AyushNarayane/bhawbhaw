@@ -22,7 +22,7 @@ export default function Services() {
     : services.filter(service => service.serviceName === selectedCategory);
 
   return (
-    <div className="bg-gray-50 min-h-screen py-8 pt-20 px-4">
+    <div className="bg-gray-50 min-h-screen py-8 pt-20 px-4 font-prompt">
       <h1 className="text-4xl font-bold mb-10 text-gray-800 text-center">
         Our <span className="text-red-500">Services</span>
       </h1>
@@ -66,10 +66,10 @@ function ServiceCard({ service }) {
   const userId = useSelector((state) => state.user.userId);
 
   const handleBookNow = () => {
-    if (!userId) {
-      toast.error("Please log in to proceed with booking.");
-      return;
-    }
+    // if (!userId) {
+    //   toast.error("Please log in to proceed with booking.");
+    //   return;
+    // }
     dispatch(setSelectedService(service));
     router.push('/book-service');
   };

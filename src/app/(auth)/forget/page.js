@@ -1,13 +1,12 @@
-import React from "react";
 import Image from "next/image";
 import shape from "../../../../public/images/signin/shape.jpg";
 import dog from "../../../../public/images/signin/dog.jpg";
-import SignInForm from "./SignInForm";
+import ForgotPasswordForm from "./ForgotPasswordForm";
 
-const Signin = () => {
+const ForgotPassword = () => {
   return (
     <div className="bg-[#FFB315] flex md:h-screen h-auto max-md:flex-col">
-      <div className="basis-1/2 flex-1  bg-baw-yellow relative flex flex-col items-center max-md:hidden">
+      <div className="basis-1/2 flex-1 bg-baw-yellow relative flex flex-col items-center max-md:hidden">
         <div className="absolute sm:bottom-10 -bottom-[5.3rem] left-1/2 transform -translate-x-1/2 mt-4">
           <Image
             src={dog}
@@ -27,11 +26,12 @@ const Signin = () => {
           />
         </div>
       </div>
+
       <div className="text-[black] bg-baw-red md:basis-1/2 flex-1 flex justify-center items-center h-full max-lg:w-full">
-        <SignInForm/>
+        <ForgotPasswordForm />
       </div>
     </div>
   );
 };
 
-export default Signin;
+export default ForgotPassword;

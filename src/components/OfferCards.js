@@ -29,7 +29,7 @@ const OfferCards = () => {
   ];
 
   return (
-    <section className="py-16 px-4 md:px-8">
+    <section className="py-16 px-4 md:px-8 font-prompt">
       <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8">
         {cards.map((card, index) => (
           <div
