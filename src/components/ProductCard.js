@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 import { addToCart, removeFromCart } from "../redux/cartSlice";
 import { addToWishlist, removeFromWishlist } from "../redux/wishlistSlice";
-import toast from 'react-hot-toast';
+import toast, { Toaster } from 'react-hot-toast';
 import Image from "next/image";
 
 const ProductCard = ({ product, isRecommendation = false }) => {
@@ -96,6 +96,7 @@ const ProductCard = ({ product, isRecommendation = false }) => {
 
   return (
     <div className="relative rounded font-montserrat overflow-hidden p-4 group shadow-lg bg-white">
+      <Toaster/>
       {/* heart */}
       <div className="absolute top-4 right-4 p-2 rounded-full bg-white shadow-md hover:bg-gray-200 focus:outline-none z-20">
         <Image

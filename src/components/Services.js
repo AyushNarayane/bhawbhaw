@@ -64,10 +64,10 @@ function ServiceCard({ service }) {
   const userId = useSelector((state) => state.user.userId);
 
   const handleBookNow = () => {
-    // if (!userId) {
-    //   toast.error("Please log in to proceed with booking.");
-    //   return;
-    // }
+    if (!userId) {
+      toast.error("Please log in to proceed with booking.");
+      return;
+    }
     dispatch(setSelectedService(service));
     router.push('/book-service');
   };
