@@ -132,11 +132,11 @@ const ProductCard = ({ product, isRecommendation = false }) => {
       </div>
 
       {/* Hover Effect Section */}
-      <div className="absolute inset-0 bg-black bg-opacity-50 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10">
+      {/* <div className="absolute inset-0 bg-black bg-opacity-50 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10">
         <div className="flex flex-col items-center">
           <button onClick={handleCompare} className="text-white text-sm border px-4 py-2 rounded-lg">Compare</button>
         </div>
-      </div>
+      </div> */}
 
       {/* Product Details */}
       <div className="py-4">
