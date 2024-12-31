@@ -24,10 +24,10 @@ const ProductCard = ({ product, isRecommendation = false }) => {
   }, [cartItems, wishlistItems, product.productId, product.id]);
 
   const handleBuyAction = () => {
-    if (!user) {
-      toast.error("Please log in to buy products.");
-      return;
-    }
+    // if (!user) {
+    //   toast.error("Please log in to buy products.");
+    //   return;
+    // }
 
     sessionStorage.setItem('productId', product.productId);
 

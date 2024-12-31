@@ -1,13 +1,18 @@
+'use client'
 import React from "react";
 import Image from "next/image";
 import shape from "../../../../public/images/signin/shape.jpg";
 import dog from "../../../../public/images/signin/dog.jpg";
 import SignInForm from "./SignInForm";
+import { usePathname } from "next/navigation";
 
 const Signin = () => {
+  const pathname = usePathname();
+  const hideFooter = pathname === '/signin';
+
   return (
-    <div className="bg-[#FFB315] flex md:h-screen h-auto max-md:flex-col">
-      <div className="basis-1/2 flex-1  bg-baw-yellow relative flex flex-col items-center max-md:hidden">
+    <div className="bg-[#FFB315] flex h-screen max-md:flex-col">
+      <div className="basis-1/2 flex-1 bg-baw-yellow relative flex flex-col items-center max-md:hidden">
         <div className="absolute sm:bottom-10 -bottom-[5.3rem] left-1/2 transform -translate-x-1/2 mt-4">
           <Image
             src={dog}
@@ -27,8 +32,8 @@ const Signin = () => {
           />
         </div>
       </div>
-      <div className="text-[black] bg-white md:basis-1/2 flex-1 flex justify-center items-center h-full max-lg:w-full">
-        <SignInForm/>
+      <div className="text-[black] bg-white md:basis-1/2 flex-1 flex justify-center items-center h-full max-md:-mt-40 max-lg:w-full">
+        <SignInForm />
       </div>
     </div>
   );

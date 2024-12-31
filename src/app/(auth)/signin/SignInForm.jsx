@@ -19,7 +19,7 @@ const SignInForm = () => {
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false); // State to toggle password visibility
+  const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -122,9 +122,14 @@ const SignInForm = () => {
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="mx-2 text-gray-500"
+              className="mx-4 text-gray-500"
             >
-              {showPassword ? "Hide" : "Show"}
+              <Image
+                src={showPassword ? "/images/common/hide.png" : "/images/common/eye.png"}
+                alt={showPassword ? "Show password" : "Hide password"}
+                width={24}
+                height={24}
+              />
             </button>
           </div>
         </div>

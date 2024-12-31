@@ -3,7 +3,7 @@ import React, { useEffect, useState, useContext } from "react";
 import ProductCard from "../../../components/ProductCard";
 import { CiStar } from "react-icons/ci";
 import { AiFillHeart, AiFillStar, AiOutlineHeart } from "react-icons/ai";
-import { FaArrowLeftLong, FaArrowRightLong } from "react-icons/fa6"; // Ensure you import the pagination arrows
+import { FaArrowLeftLong, FaArrowRightLong } from "react-icons/fa6";
 import { db } from '../../../../firebaseConfig';
 import { doc, setDoc, getDoc, collection, getDocs, query, where } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
@@ -46,8 +46,6 @@ const ProductDetail = () => {
       return;
     }
     setProductId(id)
-    console.log('fsdjfhskdjfh');
-    
 
     const fetchProductDetails = async () => {
       const productRef = doc(db, 'products', productId);

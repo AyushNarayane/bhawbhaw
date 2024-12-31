@@ -17,6 +17,7 @@ const SignUpForm = () => {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -108,16 +109,28 @@ const SignUpForm = () => {
           <label className="text-black text-sm mb-2 font-poppins flex justify-between" htmlFor="password">
             Password
           </label>
-          <div className="flex justify-between items-center">
+          <div className="relative flex justify-between items-center w-full">
             <input
-              type="password"
+              type={showPassword ? "text" : "password"}
               id="password"
-              className="w-full p-3 bg-gray-100 rounded-sm text-gray-900 focus:outline-none focus:border-red-400"
+              className="w-full p-3 bg-gray-100 rounded-sm text-gray-900 focus:outline-none focus:border-red-400 pr-10"
               placeholder="Enter your password"
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-3 top-1/2 transform -translate-y-1/2"
+            >
+              <Image
+                src={showPassword ? "/images/common/hide.png" : "/images/common/eye.png"}
+                alt={showPassword ? "Show password" : "Hide password"}
+                width={24}
+                height={24}
+              />
+            </button>
           </div>
         </div>
         <div className="w-full flex justify-center lg:mt-10">
