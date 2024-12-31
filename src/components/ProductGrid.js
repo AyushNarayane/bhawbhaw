@@ -5,6 +5,7 @@ import ProductFilter from "./Filter";
 import { FaArrowRightLong, FaArrowLeftLong } from "react-icons/fa6";
 import { doc, setDoc, collection, getDocs, serverTimestamp } from "firebase/firestore";
 import { db } from "../../firebaseConfig";
+import toast from 'react-hot-toast';
 
 const ProductGrid = () => {
   const [productData, setProductData] = useState([]);
@@ -98,7 +99,7 @@ const ProductGrid = () => {
       toast.error("Please log in to proceed.");
       return;
     }
-    
+
     try {
       if (!product.id || !userId) {
         throw new Error("Product ID or User ID is undefined");
@@ -121,7 +122,7 @@ const ProductGrid = () => {
       toast.error("Please log in to proceed.");
       return;
     }
-    
+
     try {
       if (!product.id || !userId) {
         throw new Error("Product ID or User ID is undefined");
