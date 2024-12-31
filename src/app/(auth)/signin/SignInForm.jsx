@@ -73,7 +73,7 @@ const SignInForm = () => {
   };
 
   return (
-    <div className="bg-white max-h-screen p-8 rounded-3xl shadow-lg w-3/4 my-8 mx-4 max-lg:w-full lg:pt-10 lg:px-20 lg:pb-32">
+    <div className="bg-white max-h-screen p-8 rounded-3xl shadow-xl w-3/4 my-8 mx-4 max-lg:w-full lg:py-14 lg:px-20">
       <Toaster />
       <div className="flex justify-start mb-7">
         <Link href="/">

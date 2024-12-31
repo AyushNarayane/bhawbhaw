@@ -29,6 +29,7 @@ const ProductDetail = () => {
   const [isFavorite, setIsFavorite] = useState(false);
   const [quantity, setQuantity] = useState(1);
   const [message, setMessage] = useState('');
+  const [productId, setProductId] = useState(null);
 
   // Pagination State
   const [currentPage, setCurrentPage] = useState(1);
@@ -36,13 +37,17 @@ const ProductDetail = () => {
   const totalPages = Math.ceil(relatedProducts.length / productsPerPage);
 
   useEffect(() => {
-    const productId = sessionStorage.getItem('selectedProductId');
+    // const productId = sessionStorage.getItem('selectedProductId');
+    const id = sessionStorage.getItem('productId');
 
-    if (!productId) {
+    if (!id) {
       console.error("Product ID is not available.");
-      router.push('/');
+      router.push("/");
       return;
     }
+    setProductId(id)
+    console.log('fsdjfhskdjfh');
+    
 
     const fetchProductDetails = async () => {
       const productRef = doc(db, 'products', productId);
@@ -65,7 +70,7 @@ const ProductDetail = () => {
     };
 
     fetchProductDetails();
-  }, [router]);
+  }, [productId]);
 
   const handleQuantityChange = (type) => {
     setQuantity((prevQuantity) =>

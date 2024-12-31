@@ -139,7 +139,7 @@ const ProductGrid = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {displayedProducts.map((product) => (
               <ProductCard 
-                key={product.id} 
+                key={product.productId} 
                 product={product} 
                 addToCart={() => addToCart(product)}
                 addToWishlist={() => addToWishlist(product)} 

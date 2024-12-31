@@ -33,15 +33,13 @@ export default function Services() {
             {categories.map((category) => (
               <li
                 key={category}
-                className={`relative pl-4 cursor-pointer font-medium hover:text-red-600 group ${
-                  selectedCategory === category ? "text-red-600 font-semibold" : "text-gray-800"
-                }`}
+                className={`relative pl-4 cursor-pointer font-medium hover:text-red-600 group ${selectedCategory === category ? "text-red-600 font-semibold" : "text-gray-800"
+                  }`}
                 onClick={() => setSelectedCategory(category)}
               >
                 <span
-                  className={`absolute left-0 top-1/2 -translate-y-1/2 h-8 border-l-4 ${
-                    selectedCategory === category ? "border-red-600" : "border-transparent"
-                  }`}
+                  className={`absolute left-0 top-1/2 -translate-y-1/2 h-8 border-l-4 ${selectedCategory === category ? "border-red-600" : "border-transparent"
+                    }`}
                 ></span>
                 {category}
               </li>

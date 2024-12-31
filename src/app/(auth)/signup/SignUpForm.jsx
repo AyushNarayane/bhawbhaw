@@ -57,7 +57,7 @@ const SignUpForm = () => {
   };
 
   return (
-    <div className="bg-white p-8 rounded-3xl shadow-lg w-3/4 my-8 mx-4 max-lg:w-full lg:pt-10 lg:px-20 lg:pb-10">
+    <div className="bg-white p-8 rounded-3xl shadow-xl w-3/4 my-8 mx-4 max-lg:w-full lg:pt-10 lg:px-20 lg:pb-10">
       <Toaster />
       <div className="flex justify-start mb-7">
         <Link href="/">

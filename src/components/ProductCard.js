@@ -15,14 +15,13 @@ const ProductCard = ({ product, isRecommendation = false }) => {
   const dispatch = useDispatch();
   const cartItems = useSelector(state => state.cart.items);
   const wishlistItems = useSelector(state => state.wishlist.items);
-
   const [isProductInCart, setIsProductInCart] = useState(false);
   const [isInWishlist, setIsInWishlist] = useState(false);
 
   useEffect(() => {
     setIsProductInCart(cartItems.some(item => item.id === product.id));
     setIsInWishlist(wishlistItems.some(item => item.id === product.id));
-  }, [cartItems, wishlistItems, product.id]);
+  }, [cartItems, wishlistItems, product.productId, product.id]);
 
   const handleBuyAction = () => {
     if (!user) {
@@ -30,8 +29,11 @@ const ProductCard = ({ product, isRecommendation = false }) => {
       return;
     }
 
-    alert("Buy now clicked")
+    sessionStorage.setItem('productId', product.productId);
+
+    router.push(`/productdetails`)
   }
+
   const handleCartAction = () => {
     if (!user) {
       toast.error("Please log in to add products to your cart.");
@@ -175,7 +177,8 @@ const ProductCard = ({ product, isRecommendation = false }) => {
           onClick={handleCartAction}
           className="border bg-baw-light py-2 w-full px-4 rounded-full whitespace-nowrap"
         >
-          {isProductInCart ? 'Remove from Cart' : 'Add to Cart'}
+          {/* {isProductInCart ? 'Remove from Cart' : 'Add to Cart'} */}
+          Add to Cart
         </button>
         <button
           onClick={handleBuyAction}

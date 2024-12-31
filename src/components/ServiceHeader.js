@@ -8,7 +8,7 @@ const PetJoySection = () => {
         {/* Main Content */}
         <div className="z-10 max-w-2xl md:max-w-5xl">
           <h1 className="text-4xl md:text-7xl font-bold mb-4 font-staatliches text-[#4D413E]">
-            WHERE EVERY 
+            WHERE EVERY
           </h1>
           <h1 className="text-4xl md:text-7xl font-bold mb-4 font-staatliches text-[#4D413E]">
             PET&apos;S JOY BEGINS!

@@ -5,25 +5,25 @@ const OfferCards = () => {
     {
       title: "Expert pet Services",
       description: "",
-      image: "/images/Home/image-1.png",
+      image: "/images/Home/Image-1.png",
       buttonText: "Discover Now",
     },
     {
       title: "20% OFF on pet items",
       description: "Special Diwali Day Offer",
-      image: "/images/Home/image-2.png",
+      image: "/images/Home/Image-2.png",
       buttonText: "Discover Now",
     },
     {
       title: "Pet health and Activity",
       description: "",
-      image: "/images/Home/image-3.png",
+      image: "/images/Home/Image-3.png",
       buttonText: "Discover Now",
     },
     {
       title: "Grooming Tips",
       description: "Get grooming tips from professional vets",
-      image: "/images/Home/image-4.png",
+      image: "/images/Home/Image-4.png",
       buttonText: "Discover Now",
     },
   ];
@@ -50,11 +50,11 @@ const OfferCards = () => {
             <button className="mt-6 max-w-44 bg-[#FF6B6B] text-white text-sm font-semibold py-3 px-4 rounded-full flex items-center justify-center hover:bg-red-500 transition">
               {card.buttonText}
               <span className="ml-2">
-              <img
-                    src="/images/navbar/image.png"
-                    alt="Icon"
-                    className="w-5 h-5 ml-2"
-                  />
+                <img
+                  src="/images/navbar/image.png"
+                  alt="Icon"
+                  className="w-5 h-5 ml-2"
+                />
               </span>
             </button>
           </div>

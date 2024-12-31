@@ -8,7 +8,7 @@ export const metadata = {
     
   const Layout = ({ children }) => {
     return (
-      <div>
+      <div className="font-poppins">
         {children}
       </div>
     );

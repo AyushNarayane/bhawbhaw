@@ -28,7 +28,7 @@ const MultiStepForm = () => {
 
   useEffect(() => {
     if (!selectedService) {
-      router.push('/');
+      // router.push('/');
     }
 
     // Fetch saved addresses from Firestore

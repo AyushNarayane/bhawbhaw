@@ -9,7 +9,7 @@ export const metadata = {
 
 const SignUpLayout = ({ children }) => {
   return (
-    <div>
+    <div className="font-poppins">
       {children}
     </div>
   );
