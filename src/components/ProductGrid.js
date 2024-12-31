@@ -12,7 +12,7 @@ const ProductGrid = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const productsPerPage = 6;
   const [userId, setUserId] = useState(null);
-  
+
   useEffect(() => {
     const fetchProducts = async () => {
       try {
@@ -75,25 +75,30 @@ const ProductGrid = () => {
   const handleFilter = ({ min, max }) => {
     const minPrice = parseFloat(min);
     const maxPrice = parseFloat(max);
-  
+
     if (isNaN(minPrice) || isNaN(maxPrice)) {
       return;
     }
-  
+
     const filtered = productData.filter((product) => {
       const price = parseFloat(product.sellingPrice);
       return price >= (minPrice || 0) && price <= (maxPrice || Infinity);
     });
-  
+
     setFilteredProducts(filtered);
     setCurrentPage(1);
-  
-  
+
+
   };
-  
+
 
   // Function to add product to cart
   const addToCart = async (product) => {
+    if (!user) {
+      toast.error("Please log in to proceed.");
+      return;
+    }
+    
     try {
       if (!product.id || !userId) {
         throw new Error("Product ID or User ID is undefined");
@@ -112,6 +117,11 @@ const ProductGrid = () => {
 
   // Function to add product to wishlist
   const addToWishlist = async (product) => {
+    if (!user) {
+      toast.error("Please log in to proceed.");
+      return;
+    }
+    
     try {
       if (!product.id || !userId) {
         throw new Error("Product ID or User ID is undefined");
@@ -138,11 +148,11 @@ const ProductGrid = () => {
         <div className="w-3/4 ml-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {displayedProducts.map((product) => (
-              <ProductCard 
-                key={product.productId} 
-                product={product} 
+              <ProductCard
+                key={product.productId}
+                product={product}
                 addToCart={() => addToCart(product)}
-                addToWishlist={() => addToWishlist(product)} 
+                addToWishlist={() => addToWishlist(product)}
               />
             ))}
           </div>
