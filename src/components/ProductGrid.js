@@ -5,7 +5,7 @@ import ProductFilter from "./Filter";
 import { FaArrowRightLong, FaArrowLeftLong } from "react-icons/fa6";
 import { doc, setDoc, collection, getDocs, serverTimestamp } from "firebase/firestore";
 import { db } from "../../firebaseConfig";
-import toast from 'react-hot-toast';
+import toast, { Toaster } from 'react-hot-toast';
 
 const ProductGrid = () => {
   const [productData, setProductData] = useState([]);
@@ -141,6 +141,7 @@ const ProductGrid = () => {
 
   return (
     <div className="bg-white py-12 px-12">
+      <Toaster />
       <div className="flex">
         {/* Filters Section */}
         <ProductFilter onFilter={handleFilter} />
