@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { useRouter } from "next/navigation";
-import { clearUser } from "@/redux/userSlice"; // Assuming you have this action
+import { clearUser } from "@/redux/userSlice";
 import Link from "next/link";
 import Image from "next/image";
 

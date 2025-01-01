@@ -2,10 +2,11 @@
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
-import { addToCart, removeFromCart } from "../redux/cartSlice";
 import { addToWishlist, removeFromWishlist } from "../redux/wishlistSlice";
-import toast, { Toaster } from 'react-hot-toast';
+import toast from 'react-hot-toast';
 import Image from "next/image";
+import { db } from "firebaseConfig";
+import { doc, getDoc, setDoc } from "firebase/firestore";
 
 const ProductCard = ({ product, isRecommendation = false }) => {
   // console.log(product);
@@ -34,20 +35,46 @@ const ProductCard = ({ product, isRecommendation = false }) => {
     router.push(`/productdetails`)
   }
 
-  const handleCartAction = () => {
+  const handleCartAction = async () => {
     if (!user) {
       toast.error("Please log in to add products to your cart.");
       return;
     }
 
-    if (isProductInCart) {
-      dispatch(removeFromCart(product));
-      toast.success("Product removed from cart");
-    } else {
-      dispatch(addToCart(product));
-      toast.success("Product added to cart");
+    try {
+      const cartRef = doc(db, 'cart', user);
+      const cartDoc = await getDoc(cartRef);
+      
+      if (cartDoc.exists()) {
+        const cartData = cartDoc.data();
+        const existingProduct = cartData.items.find(item => item.productId === product.productId);
+
+        if (existingProduct) {
+          // Increment quantity if already in cart
+          const updatedItems = cartData.items.map(item =>
+            item.productId === product.productId ? { ...item, quantity: item.quantity + 1 } : item
+          );
+          await setDoc(cartRef, { items: updatedItems }, { merge: true });
+          toast.success("Product quantity updated in cart");
+        } else {
+          // Add new product
+          await setDoc(
+            cartRef,
+            { items: [...cartData.items, { ...product, quantity: 1 }] },
+            { merge: true }
+          );
+          toast.success("Product added to cart");
+        }
+      } else {
+        // First item in cart
+        await setDoc(cartRef, { items: [{ ...product, quantity: 1 }] });
+        toast.success("Product added to cart");
+      }
+    } catch (error) {
+      console.error("Error updating cart:", error);
+      toast.error("Failed to add product to cart");
     }
-  };
+  }
 
   const handleWishlistAction = () => {
     if (!user) {
@@ -80,17 +107,6 @@ const ProductCard = ({ product, isRecommendation = false }) => {
     } catch (error) {
       toast.error("Error sharing: " + error.message);
       console.error("Error sharing:", error);
-    }
-  };
-
-  const handleCompare = () => {
-    const compareList = JSON.parse(localStorage.getItem('compareList') || '[]');
-    if (!compareList.some(item => item.id === product.id)) {
-      compareList.push(product);
-      localStorage.setItem('compareList', JSON.stringify(compareList));
-      toast.success("Product added to compare list");
-    } else {
-      toast.error("Product already in compare list");
     }
   };
 
@@ -131,13 +147,6 @@ const ProductCard = ({ product, isRecommendation = false }) => {
         />
       </div>
 
-      {/* Hover Effect Section */}
-      {/* <div className="absolute inset-0 bg-black bg-opacity-50 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10">
-        <div className="flex flex-col items-center">
-          <button onClick={handleCompare} className="text-white text-sm border px-4 py-2 rounded-lg">Compare</button>
-        </div>
-      </div> */}
-
       {/* Product Details */}
       <div className="py-4">
         <div className="flex justify-between items-center mb-2">
@@ -171,7 +180,6 @@ const ProductCard = ({ product, isRecommendation = false }) => {
         </div>
       </div>
 
-      {/* Bottom Buttons (Not affected by hover) */}
       <div className="relative flex justify-center gap-5 items-center mt-4 z-20">
         <button
           onClick={handleCartAction}

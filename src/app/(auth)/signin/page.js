@@ -4,11 +4,8 @@ import Image from "next/image";
 import shape from "../../../../public/images/signin/shape.jpg";
 import dog from "../../../../public/images/signin/dog.jpg";
 import SignInForm from "./SignInForm";
-import { usePathname } from "next/navigation";
 
 const Signin = () => {
-  const pathname = usePathname();
-  const hideFooter = pathname === '/signin';
 
   return (
     <div className="bg-[#FFB315] flex h-screen max-md:flex-col">

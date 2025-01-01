@@ -5,7 +5,7 @@ import { getDocs, query, collection, where } from "firebase/firestore";
 import { toast } from "react-hot-toast";
 import { auth, db } from "../../firebaseConfig";
 import { useDispatch } from "react-redux";
-import { setUser } from "@/redux/userSlice"; 
+import { setUser } from "@/redux/userSlice";
 import { ClipLoader } from "react-spinners";
 
 const Protected = (WrappedComponent) => {
@@ -36,7 +36,7 @@ const Protected = (WrappedComponent) => {
                   userId: userDoc.id,
                 })
               );
-
+              
               setIsAuthorized(true);
             } else {
               toast.error("User not found.");
@@ -76,7 +76,7 @@ const Protected = (WrappedComponent) => {
   };
 
   ComponentWithProtection.displayName = `Protected(${WrappedComponent.displayName || WrappedComponent.name || "Component"})`;
-  
+
   return ComponentWithProtection;
 };
 
