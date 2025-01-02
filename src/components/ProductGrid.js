@@ -88,56 +88,7 @@ const ProductGrid = () => {
 
     setFilteredProducts(filtered);
     setCurrentPage(1);
-
-
-  };
-
-
-  // Function to add product to cart
-  const addToCart = async (product) => {
-    if (!user) {
-      toast.error("Please log in to proceed.");
-      return;
-    }
-
-    try {
-      if (!product.id || !userId) {
-        throw new Error("Product ID or User ID is undefined");
-      }
-
-      const cartRef = doc(db, "users", userId, "cart", product.id);
-      await setDoc(cartRef, {
-        ...product,
-        addedAt: serverTimestamp(),
-      });
-      console.log("Product added to cart:", product.id);
-    } catch (error) {
-      console.error("Error adding to cart:", error);
-    }
-  };
-
-  // Function to add product to wishlist
-  const addToWishlist = async (product) => {
-    if (!user) {
-      toast.error("Please log in to proceed.");
-      return;
-    }
-
-    try {
-      if (!product.id || !userId) {
-        throw new Error("Product ID or User ID is undefined");
-      }
-
-      const wishlistRef = doc(db, "users", userId, "wishlist", product.id);
-      await setDoc(wishlistRef, {
-        ...product,
-        addedAt: serverTimestamp(),
-      });
-      console.log("Product added to wishlist:", product.id);
-    } catch (error) {
-      console.error("Error adding to wishlist:", error);
-    }
-  };
+  }
 
   return (
     <div className="bg-white py-12 px-12">
@@ -147,14 +98,12 @@ const ProductGrid = () => {
         <ProductFilter onFilter={handleFilter} />
 
         {/* Product Grid Section */}
-        <div className="w-3/4 ml-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="w-full p-4">
+          <div className="flex justify-between gap-5 flex-wrap">
             {displayedProducts.map((product) => (
               <ProductCard
                 key={product.productId}
                 product={product}
-                addToCart={() => addToCart(product)}
-                addToWishlist={() => addToWishlist(product)}
               />
             ))}
           </div>

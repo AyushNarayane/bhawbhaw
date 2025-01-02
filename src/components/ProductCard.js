@@ -111,7 +111,7 @@ const ProductCard = ({ product, isRecommendation = false }) => {
   };
 
   return (
-    <div className="relative rounded font-montserrat overflow-hidden p-4 group shadow-lg bg-white">
+    <div className="relative rounded w-80 font-montserrat overflow-hidden p-4 group shadow-lg bg-white">
       {/* heart */}
       <div className="absolute top-4 right-4 p-2 rounded-full bg-white shadow-md hover:bg-gray-200 focus:outline-none z-20">
         <Image

@@ -1,5 +1,6 @@
-import { db } from "../../../../firebaseConfig";
+// import { db } from "../../../../firebaseConfig";
 import { collection, getDocs } from "firebase/firestore";
+import { db } from "firebaseConfig";
 
 export default async function getProducts(req, res) {
   if (req.method === "GET") {
