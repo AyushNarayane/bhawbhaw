@@ -58,62 +58,59 @@ const SignUpForm = () => {
   };
 
   return (
-    <div className="bg-white p-8 rounded-3xl shadow-xl w-3/4 my-8 mx-4 max-lg:w-full lg:pt-10 lg:px-20 lg:pb-10">
+    <div className="bg-white p-6 h-80 lg:h-3/4 rounded-3xl shadow-xl w-11/12 max-w-lg mx-auto mb-6 lg:mb-8 flex flex-col justify-evenly overflow-y-auto">
       <Toaster />
-      <div className="flex justify-start mb-7">
+      <div className="flex justify-start">
         <Link href="/">
           <Image
-            src='/images/bhawbhawfavicon.png'
+            src="/images/bhawbhawfavicon.png"
             alt="Logo"
-            width={150}
-            height={150}
+            width={100}
+            height={100}
             className="cursor-pointer"
           />
         </Link>
       </div>
-      <h2 className="text-left text-lg text-baw-light-gray mb-5">Create Your Account !!!</h2>
-      <h1 className="text-left text-4xl font-bold mb-6">Sign Up</h1>
-      <form className="mt-10" onSubmit={handleSubmit}>
-
-        <div className="mb-4">
-          <label className="block text-black text-sm mb-2 font-poppins" htmlFor="username">
+      <h2 className="text-left text-sm lg:text-lg text-gray-500 mb-3">Create Your Account !!!</h2>
+      <h1 className="text-left text-2xl lg:text-4xl font-bold mb-4">Sign Up</h1>
+      <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
+        <div>
+          <label className="block text-black text-sm lg:text-base mb-1 font-poppins" htmlFor="username">
             Username
           </label>
           <input
             type="text"
             id="username"
-            className="w-full p-3 bg-gray-100 rounded-sm text-gray-900 focus:outline-none focus:border-red-400"
+            className="w-full p-2 lg:p-3 bg-gray-100 rounded-sm text-gray-900 focus:outline-none focus:border-red-400"
             placeholder="Enter your username"
             required
             value={username}
             onChange={(e) => setUsername(e.target.value)}
           />
         </div>
-
-        <div className="mb-4">
-          <label className="block text-black text-sm mb-2 font-poppins" htmlFor="email">
+        <div>
+          <label className="block text-black text-sm lg:text-base mb-1 font-poppins" htmlFor="email">
             Email
           </label>
           <input
-            type="text"
+            type="email"
             id="email"
-            className="w-full p-3 bg-gray-100 rounded-sm text-gray-900 focus:outline-none focus:border-red-400"
+            className="w-full p-2 lg:p-3 bg-gray-100 rounded-sm text-gray-900 focus:outline-none focus:border-red-400"
             placeholder="Enter your email"
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
         </div>
-
-        <div className="mb-6 font-poppins mt-5">
-          <label className="text-black text-sm mb-2 font-poppins flex justify-between" htmlFor="password">
+        <div>
+          <label className="block text-black text-sm lg:text-base mb-1 font-poppins" htmlFor="password">
             Password
           </label>
-          <div className="relative flex justify-between items-center w-full">
+          <div className="relative">
             <input
               type={showPassword ? "text" : "password"}
               id="password"
-              className="w-full p-3 bg-gray-100 rounded-sm text-gray-900 focus:outline-none focus:border-red-400 pr-10"
+              className="w-full p-2 lg:p-3 bg-gray-100 rounded-sm text-gray-900 focus:outline-none focus:border-red-400 pr-10"
               placeholder="Enter your password"
               required
               value={password}
@@ -127,31 +124,31 @@ const SignUpForm = () => {
               <Image
                 src={showPassword ? "/images/common/hide.png" : "/images/common/eye.png"}
                 alt={showPassword ? "Show password" : "Hide password"}
-                width={24}
-                height={24}
+                width={20}
+                height={20}
               />
             </button>
           </div>
         </div>
-        <div className="w-full flex justify-center lg:mt-10">
+        <div className="w-full flex justify-center mt-4">
           <button
             type="submit"
-            className="w-full lg:w-fit lg:rounded-full bg-red-500 text-white font-bold py-3 px-7 rounded-md flex justify-center items-center hover:bg-yellow-400"
+            className="w-full lg:w-auto rounded-full bg-red-500 text-white font-semibold py-2 px-4 lg:py-3 lg:px-7 flex justify-center items-center hover:bg-yellow-400"
             disabled={loading}
           >
-            <span>{loading ? "Signing Up..." : "SIGN UP"}</span>
+            <span className="text-sm lg:text-base">{loading ? "Signing Up..." : "SIGN UP"}</span>
             <span className="ml-2">➔</span>
           </button>
         </div>
+        <div>
+          <p className="text-center text-sm lg:text-base text-gray-500">
+            <span>Already have an account? </span>
+            <Link href="/signin" className="text-red-500 font-semibold">
+              Sign in
+            </Link>
+          </p>
+        </div>
       </form>
-      <div>
-        <p className="text-center mt-4 text-gray-500">
-          <span>Already have an account? </span>
-          <Link href="/signin" className="text-red-500 font-semibold">
-            Sign in
-          </Link>
-        </p>
-      </div>
     </div>
   );
 };

@@ -117,7 +117,7 @@ const CheckoutPage = () => {
             <div className="p-6 rounded-lg mb-6">
               <div className="flex flex-col lg:flex-row justify-between items-center mb-4">
                 <h3 className="text-lg lg:text-xl text-[#1D3178] font-extrabold my-4">Contact Information</h3>
-                <span className="text-sm text-[#676767]">Already have an account? <a href="#">Log in</a></span>
+                {/* <span className="text-sm text-[#676767]">Already have an account? <a href="#">Log in</a></span> */}
               </div>
               <input
                 type="email"

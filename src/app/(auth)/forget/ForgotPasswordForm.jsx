@@ -51,9 +51,9 @@ const ForgotPasswordForm = () => {
           />
         </Link>
       </div>
-      <h2 className="text-left text-lg text-baw-light-gray mb-5">Reset Your Password</h2>
-      <h1 className="text-left text-sm font-bold mb-6">Enter your email address to receive password reset instructions.</h1>
-      <form className="mt-10" onSubmit={handlePasswordReset}>
+      <h2 className="text-left text-xl text-baw-light-gray mb-2 font-semibold">Reset Your Password</h2>
+      <h1 className="text-left text-sm font-semibold mb-6">Enter your email address to receive password reset instructions.</h1>
+      <form className="mt-4" onSubmit={handlePasswordReset}>
         <div className="mb-4">
           <label className="block text-black text-sm mb-2 font-poppins" htmlFor="email">
             Email

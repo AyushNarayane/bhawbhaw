@@ -73,9 +73,9 @@ const SignInForm = () => {
   };
 
   return (
-    <div className="bg-white max-h-screen p-8 rounded-3xl shadow-xl w-3/4 my-8 mx-4 max-lg:w-full lg:py-14 lg:px-20">
+    <div className="bg-white p-6 h-80 lg:h-3/4 rounded-3xl shadow-xl w-11/12 max-w-lg mx-auto mb-6 lg:mb-8 flex flex-col justify-evenly overflow-y-auto">
       <Toaster />
-      <div className="flex justify-start mb-7">
+      <div className="flex justify-start">
         <Link href="/">
           <Image
             src={logo}
@@ -86,10 +86,10 @@ const SignInForm = () => {
           />
         </Link>
       </div>
-      <h2 className="text-left text-lg text-baw-light-gray mb-5">Welcome back !!!</h2>
-      <h1 className="text-left text-4xl font-bold mb-6">Sign in</h1>
-      <form className="mt-10" onSubmit={handleSubmit}>
-        <div className="mb-4">
+      <h2 className="text-left text-lg text-baw-light-gray">Welcome back!!!</h2>
+      <h1 className="text-left text-4xl font-bold">Sign in</h1>
+      <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
+        <div className="">
           <label className="block text-black text-sm mb-2 font-poppins" htmlFor="email">
             Email
           </label>
@@ -104,7 +104,7 @@ const SignInForm = () => {
           />
         </div>
 
-        <div className="mb-6 font-poppins mt-10">
+        <div className="">
           <label className="text-black text-sm mb-2 font-poppins flex justify-between" htmlFor="password">
             Password
             <Link href="/forget" className="text-sm text-gray-500 ml-4">Forgot Password?</Link>
@@ -134,7 +134,7 @@ const SignInForm = () => {
           </div>
         </div>
 
-        <div className="w-full flex justify-center lg:mt-10">
+        <div className="w-full flex justify-center mt-4">
           <button
             type="submit"
             className="w-full lg:w-fit lg:rounded-full bg-red-500 text-white font-bold py-3 px-7 rounded-md flex justify-center items-center hover:bg-yellow-400"
@@ -147,7 +147,7 @@ const SignInForm = () => {
       </form>
 
       <div>
-        <p className="text-center mt-4 text-gray-500">
+        <p className="text-center text-gray-500">
           <span>Don&apos;t have an account? </span>
           <Link href="/signup" className="text-red-500 font-semibold">
             Sign up

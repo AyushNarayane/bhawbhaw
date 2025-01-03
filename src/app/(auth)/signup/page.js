@@ -27,7 +27,7 @@ const Signin = () => {
           />
         </div>
       </div>
-      <div className="bg-[white] text-[black] md:basis-1/2 flex-1 flex justify-center items-center max-md:-mt-40 h-full max-lg:w-full">
+      <div className="bg-[white] text-[black] md:basis-1/2 flex-1 flex justify-center items-center max-md:-mt-40 h-screen max-lg:w-full">
         <SignUpForm/>
       </div>
     </div>

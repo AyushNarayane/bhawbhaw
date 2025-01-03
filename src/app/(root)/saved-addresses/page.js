@@ -1,7 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { db } from "../../../../firebaseConfig"; // Adjust path based on your folder structure
 import {
   collection,
   addDoc,
@@ -18,9 +17,10 @@ import {
 } from "../../../redux/addressesSlice";
 import GooglePlacesAutocomplete from "react-google-places-autocomplete";
 import Link from "next/link";
+import { db } from "firebaseConfig";
 
 const SavedAddresses = () => {
-  const [formVisible, setFormVisible] = useState(false);
+  const [formVisible, setFormVisible] = useState(true);
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -34,20 +34,19 @@ const SavedAddresses = () => {
   });
 
   const user = useSelector((state) => state.user);
-  const userId = user.userData.userId; // Access userId dynamically
+  const userId = user.userData?.userId; // Access userId dynamically
   const addresses = useSelector((state) => state.addresses.savedAddresses);
   const dispatch = useDispatch();
 
   // Fetch addresses from Firestore once on page load
   useEffect(() => {
+    if (!userId) {
+      console.error("User ID is undefined or null");
+      return;
+    }
 
-        if (!userId) {
-          console.error("User ID is undefined or null");
-          return; // Exit early if userId is not available
-        }
-      
     const fetchAddresses = async () => {
-      const addressesRef = collection(db, "saved_addresses", userId, "addresses"); // Correct path
+      const addressesRef = collection(db, "saved_addresses", userId); // Corrected reference
       const querySnapshot = await getDocs(addressesRef);
       const fetchedAddresses = querySnapshot.docs.map((doc) => ({
         id: doc.id,
@@ -61,9 +60,41 @@ const SavedAddresses = () => {
 
   // Add new address to Firestore and Redux
   const handleAddAddress = async () => {
-    const addressesRef = collection(db, "saved_addresses", userId, "addresses");
-    const docRef = await addDoc(addressesRef, formData); // Add to the user's 'addresses' subcollection
-    dispatch(addAddress({ id: docRef.id, ...formData }));
+    try {
+      const addressesRef = collection(db, "saved_addresses", userId); // Corrected reference
+      const docRef = await addDoc(addressesRef, formData);
+      dispatch(addAddress({ id: docRef.id, ...formData }));
+      resetForm();
+    } catch (error) {
+      console.error("Error adding address:", error);
+    }
+  };
+
+  // Update address in Firestore and Redux
+  const handleUpdateAddress = async () => {
+    try {
+      const addressRef = doc(db, "saved_addresses", userId); // Corrected reference
+      await updateDoc(addressRef, formData);
+      dispatch(editAddress(formData));
+      resetForm();
+    } catch (error) {
+      console.error("Error updating address:", error);
+    }
+  };
+
+  // Delete address
+  const handleDeleteAddress = async (id) => {
+    try {
+      const addressRef = doc(db, "saved_addresses", userId); // Corrected reference
+      await deleteDoc(addressRef);
+      dispatch(deleteAddress(id));
+    } catch (error) {
+      console.error("Error deleting address:", error);
+    }
+  };
+
+  // Reset form
+  const resetForm = () => {
     setFormData({
       firstName: "",
       lastName: "",
@@ -76,27 +107,6 @@ const SavedAddresses = () => {
       longitude: "",
     });
     setFormVisible(false);
-  };
-
-  // Edit existing address
-  const handleEditAddress = (address) => {
-    setFormData(address);
-    setFormVisible(true);
-  };
-
-  // Update address in Firestore and Redux
-  const handleUpdateAddress = async () => {
-    const addressRef = doc(db, "saved_addresses", userId, "addresses", formData.id);
-    await updateDoc(addressRef, formData); // Update the address in the user's 'addresses' subcollection
-    dispatch(editAddress(formData));
-    setFormVisible(false);
-  };
-
-  // Delete address
-  const handleDeleteAddress = async (id) => {
-    const addressRef = doc(db, "saved_addresses", userId, "addresses", id);
-    await deleteDoc(addressRef); // Delete from the user's 'addresses' subcollection
-    dispatch(deleteAddress(id));
   };
 
   return (
@@ -172,16 +182,14 @@ const SavedAddresses = () => {
       )}
 
       {/* List of Addresses */}
-      
-
       <div className="w-full max-w-3xl space-y-4">
-      <div className="flex justify-end">
-  <Link href="./checkout">
-    <button className="flex items-center bg-[#E57A7A] text-white px-8 py-1 rounded-2xl">
-      <p>Proceed to Checkout</p>
-    </button>
-  </Link>
-</div>
+        <div className="flex justify-end">
+          <Link href="./checkout">
+            <button className="flex items-center bg-[#E57A7A] text-white px-8 py-1 rounded-2xl">
+              <p>Proceed to Checkout</p>
+            </button>
+          </Link>
+        </div>
 
         {addresses.map((address) => (
           <div
@@ -215,6 +223,9 @@ const SavedAddresses = () => {
 };
 
 export default SavedAddresses;
+
+
+
 // "use client";
 // import React, { useEffect, useState } from "react";
 // import { useDispatch, useSelector } from "react-redux";
