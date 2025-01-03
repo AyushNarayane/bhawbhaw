@@ -73,7 +73,7 @@ const SignInForm = () => {
   };
 
   return (
-    <div className="bg-white p-6 h-80 lg:h-3/4 rounded-3xl shadow-xl w-11/12 max-w-lg mx-auto mb-6 lg:mb-8 flex flex-col justify-evenly overflow-y-auto">
+    <div className="bg-white p-6 h-[600px] md:h-80 lg:h-3/4 rounded-3xl shadow-xl w-11/12 max-w-lg mx-auto mb-6 lg:mb-8 flex flex-col justify-evenly overflow-y-auto">
       <Toaster />
       <div className="flex justify-start">
         <Link href="/">
@@ -137,7 +137,7 @@ const SignInForm = () => {
         <div className="w-full flex justify-center mt-4">
           <button
             type="submit"
-            className="w-full lg:w-fit lg:rounded-full bg-red-500 text-white font-bold py-3 px-7 rounded-md flex justify-center items-center hover:bg-yellow-400"
+            className="w-fit rounded-full bg-red-500 text-white font-bold py-3 px-7 flex justify-center items-center hover:bg-yellow-400"
             disabled={loading}
           >
             <span>{loading ? "Signing In..." : "SIGN IN"}</span>
