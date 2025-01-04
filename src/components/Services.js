@@ -15,7 +15,7 @@ export default function Services() {
       .catch((error) => console.error('Error fetching services:', error));
   }, []);
 
-  const categories = ["All", "Grooming", "Pet Cleaning", "Training"];
+  const categories = ["All", "Trainer", "Groomer", "Dog Walker"];
 
   const filteredServices = selectedCategory === "All"
     ? services
@@ -69,7 +69,8 @@ function ServiceCard({ service }) {
       return;
     }
     dispatch(setSelectedService(service));
-    router.push('/book-service');
+    // router.push('/book-service');
+    router.push('/service-providers');
   };
 
   return (

@@ -44,7 +44,7 @@ const ProductCard = ({ product, isRecommendation = false }) => {
     try {
       const cartRef = doc(db, 'cart', user);
       const cartDoc = await getDoc(cartRef);
-      
+
       if (cartDoc.exists()) {
         const cartData = cartDoc.data();
         const existingProduct = cartData.items.find(item => item.productId === product.productId);
@@ -150,7 +150,7 @@ const ProductCard = ({ product, isRecommendation = false }) => {
       {/* Product Details */}
       <div className="py-4">
         <div className="flex justify-between items-center mb-2">
-          <h3 className="font-black text-sm text-[#2C2C2C]">{product.title}</h3>
+          <button onClick={handleBuyAction} className="font-black text-sm text-[#2C2C2C] hover:underline underline-offset-2">{product.title}</button>
           <div className="flex flex-col items-end">
             <span className="text-sm font-semibold text-gray-800">
               ₹{product.sellingPrice}

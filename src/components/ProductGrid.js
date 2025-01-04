@@ -99,7 +99,7 @@ const ProductGrid = () => {
 
         {/* Product Grid Section */}
         <div className="w-full p-4">
-          <div className="flex justify-between gap-5 flex-wrap">
+          <div className="flex justify-start gap-5 flex-wrap">
             {displayedProducts.map((product) => (
               <ProductCard
                 key={product.productId}

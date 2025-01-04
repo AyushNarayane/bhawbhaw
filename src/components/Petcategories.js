@@ -12,6 +12,33 @@ const pets = [
   { name: 'Other Pets', img: '/images/hero/other.png' }
 ];
 
+const categories = [
+  { name: "Caller and Harness" },
+  { name: "Crates" },
+  { name: "Ticks and Flea" },
+  { name: "Grooming Supply" },
+  { name: "Treats" },
+  { name: "Clothing and Shoes" },
+  { name: "Cleaning Supplies" },
+  { name: "Puppy Supplies" },
+  { name: "Bowls and Feeders" },
+  { name: "Training and Behaviour" },
+  { name: "Pet Food" },
+  { name: "Pet Furnitures" },
+  { name: "Aquariums and Tanks" },
+  { name: "Illuminations" },
+  { name: "Heaters, and Regulators" },
+  { name: "Equipment and Ornaments" },
+  { name: "Water Plants" },
+  { name: "Health Treatments" },
+  { name: "Aquarium Services and Maintenance" },
+  { name: "Fish Food and Aquarium Food" },
+  { name: "Aerators, Filters, and Pumps" },
+  { name: "Measuring Instruments" },
+  { name: "Natural and Artificial Stones, Pebbles" },
+  { name: "Fertilizers and Plant Protection" }
+];
+
 const filterButtons = ["All", "Foods", "Clothes", "Toys", "Vitamins", "Shampoo", "Collars", "Bowls", "Beds", "Treats", "Containers"];
 
 const PetCategories = () => {
@@ -46,26 +73,20 @@ const PetCategories = () => {
 
       {/* Category Section */}
       <div className="w-full">
-        <h3 className='text-2xl mb-6 font-semibold text-black'>Categories</h3>
-        <div className="flex justify-center gap-5 flex-wrap w-full overflow-x-auto pb-4">
-          {/* Category Cards */}
-          {pets.map((category, index) => (
+        <h3 className="text-2xl mb-4 font-semibold text-black text-center">Categories</h3>
+        <div className="flex justify-center gap-3 flex-wrap w-full pb-2">
+          {categories.map((category, index) => (
             <div
               key={index}
-              className="flex flex-col items-center bg-[#F3EAE7] rounded-lg p-4 w-32 md:w-56"
+              className="flex items-center justify-center cursor-pointer bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-md px-4 py-2 shadow-sm transition-all duration-200 text-sm"
             >
-              <Image
-                height={100}
-                width={100}
-                src={category.img}
-                alt={category.name}
-                className="size-16 md:size-24 object-contain"
-              />
-              <span className="mt-2 text-black font-medium">{category.name}</span>
+              {category.name}
             </div>
           ))}
         </div>
       </div>
+
+      <div className='w-full h-px bg-gray-300 mt-4'/>
 
       {/* Filter Section with Images and Divider */}
       <div className="flex items-center mt-4 space-x-4 flex-wrap justify-center gap-4 pb-2">

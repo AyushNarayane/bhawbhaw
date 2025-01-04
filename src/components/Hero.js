@@ -2,10 +2,11 @@ import React from 'react';
 
 const PetPromoBanner = () => {
   const services = [
-    { icon: "/images/Home/service1.png", title: "Pet Grooming" },
-    { icon: "/images/Home/service2.png", title: "Pet Cleaning" },
-    { icon: "/images/Home/service3.png", title: "Pet Healthcare" },
-    { icon: "/images/Home/service4.png", title: "Clothing and Shoes" },
+    { icon: "/images/Home/service1.png", title: "Pet Day Care" },
+    { icon: "/images/Home/service2.png", title: "Veterinary" },
+    { icon: "/images/Home/service3.png", title: "Pet Cafe" },
+    { icon: "/images/Home/service4.png", title: "Dog Adoption" },
+    { icon: "/images/Home/service5.png", title: "Rescue a Dog" },
   ];
 
   return (
@@ -63,44 +64,32 @@ const PetPromoBanner = () => {
                 alt={service.title}
                 className="w-20 h-20 md:w-32 md:h-32 object-contain mb-4"
               />
-              <p className="text-center text-md md:text-base text-gray-800 font-normal">
+              <p className="text-center text-md font-semibold font-poppins md:text-base text-gray-800">
                 {service.title}
               </p>
             </div>
           ))}
-          <div
-              className="w-36 h-36 md:w-40 md:h-40 flex flex-col items-center justify-center bg-white transition transform hover:scale-105"
-            >
-              <img
-                src="/images/Home/service5.png"
-                alt="Expert Services for pet"
-                className="w-20 h-20 md:w-32 md:h-32 sm:mt-6 mt-0 object-contain mb-4"
-              />
-              <p className="text-center text-md md:text-base text-gray-800 font-normal">
-              Expert Services for pet
-            </p>
-          </div>
           <img
-                src="/images/Home/line.png"
-                alt="Expert Services for pet"
-                className="absolute left-0 -top-20 w-20 h-20 md:w-32 md:h-32 sm:mt-6 mt-0 object-contain mb-4"
-              />
-            <img
-                src="/images/Home/line.png"
-                alt="Expert Services for pet"
-                className="absolute right-20 top-4 w-20 h-20 md:w-32 md:h-32 sm:mt-6 mt-0 object-contain mb-4"
-              />
-            <img
-                src="/images/Home/star.png"
-                alt="Expert Services for pet"
-                className="absolute top-0 right-10 w-10 md:h-10 sm:mt-6 mt-0 object-contain mb-4"
-              />
-            <img
-                src="/images/Home/star.png"
-                alt="Expert Services for pet"
-                className="absolute top-8 left-10 w-10 md:h-10 sm:mt-6 mt-0 object-contain mb-4"
-              />  
-          </div>
+            src="/images/Home/line.png"
+            alt="Expert Services for pet"
+            className="absolute left-0 -top-20 w-20 h-20 md:w-32 md:h-32 sm:mt-6 mt-0 object-contain mb-4"
+          />
+          <img
+            src="/images/Home/line.png"
+            alt="Expert Services for pet"
+            className="absolute right-20 top-4 w-20 h-20 md:w-32 md:h-32 sm:mt-6 mt-0 object-contain mb-4"
+          />
+          <img
+            src="/images/Home/star.png"
+            alt="Expert Services for pet"
+            className="absolute top-0 right-10 w-10 md:h-10 sm:mt-6 mt-0 object-contain mb-4"
+          />
+          <img
+            src="/images/Home/star.png"
+            alt="Expert Services for pet"
+            className="absolute top-8 left-10 w-10 md:h-10 sm:mt-6 mt-0 object-contain mb-4"
+          />
+        </div>
       </section>
     </>
   );
