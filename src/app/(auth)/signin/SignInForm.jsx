@@ -34,36 +34,38 @@ const SignInForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-
+  
     try {
       const usersRef = collection(db, "users");
       const q = query(usersRef, where("email", "==", email));
       const querySnapshot = await getDocs(q);
-
+  
       if (querySnapshot.empty) {
         toast.error("No user found with this email");
         setLoading(false);
         return;
       }
-
+  
       const userDoc = querySnapshot.docs[0];
       const userEmail = userDoc.data().email;
-
+  
       await signInWithEmailAndPassword(auth, userEmail, password);
-
-      dispatch(
-        setUser({
-          userData: {
-            name: userDoc.data().name,
-            email: email,
-          },
-          userId: userDoc.id,
-        })
-      );
-
+  
+      const userData = {
+        name: userDoc.data().username,
+        email: email,
+        userId: userDoc.id,
+      };
+  
+      // Save user data to Redux
+      dispatch(setUser({ userData }));
+  
+      // Save user data to localStorage
+      localStorage.setItem("user", JSON.stringify(userData));
+  
       toast.success("Login successful");
       router.push("/");
-
+  
     } catch (error) {
       console.error("Error signing in:", error);
       toast.error("An error occurred during login");
@@ -71,6 +73,27 @@ const SignInForm = () => {
       setLoading(false);
     }
   };
+  
+  // Check user state on app load
+  useEffect(() => {
+    const storedUser = localStorage.getItem("user");
+  
+    if (storedUser) {
+      const userData = JSON.parse(storedUser);
+  
+      dispatch(
+        setUser({
+          userData: {
+            name: userData.name,
+            email: userData.email,
+          },
+          userId: userData.userId,
+        })
+      );
+  
+      router.push("/"); // Redirect to home if user is already signed in
+    }
+  }, [dispatch, router]);  
 
   return (
     <div className="bg-white p-6 h-[600px] md:h-80 lg:h-3/4 rounded-3xl shadow-xl w-11/12 max-w-lg mx-auto mb-6 lg:mb-8 flex flex-col justify-evenly overflow-y-auto">

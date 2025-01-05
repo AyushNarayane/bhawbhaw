@@ -38,10 +38,10 @@ const ProfileDropdown = () => {
             <Link href="/profile" className="block px-4 py-2 text-gray-800 hover:bg-gray-100">
               Profile
             </Link>
-            <Link href="/saved-address" className="block px-4 py-2 text-gray-800 hover:bg-gray-100">
+            <Link href="/saved-addresses" className="block px-4 py-2 text-gray-800 hover:bg-gray-100">
               Saved Address
             </Link>
-            <Link href="/orders" className="block px-4 py-2 text-gray-800 hover:bg-gray-100">
+            <Link href="/my-orders" className="block px-4 py-2 text-gray-800 hover:bg-gray-100">
               Orders
             </Link>
             <button

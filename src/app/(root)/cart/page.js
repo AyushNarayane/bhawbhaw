@@ -76,30 +76,30 @@ const Cart = () => {
       toast.error("Please log in to delete products from your cart.");
       return;
     }
-  
+
     try {
       const cartRef = doc(db, 'cart', user);
       const cartDoc = await getDoc(cartRef);
-  
+
       if (cartDoc.exists()) {
         const cartData = cartDoc.data();
         const updatedItems = cartData.items.filter(cartItem => cartItem.productId !== item.productId);
-  
+
         if (updatedItems.length === cartData.items.length) {
           toast.error("Product not found in the cart.");
           return;
         }
-  
+
         await setDoc(cartRef, { items: updatedItems }, { merge: true });
         setCartItems(updatedItems);
-  
+
         toast.success("Product removed from cart");
       }
     } catch (error) {
       console.error("Error removing product from cart:", error);
       toast.error("Failed to remove product from cart");
     }
-  }  
+  }
 
   const handleQuantityChange = async (id, change) => {
     if (!user) {
@@ -140,20 +140,21 @@ const Cart = () => {
       toast.error("Failed to update product quantity");
     }
   }
-
+  
   const handleApplyCoupon = async () => {
     if (!coupon) return;
-
+    
     try {
       setValidatingCoupon(true);
       const response = await fetch(`/api/coupons/getCouponsByTitle?couponTitle=${coupon}`);
-
+      
       if (!response.ok) {
         if (response.status === 404) {
           setIsPopupVisible1(true);
           dispatch(setDiscount(0)); // Reset discount if coupon not found
         } else {
           setError("Error applying coupon");
+          toast.error("Error applying coupon");
         }
         return;
       }
@@ -270,14 +271,6 @@ const Cart = () => {
           <button className="w-full bg-[#E57A7A] text-white py-3 rounded-full mt-4" onClick={handleProceedToCheckout}>
             <p>Proceed to Checkout</p>
           </button>
-          <Link href="/my-orders">
-            <button
-              className="w-full bg-[#E57A7A] text-white py-3 rounded-full mt-4"
-
-            >
-              View My Orders
-            </button>
-          </Link>
         </div>
       </div>
 
