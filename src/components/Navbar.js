@@ -2,15 +2,16 @@
 import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { FiMenu } from "react-icons/fi";
-import { useSelector, useDispatch } from "react-redux";
+import { useDispatch } from "react-redux";
 import { useRouter } from "next/navigation";
-import { clearUser } from "@/redux/userSlice";
+import { setUser } from "@/redux/userSlice";
 import Image from "next/image";
 import ProfileDropdown from "./ProfileDropdown";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const user = useSelector((state) => state.user.userId);
+  const [user, setUserLocal] = useState(null); // Local state to track user
+  const [isLoading, setIsLoading] = useState(true); // Loading state to check user in local storage
   const dispatch = useDispatch();
   const router = useRouter();
   const drawerRef = useRef(null);
@@ -19,13 +20,19 @@ const Navbar = () => {
     setIsOpen(!isOpen);
   };
 
-  const onLogout = () => {
-    dispatch(clearUser());
-    router.push("/signin");
-  };
-
-  // Close drawer when clicking outside
   useEffect(() => {
+    const storedUser = JSON.parse(localStorage.getItem("user"));
+
+    if (storedUser?.userId) {
+      setUserLocal(storedUser); // Set user in local state
+      dispatch(setUser(storedUser)); // Set user in Redux
+    } else {
+      setUserLocal(null);
+      router.push("/signin"); // Redirect to signin if no user is found
+    }
+
+    setIsLoading(false);
+
     const handleClickOutside = (event) => {
       if (drawerRef.current && !drawerRef.current.contains(event.target)) {
         setIsOpen(false);
@@ -41,7 +48,11 @@ const Navbar = () => {
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [isOpen]);
+  }, [isOpen, dispatch, router]);
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <nav className="bg-white py-5 lg:px-12 sm:px-6 px-2 relative">
@@ -130,13 +141,6 @@ const Navbar = () => {
                   />
                 </button>
               </Link>
-              {/* <button onClick={onLogout}>
-                <img
-                  src="/images/navbar/profile.png"
-                  alt="Profile"
-                  className="w-6 h-6 mb-2"
-                />
-              </button> */}
               <ProfileDropdown />
             </>
           ) : (

@@ -12,6 +12,9 @@ const ProfileDropdown = () => {
 
   const onLogout = () => {
     dispatch(clearUser());
+    localStorage.removeItem("user");
+    sessionStorage.removeItem('reloadDone')
+    location.reload()
     router.push("/signin");
   };
 

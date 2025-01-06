@@ -12,7 +12,8 @@ const ProductCard = ({ product, isRecommendation = false }) => {
   // console.log(product);
 
   const router = useRouter();
-  const user = useSelector(state => state.user.userId);
+  // const user = useSelector(state => state.user.userId);
+  const [user, setUser] = useState(null) // userId
   const dispatch = useDispatch();
   const cartItems = useSelector(state => state.cart.items);
   const wishlistItems = useSelector(state => state.wishlist.items);
@@ -36,6 +37,13 @@ const ProductCard = ({ product, isRecommendation = false }) => {
   }
 
   const handleCartAction = async () => {
+    const storedUser = JSON.parse(localStorage.getItem("user"));
+
+    if (storedUser?.userId) {
+      setUser(storedUser.userId)
+      // dispatch(setUser(storedUser));
+    } 
+
     if (!user) {
       toast.error("Please log in to add products to your cart.");
       return;

@@ -34,38 +34,38 @@ const SignInForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-  
+
     try {
       const usersRef = collection(db, "users");
       const q = query(usersRef, where("email", "==", email));
       const querySnapshot = await getDocs(q);
-  
+
       if (querySnapshot.empty) {
         toast.error("No user found with this email");
         setLoading(false);
         return;
       }
-  
+
       const userDoc = querySnapshot.docs[0];
       const userEmail = userDoc.data().email;
-  
+
       await signInWithEmailAndPassword(auth, userEmail, password);
-  
+
       const userData = {
         name: userDoc.data().username,
         email: email,
         userId: userDoc.id,
       };
-  
+
       // Save user data to Redux
       dispatch(setUser({ userData }));
-  
+
       // Save user data to localStorage
       localStorage.setItem("user", JSON.stringify(userData));
-  
+
       toast.success("Login successful");
       router.push("/");
-  
+
     } catch (error) {
       console.error("Error signing in:", error);
       toast.error("An error occurred during login");
@@ -73,14 +73,14 @@ const SignInForm = () => {
       setLoading(false);
     }
   };
-  
+
   // Check user state on app load
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
-  
+
     if (storedUser) {
       const userData = JSON.parse(storedUser);
-  
+
       dispatch(
         setUser({
           userData: {
@@ -90,27 +90,29 @@ const SignInForm = () => {
           userId: userData.userId,
         })
       );
-  
+
       router.push("/"); // Redirect to home if user is already signed in
     }
-  }, [dispatch, router]);  
+  }, [dispatch, router]);
 
   return (
-    <div className="bg-white p-6 h-[600px] md:h-80 lg:h-3/4 rounded-3xl shadow-xl w-11/12 max-w-lg mx-auto mb-6 lg:mb-8 flex flex-col justify-evenly overflow-y-auto">
+    <div className="bg-white px-6 py-10 h-fit rounded-3xl shadow-xl w-11/12 max-w-lg mx-auto mb-6 lg:mb-8 flex flex-col justify-around">
       <Toaster />
-      <div className="flex justify-start">
-        <Link href="/">
-          <Image
-            src={logo}
-            alt="Logo"
-            width={150}
-            height={150}
-            className="cursor-pointer"
-          />
-        </Link>
+      <div className="flex flex-col mb-4">
+        <div className="flex justify-start">
+          <Link href="/">
+            <Image
+              src={logo}
+              alt="Logo"
+              width={150}
+              height={150}
+              className="cursor-pointer"
+            />
+          </Link>
+        </div>
+        <h2 className="text-left text-lg text-baw-light-gray">Welcome back!!!</h2>
+        <h1 className="text-left text-4xl font-bold">Sign in</h1>
       </div>
-      <h2 className="text-left text-lg text-baw-light-gray">Welcome back!!!</h2>
-      <h1 className="text-left text-4xl font-bold">Sign in</h1>
       <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
         <div className="">
           <label className="block text-black text-sm mb-2 font-poppins" htmlFor="email">
@@ -167,9 +169,8 @@ const SignInForm = () => {
             <span className="ml-2">➔</span>
           </button>
         </div>
-      </form>
 
-      <div>
+        <div>
         <p className="text-center text-gray-500">
           <span>Don&apos;t have an account? </span>
           <Link href="/signup" className="text-red-500 font-semibold">
@@ -177,6 +178,9 @@ const SignInForm = () => {
           </Link>
         </p>
       </div>
+      </form>
+
+      
     </div>
   );
 };

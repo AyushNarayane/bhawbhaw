@@ -58,8 +58,9 @@ const SignUpForm = () => {
   };
 
   return (
-    <div className="bg-white p-6 h-[700px] md:h-80 lg:h-3/4 rounded-3xl shadow-xl w-11/12 max-w-lg mx-auto mb-6 lg:mb-8 flex flex-col justify-evenly overflow-y-auto">
+    <div className="bg-white p-6 h-fit rounded-3xl shadow-xl w-11/12 max-w-lg mx-auto mb-6 lg:mb-8 flex flex-col justify-around">
       <Toaster />
+      <div className="flex flex-col mb-4">
       <div className="flex justify-start">
         <Link href="/">
           <Image
@@ -73,6 +74,7 @@ const SignUpForm = () => {
       </div>
       <h2 className="text-left text-base text-gray-500 md:mb-3">Create Your Account !!!</h2>
       <h1 className="text-left text-4xl font-bold md:mb-4">Sign Up</h1>
+      </div>
       <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
         <div>
           <label className="block text-black text-sm lg:text-base mb-1 font-poppins" htmlFor="username">
