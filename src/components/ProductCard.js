@@ -7,13 +7,14 @@ import toast from 'react-hot-toast';
 import Image from "next/image";
 import { db } from "firebaseConfig";
 import { doc, getDoc, setDoc } from "firebase/firestore";
+import { setUser } from "@/redux/userSlice";
 
 const ProductCard = ({ product, isRecommendation = false }) => {
   // console.log(product);
 
   const router = useRouter();
   // const user = useSelector(state => state.user.userId);
-  const [user, setUser] = useState(null) // userId
+  const [user, setUserLocal] = useState(null) // userId
   const dispatch = useDispatch();
   const cartItems = useSelector(state => state.cart.items);
   const wishlistItems = useSelector(state => state.wishlist.items);
@@ -23,6 +24,21 @@ const ProductCard = ({ product, isRecommendation = false }) => {
   useEffect(() => {
     setIsProductInCart(cartItems.some(item => item.id === product.id));
     setIsInWishlist(wishlistItems.some(item => item.id === product.id));
+
+    const storedUser = JSON.parse(localStorage.getItem("user"));
+
+    if (storedUser?.userId) {
+      setUserLocal(storedUser.userId)
+      dispatch(
+        setUser({
+          userData: {
+            name: storedUser.name,
+            email: storedUser.email,
+          },
+          userId: storedUser.userId,
+        })
+      );
+    }
   }, [cartItems, wishlistItems, product.productId, product.id]);
 
   const handleBuyAction = () => {
@@ -37,12 +53,6 @@ const ProductCard = ({ product, isRecommendation = false }) => {
   }
 
   const handleCartAction = async () => {
-    const storedUser = JSON.parse(localStorage.getItem("user"));
-
-    if (storedUser?.userId) {
-      setUser(storedUser.userId)
-      // dispatch(setUser(storedUser));
-    } 
 
     if (!user) {
       toast.error("Please log in to add products to your cart.");

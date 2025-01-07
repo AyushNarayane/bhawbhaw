@@ -21,15 +21,15 @@ const SignInForm = () => {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      if (currentUser && user?.name) {
-        toast.success("Already logged in");
-        router.push("/");
-      }
-    });
-    return () => unsubscribe();
-  }, [user, router]);
+  // useEffect(() => {
+  //   const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+  //     if (currentUser && user?.name) {
+  //       toast.success("Already logged in");
+  //       router.push("/");
+  //     }
+  //   });
+  //   return () => unsubscribe();
+  // }, [user, router]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
