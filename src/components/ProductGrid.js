@@ -33,9 +33,9 @@ const ProductGrid = () => {
   }, []);
 
   useEffect(() => {
-    const storedUser = JSON.parse(localStorage.getItem('currentUser'));
+    const storedUser = JSON.parse(localStorage.getItem('user'));
     if (storedUser) {
-      setUserId(storedUser.uid); // Set user ID from session storage
+      setUserId(storedUser.userId); // Set user ID from local storage
     }
   }, []);
 

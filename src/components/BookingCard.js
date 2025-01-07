@@ -30,9 +30,8 @@ const BookingCard = ({ booking }) => {
             <p className="text-sm">
               <span className="text-[#676767]">STATUS: </span>
               <span
-                className={`font-semibold ${
-                  booking.status === 'incoming' ? 'text-green-600' : 'text-red-600'
-                }`}
+                className={`font-semibold ${booking.status === 'incoming' ? 'text-green-600' : 'text-red-600'
+                  }`}
               >
                 {booking.status.toUpperCase()}
               </span>
@@ -40,21 +39,21 @@ const BookingCard = ({ booking }) => {
           </div>
         </div>
 
-       {/* Right Section */}
-            <div className="ml-auto flex">
-            <div className="mt-4 md:mt-0 flex flex-col items-end justify-between">
-                <div className="text-right">
-                <p className="text-sm text-[#676767]">
-                    BOOKED AT: 
-                    <span className="font-semibold text-black">{new Date(booking.selectedService.createdAt).toLocaleDateString()}</span>
-                </p>
-                <p className="text-sm text-[#676767]">
-                    CONTACT: 
-                    <span className="font-semibold text-black">{booking.selectedService.phoneNumber}</span>
-                </p>
-                </div>
+        {/* Right Section */}
+        <div className="ml-auto flex">
+          <div className="mt-4 md:mt-0 flex flex-col items-end justify-between">
+            <div className="text-right">
+              <p className="text-sm text-[#676767]">
+                BOOKED AT:
+                <span className="font-semibold text-black"> {new Date(booking.selectedService.createdAt).toLocaleDateString()}</span>
+              </p>
+              <p className="text-sm text-[#676767]">
+                CONTACT:
+                <span className="font-semibold text-black"> {booking.selectedService.phoneNumber}</span>
+              </p>
             </div>
-            </div>
+          </div>
+        </div>
 
       </div>
     </div>

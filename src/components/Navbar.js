@@ -10,7 +10,7 @@ import ProfileDropdown from "./ProfileDropdown";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const user = useSelector((state)=>state.user.userId)
+  const user = useSelector((state) => state.user.userId)
   // const [user, setUserLocal] = useState(null); // Local state to track user
   // const [isLoading, setIsLoading] = useState(true); // Loading state to check user in local storage
   const dispatch = useDispatch();
@@ -20,20 +20,22 @@ const Navbar = () => {
   const toggleDrawer = () => {
     setIsOpen(!isOpen);
   };
-console.log(user);
+  console.log(user);
 
   useEffect(() => {
-    const storedUser = JSON.parse(localStorage.getItem("user"));
-
+    // const storedUser = JSON.parse(localStorage.getItem("user"));
     // if (storedUser?.userId) {
-    //   setUserLocal(storedUser); // Set user in local state
-    //   dispatch(setUser(storedUser)); // Set user in Redux
-    // } else {
-    //   setUserLocal(null);
-    //   router.push("/signin"); // Redirect to signin if no user is found
+    //   dispatch(
+    //     setUser({
+    //       userData: {
+    //         name: storedUser.name,
+    //         email: storedUser.email,
+    //       },
+    //       userId: storedUser.userId,
+    //     })
+    //   );
     // }
-
-  }, [])
+  }, [dispatch]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {

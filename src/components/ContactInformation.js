@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 
-const ContactInformation = ({ nextStep, handleFormDataChange, formData }) => {
+const ContactInformation = ({ nextStep, handleFormDataChange, formData ,savedAddresses}) => {
   const [selectedAddress, setSelectedAddress] = useState('');
-  const savedAddresses = useSelector((state) => state.addresses.savedAddresses); // Get saved addresses from Redux
+  // const savedAddresses = useSelector((state) => state.addresses.savedAddresses); // Get saved addresses from Redux
 
   // Handle selecting an address from the dropdown
   const handleAddressSelect = (addressId) => {
@@ -44,6 +44,7 @@ const ContactInformation = ({ nextStep, handleFormDataChange, formData }) => {
           <label className="text-sm text-gray-700">Full Name</label>
           <input
             type="text"
+            // disabled
             value={formData.fullName}
             onChange={(e) => handleFormDataChange({ ...formData, fullName: e.target.value })}
             className="mt-1 block text-black w-full rounded-md outline-none p-2 h-12 bg-[#F6F7FB]"
@@ -66,6 +67,7 @@ const ContactInformation = ({ nextStep, handleFormDataChange, formData }) => {
           <label className="text-sm text-gray-700">Address</label>
           <input
             type="text"
+            // disabled
             value={formData.address}
             onChange={(e) => handleFormDataChange({ ...formData, address: e.target.value })}
             className="mt-1 block text-black w-full rounded-md outline-none p-2 h-12 bg-[#F6F7FB]"

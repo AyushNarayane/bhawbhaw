@@ -33,7 +33,7 @@ const Cart = () => {
     const fetchCartItems = async () => {
       try {
         if (!user) {
-          router.push('/login')
+          router.push('/signin')
           return;
         }
 

@@ -29,16 +29,16 @@ const PetJoySection = () => {
         {/* Circular Images */}
         <div className="absolute w-[300px] h-[200px] md:w-[600px] md:h-[400px] flex items-center justify-center">
           {/* Top Image */}
-          <div className="absolute -top-24 lg:-top-16 left-1/2 transform -translate-x-1/2 w-20 h-20 md:w-28 md:h-28 rounded-full border-4 md:border-8 border-[#e57373] overflow-hidden hidden lg:block">
+          <div className="absolute -top-24 lg:-top-20 left-1/2 transform -translate-x-1/2 w-20 h-20 md:w-28 md:h-28 rounded-full border-4 md:border-8 border-[#e57373] overflow-hidden hidden lg:block">
             <Image
               height={120}
               width={120}
               src="/images/services/pet2.png"
-              alt="Pet 1"
+              alt="Pet 2"
               className="object-cover w-full h-full"
             />
           </div>
-          <span className="absolute -top-6 left-48 transform -translate-x-1/2 mt-2 bg-white text-[#4D413E] px-2 text-base font-semibold hidden lg:block">
+          <span className="absolute -top-10 left-48 transform -translate-x-1/2 mt-2 bg-white text-[#4D413E] px-2 text-base font-semibold hidden lg:block">
             Groomer
           </span>
 
@@ -71,7 +71,7 @@ const PetJoySection = () => {
           </span>
 
           {/* Top Left Image */}
-          <div className="absolute -top-2 md:-top-3 -left-6 md:-left-10 w-24 h-24 md:w-40 md:h-40 rounded-full border-4 md:border-8 border-[#febf03] overflow-hidden hidden lg:block">
+          <div className="absolute -top-2 md:-top-3 -left-6 md:-left-12 w-24 h-24 md:w-40 md:h-40 rounded-full border-4 md:border-8 border-[#febf03] overflow-hidden hidden lg:block">
             <Image
               height={120}
               width={120}
@@ -80,12 +80,12 @@ const PetJoySection = () => {
               className="object-cover w-full h-full"
             />
           </div>
-          <span className="absolute -left-32 top-16 ml-3 bg-white text-[#4D413E] px-2 text-base font-semibold hidden lg:block">
+          <span className="absolute -left-36 top-16 ml-3 bg-white text-[#4D413E] px-2 text-base font-semibold hidden lg:block">
             Trainer
           </span>
 
           {/* Top Right Image */}
-          <div className="absolute -top-1 md:-top-0 right-2 md:right-4 w-20 h-20 md:w-28 md:h-28 rounded-full border-4 md:border-8 border-[#febf03] overflow-hidden hidden lg:block">
+          <div className="absolute -top-1 md:-top-0 right-2 md:right-0 w-20 h-20 md:w-28 md:h-28 rounded-full border-4 md:border-8 border-[#febf03] overflow-hidden hidden lg:block">
             <Image
               height={120}
               width={120}
@@ -94,7 +94,7 @@ const PetJoySection = () => {
               className="object-cover w-full h-full"
             />
           </div>
-          <span className="absolute -right-24 top-12 mr-3 bg-white text-[#4D413E] px-2 text-base font-semibold hidden lg:block">
+          <span className="absolute -right-28 top-12 mr-3 bg-white text-[#4D413E] px-2 text-base font-semibold hidden lg:block">
             Day Care
           </span>
 

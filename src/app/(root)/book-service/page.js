@@ -8,12 +8,14 @@ import { db } from "../../../../firebaseConfig";
 import { useRouter } from 'next/navigation';
 import { useDispatch, useSelector } from 'react-redux';
 import toast from 'react-hot-toast';
-import { clearBookingData, setCalendarAndSlot, setContactInfo } from '@/redux/serviceSlice';
+import { clearBookingData, setCalendarAndSlot, setContactInfo, setSelectedService } from '@/redux/serviceSlice';
+import { clearUser, setUser } from '@/redux/userSlice';
 
 const MultiStepForm = () => {
   const router = useRouter();
   const dispatch = useDispatch();
-  const userId = useSelector((state) => state.user.userId);
+  // const userId = useSelector((state) => state.user.userId);
+  const [userId, setUserId] = useState()
   const selectedService = useSelector((state) => state.service.selectedService);
 
   const [step, setStep] = useState(1);
@@ -27,18 +29,25 @@ const MultiStepForm = () => {
   const [savedAddresses, setSavedAddresses] = useState([]);
 
   useEffect(() => {
-    if (!selectedService) {
-      // router.push('/');
+    const user = JSON.parse(localStorage.getItem('user'))
+
+    if (!user) {
+      router.push('/');
+      dispatch(clearUser())
+      return;
+    } else {
+      setUserId(user.userId)
     }
 
     // Fetch saved addresses from Firestore
     const fetchSavedAddresses = async () => {
       try {
-        const userDoc = doc(db, "users", userId);
-        const userSnapshot = await getDoc(userDoc);
-        if (userSnapshot.exists()) {
-          const userData = userSnapshot.data();
-          setSavedAddresses(userData.savedAddresses || []); // Assuming the addresses are stored in the `savedAddresses` field
+        const addressRef = doc(db, 'saved_addresses', userId);
+        const userDoc = await getDoc(addressRef)
+
+        if (userDoc.exists()) {
+          const data = userDoc.data()
+          setSavedAddresses(data.addresses)
         }
       } catch (error) {
         console.error("Error fetching saved addresses:", error);
@@ -109,16 +118,21 @@ const MultiStepForm = () => {
 
     if (response.ok) {
       toast.success('Booking successful');
+      dispatch(setSelectedService(null))
       dispatch(clearBookingData());
     } else {
       console.error('Booking failed');
     }
   };
 
+  console.log(selectedService);
+
   return (
     <div className="flex px-10 flex-col bg-white items-center justify-center font-montserrat">
       <div className="w-full bg-white p-8 rounded-lg">
-        <h2 className="text-2xl font-semibold mb-6 text-black">Book Your Service</h2>
+        <h2 className="text-2xl font-semibold mb-6 text-black">
+          {selectedService ? `Book Your Service for ${selectedService.title}` : 'Book Your Service'}
+        </h2>
 
         <div className="flex items-center mb-8">
           {[1, 2, 3].map((stepNumber) => (
@@ -131,8 +145,8 @@ const MultiStepForm = () => {
                   {stepNumber === 1
                     ? "Contact Information"
                     : stepNumber === 2
-                    ? "Calendar and Slot Choose"
-                    : "Review Information"}
+                      ? "Calendar and Slot Choose"
+                      : "Review Information"}
                 </p>
               </div>
               {stepNumber < 3 && (

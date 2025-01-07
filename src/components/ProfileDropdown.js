@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { useRouter } from "next/navigation";
-import { clearUser } from "@/redux/userSlice";
+import { clearUser, setUser } from "@/redux/userSlice";
 import Link from "next/link";
 import Image from "next/image";
 
@@ -11,8 +11,9 @@ const ProfileDropdown = () => {
   const router = useRouter();
 
   const onLogout = () => {
-    dispatch(clearUser());
+    dispatch(clearUser())
     localStorage.removeItem("user");
+    setIsOpen(false)
     router.push("/signin");
   };
 
