@@ -2,12 +2,11 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from 'next/navigation';
 import { useDispatch, useSelector } from "react-redux";
-import { removeFromCart, updateQuantity, setDiscount } from "@/redux/cartSlice";
+import { setDiscount } from "@/redux/cartSlice";
 import { ClipLoader } from "react-spinners";
-import Link from "next/link"
 import ProtectedHomeRoute from "@/components/ProtectedHomeRoute";
 import { db } from "firebaseConfig";
-import { doc, getDoc, setDoc } from "firebase/firestore";
+import { collection, doc, getDoc, getDocs, query, setDoc, where } from "firebase/firestore";
 import toast, { Toaster } from "react-hot-toast";
 import Image from "next/image";
 
@@ -18,14 +17,20 @@ const Cart = () => {
   const user = useSelector(state => state.user.userId)
   // const subtotal = useSelector((state) => state.cart.subtotal);
   // const total = useSelector((state) => state.cart.total);
-  const discountAmount = useSelector((state) => state.cart.discountAmount);
-  const [coupon, setCoupon] = useState("");
-  const [validatingCoupon, setValidatingCoupon] = useState(false);
-  const [error, setError] = useState("");
+  // const discountAmount = useSelector((state) => state.cart.discountAmount);
+  const [discountAmount, setDiscountAmount] = useState(0)
   const [deliveryFee] = useState(15);
+
+  const [coupon, setCoupon] = useState('');
+  const [coupons, setCoupons] = useState([]);
+  const [showCouponModal, setShowCouponModal] = useState(false);
+  const [validatingCoupon, setValidatingCoupon] = useState(false);
+  const [error, setError] = useState('');
+
   const [isPopupVisible, setIsPopupVisible] = useState(false);
   const [isPopupVisible1, setIsPopupVisible1] = useState(false);
   const [isPopupVisible2, setIsPopupVisible2] = useState(false);
+
   const dispatch = useDispatch();
   const router = useRouter();
 
@@ -48,8 +53,33 @@ const Cart = () => {
       }
     }
 
+    const fetchCoupons = async () => {
+      try {
+        const couponsRef = collection(db, 'coupons');
+        const couponsQuery = query(couponsRef, where('status', '==', 'Active'));
+        const couponsSnapshot = await getDocs(couponsQuery);
+
+        const couponsList = couponsSnapshot.docs.map((doc) => ({
+          id: doc.id,
+          couponTitle: doc.data().couponTitle,
+          discount: doc.data().discount,
+          minPrice: doc.data().minPrice,
+          timesUsed: doc.data().timesUsed,
+          createdAt: doc.data().createdAt,
+        }));
+
+        setCoupons(couponsList);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
     fetchCartItems();
-  }, [user])
+    fetchCoupons();
+  }, [user]);
+
+  // console.log(coupons);
+
 
   useEffect(() => {
     if (cartItems.length !== 0) {
@@ -140,18 +170,19 @@ const Cart = () => {
       toast.error("Failed to update product quantity");
     }
   }
-  
+
   const handleApplyCoupon = async () => {
     if (!coupon) return;
-    
+
     try {
       setValidatingCoupon(true);
       const response = await fetch(`/api/coupons/getCouponsByTitle?couponTitle=${coupon}`);
-      
+
       if (!response.ok) {
         if (response.status === 404) {
           setIsPopupVisible1(true);
-          dispatch(setDiscount(0)); // Reset discount if coupon not found
+          // dispatch(setDiscount(0)); // Reset discount if coupon not found
+          setDiscount(0)
         } else {
           setError("Error applying coupon");
           toast.error("Error applying coupon");
@@ -167,8 +198,10 @@ const Cart = () => {
         return;
       }
 
-      dispatch(setDiscount(couponData.discount));
-      setError("");
+      setDiscountAmount(couponData.discount)
+      setTotal(total - ((subtotal * discountAmount / 100).toFixed(2)))
+      // dispatch(setDiscount(couponData.discount));
+      setError("Coupon Applied");
     } catch (error) {
       console.error("Error applying coupon:", error);
       setError("An error occurred while applying the coupon.");
@@ -232,7 +265,7 @@ const Cart = () => {
             </div>
             <div className="flex justify-between text-[#E57A7A]">
               <span className="text-[#676767] text-sm md:text-lg mb-2">Discount (-{discountAmount}%)</span>
-              {/* <span className="font-bold">-INR {(subtotal * discountAmount / 100).toFixed(2)||`0`}</span> */}
+              <span className="font-bold">-INR {(subtotal * discountAmount / 100).toFixed(2) || `0`}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-[#676767] text-sm md:text-lg mb-1">Delivery Fee</span>
@@ -245,27 +278,86 @@ const Cart = () => {
             <span className="font-bold">INR {total}</span>
           </div>
 
+          {/* COUPONS SECTION */}
           <div className="mt-4 flex flex-col sm:flex-row items-center">
-            <div className="flex items-center bg-[#F0F0F0] rounded-full flex-1 mb-2 sm:mb-0">
-              <img src="images/common/coupon.png" alt="Coupon Icon" className="w-5 h-5 sm:w-6 sm:h-6 mx-2" />
-              <input
-                type="text"
-                className="flex-1 p-2 bg-[#F0F0F0] rounded-full outline-none text-sm"
-                placeholder="Coupon Code"
-                value={coupon}
-                onChange={(e) => setCoupon(e.target.value)}
-              />
+            {/* Coupon Input */}
+            <div className="w-full">
+              <div className="flex w-full items-center bg-[#F0F0F0] rounded-full mb-2 sm:mb-4 p-2">
+                <div className="flex items-center gap-2">
+                  <img
+                    src="images/common/coupon.png"
+                    alt="Coupon Icon"
+                    className="w-5 h-5 sm:w-6 sm:h-6"
+                  />
+                  <input
+                    type="text"
+                    className="p-2 bg-[#F0F0F0] rounded-full outline-none text-sm"
+                    placeholder="Coupon Code"
+                    value={coupon}
+                    onChange={(e) => setCoupon(e.target.value)}
+                  />
+                  <button
+                    className="text-blue-500 text-sm sm:px-4 py-2"
+                    onClick={() => setShowCouponModal(true)}
+                  >
+                    Browse Coupons
+                  </button>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2">
+                {/* Apply Coupon Button */}
+                <button
+                  className="bg-[#E57A7A] text-white px-6 py-2 rounded-full w-full sm:w-auto"
+                  onClick={handleApplyCoupon}
+                  disabled={validatingCoupon}
+                >
+                  {validatingCoupon ? (
+                    <ClipLoader size={20} color="#fff" className="mx-10" />
+                  ) : (
+                    "Apply Coupon"
+                  )}
+                </button>
+              </div>
+
+              {error && <p className="text-red-600 mt-2 text-sm">{error}</p>}
             </div>
-            <button
-              className="bg-[#E57A7A] text-white px-4 lg:mt-0 mt-2 sm:px-6 py-2 rounded-full ml-2"
-              onClick={handleApplyCoupon}
-              disabled={validatingCoupon}
-            >
-              {
-                validatingCoupon ? <ClipLoader size={20} color="#fff" className="mx-10" /> : "Apply Coupon"
-              }
-            </button>
-            {error && <p className="text-red-600 mt-2">{error}</p>}
+
+            {/* Coupon Modal */}
+            {showCouponModal && (
+              <div className="fixed inset-0 flex justify-center items-center bg-black bg-opacity-50">
+                <div className="bg-white rounded-lg w-11/12 md:w-1/2 p-4">
+                  <div className="flex justify-between items-center mb-4">
+                    <h2 className="text-lg font-semibold">Available Coupons</h2>
+                    <button
+                      className="text-red-500 font-semibold"
+                      onClick={() => setShowCouponModal(false)}
+                    >
+                      Close
+                    </button>
+                  </div>
+                  <ul className="space-y-2">
+                    {coupons.length > 0 ? (
+                      coupons.map(c => (
+                        <li
+                          key={c.createdAt}
+                          className="p-2 bg-gray-100 rounded-md cursor-pointer hover:bg-gray-200"
+                          onClick={() => {
+                            setCoupon(c.couponTitle);
+                            setDiscountAmount(c.discount)
+                            setShowCouponModal(false);
+                          }}
+                        >
+                          <p className="font-medium">{c.couponTitle}</p>
+                        </li>
+                      ))
+                    ) : (
+                      <p className="text-sm text-gray-500">No coupons available.</p>
+                    )}
+                  </ul>
+                </div>
+              </div>
+            )}
           </div>
 
           <button className="w-full bg-[#E57A7A] text-white py-3 rounded-full mt-4" onClick={handleProceedToCheckout}>

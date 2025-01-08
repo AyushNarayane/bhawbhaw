@@ -13,6 +13,7 @@ const ProfileDropdown = () => {
   const onLogout = () => {
     dispatch(clearUser())
     localStorage.removeItem("user");
+    // localStorage.removeItem('persist:root')
     setIsOpen(false)
     router.push("/signin");
   };

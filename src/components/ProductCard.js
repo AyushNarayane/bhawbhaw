@@ -8,6 +8,7 @@ import Image from "next/image";
 import { db } from "firebaseConfig";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { setUser } from "@/redux/userSlice";
+import Link from "next/link";
 
 const ProductCard = ({ product, isRecommendation = false }) => {
   // console.log(product);
@@ -47,9 +48,9 @@ const ProductCard = ({ product, isRecommendation = false }) => {
     //   return;
     // }
 
-    sessionStorage.setItem('productId', product.productId);
+    // sessionStorage.setItem('productId', product.productId);
 
-    router.push(`/productdetails`)
+    router.push(`/productdetails/${product.productId}`)
   }
 
   const handleCartAction = async () => {
@@ -168,7 +169,12 @@ const ProductCard = ({ product, isRecommendation = false }) => {
       {/* Product Details */}
       <div className="py-4">
         <div className="flex justify-between items-center mb-2">
-          <button onClick={handleBuyAction} className="font-black text-sm text-[#2C2C2C] hover:underline underline-offset-2">{product.title}</button>
+          <Link
+            href={`/productdetails/${product.productId}`}
+            className="font-black text-sm text-[#2C2C2C] hover:underline underline-offset-2"
+          >
+            {product.title}
+          </Link>
           <div className="flex flex-col items-end">
             <span className="text-sm font-semibold text-gray-800">
               ₹{product.sellingPrice}

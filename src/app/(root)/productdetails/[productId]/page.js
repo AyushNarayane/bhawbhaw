@@ -1,94 +1,85 @@
 "use client";
-import React, { useEffect, useState, useContext } from "react";
-import ProductCard from "../../../components/ProductCard";
-import { CiStar } from "react-icons/ci";
-import { AiFillHeart, AiFillStar, AiOutlineHeart } from "react-icons/ai";
-import { FaArrowLeftLong, FaArrowRightLong } from "react-icons/fa6";
-// import { db } from '../../../../firebaseConfig';
-import { doc, setDoc, getDoc, collection, getDocs, query, where } from 'firebase/firestore';
-import { useRouter } from 'next/navigation';
-import { AuthContext } from '../../../app/context/AuthContext';
-import { CartWishlistContext } from '../../../app/context/CartWishlistContext';
+import React, { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { doc, getDoc, collection, getDocs, query, where, setDoc } from "firebase/firestore";
 import { db } from "firebaseConfig";
+import { AiFillHeart, AiOutlineHeart } from "react-icons/ai";
+import { FaArrowLeftLong, FaArrowRightLong } from "react-icons/fa6";
+import { useSelector } from "react-redux";
+import ProductCard from "@/components/ProductCard";
+import { CiStar } from "react-icons/ci";
 
-const ProductDetail = () => {
+const ProductDetailsPage = ({ params }) => {
   const router = useRouter();
-  const { user } = useContext(AuthContext);
-  const {
-    addToCart,
-    addToWishlist,
-    removeFromCart,
-    removeFromWishlist,
-    selectedProductId,
-    setSelectedProductId,
-  } = useContext(CartWishlistContext);
+  const { productId } = params;
+
+  const user = useSelector((state) => state.user.userId)
 
   const [product, setProduct] = useState(null);
   const [relatedProducts, setRelatedProducts] = useState([]);
   const [selectedColor, setSelectedColor] = useState(null);
   const [selectedSize, setSelectedSize] = useState(null);
-  const [isFavorite, setIsFavorite] = useState(false);
   const [quantity, setQuantity] = useState(1);
-  const [message, setMessage] = useState('');
-  const [productId, setProductId] = useState(null);
-
-  // Pagination State
+  const [isFavorite, setIsFavorite] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const productsPerPage = 3; // Set the number of products per page
+  const [message, setMessage] = useState('');
+
+  const productsPerPage = 3; // For pagination
   const totalPages = Math.ceil(relatedProducts.length / productsPerPage);
 
   useEffect(() => {
-    // const productId = sessionStorage.getItem('selectedProductId');
-    const id = sessionStorage.getItem('productId');
-
-    if (!id) {
-      console.error("Product ID is not available.");
+    if (!productId) {
+      console.error("Product ID is missing.");
       router.push("/");
       return;
     }
-    setProductId(id)
 
     const fetchProductDetails = async () => {
-      const productRef = doc(db, 'products', productId);
-      const productSnap = await getDoc(productRef);
+      try {
+        const productRef = doc(db, "products", productId);
+        const productSnap = await getDoc(productRef);
 
-      if (productSnap.exists()) {
-        setProduct(productSnap.data());
-        fetchRelatedProducts(productSnap.data().subCategory);
-        setSelectedProductId(productId); // Set the selected product ID when the product is fetched
-      } else {
-        console.log("No such product!");
+        if (productSnap.exists()) {
+          const productData = productSnap.data();
+          setProduct(productData);
+          fetchRelatedProducts(productData.subCategory);
+        } else {
+          console.error("Product not found.");
+          router.push("/");
+        }
+      } catch (error) {
+        console.error("Error fetching product:", error);
       }
     };
 
     const fetchRelatedProducts = async (subCategory) => {
-      const q = query(collection(db, 'products'), where('subCategory', '==', subCategory));
-      const querySnapshot = await getDocs(q);
-      const products = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      setRelatedProducts(products);
+      try {
+        const q = query(collection(db, "products"), where("subCategory", "==", subCategory));
+        const querySnapshot = await getDocs(q);
+        const products = querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+        setRelatedProducts(products);
+      } catch (error) {
+        console.error("Error fetching related products:", error);
+      }
     };
 
     fetchProductDetails();
   }, [productId]);
 
-  const handleQuantityChange = (type) => {
-    // update quantity in database
-  };
-
   const handleAddToCart = async () => {
-    if (product && user?.uid) {
-      const cartRef = doc(db, 'carts', user.uid);
+    if (product && user) {
+      const cartRef = doc(db, 'cart', user);
       const cartDoc = await getDoc(cartRef);
 
       if (cartDoc.exists()) {
         const cartData = cartDoc.data();
-        const existingProduct = cartData.items.find(item => item.productId === product.productId);
+        const existingProduct = cartData.items.find(item => item.productId === productId);
 
         if (existingProduct) {
           // If the product exists in the cart, update the quantity
           await setDoc(cartRef, {
             items: cartData.items.map(item =>
-              item.productId === product.productId
+              item.productId === productId
                 ? { ...item, quantity: item.quantity + quantity } // Increase quantity
                 : item
             )
@@ -111,6 +102,50 @@ const ProductDetail = () => {
     }
   };
 
+  const handleQuantityChange = async (type) => {
+    if (!product || !user) {
+      return;
+    }
+
+    const cartRef = doc(db, 'cart', user);
+
+    const cartDoc = await getDoc(cartRef);
+
+    if (cartDoc.exists()) {
+      const cartData = cartDoc.data();
+      const existingProduct = cartData.items.find(item => item.productId === productId);
+
+      if (existingProduct) {
+        let updatedQuantity = existingProduct.quantity;
+
+        if (type === 'increment') {
+          updatedQuantity += 1;
+        } else if (type === 'decrement' && updatedQuantity > 1) {
+          updatedQuantity -= 1;
+        } else {
+          alert('Quantity cannot be less than 1');
+          return;
+        }
+        
+        await setDoc(
+          cartRef,
+          {
+            items: cartData.items.map(item => item.productId === productId
+              ? { ...item, quantity: updatedQuantity }
+              : item
+            )
+          },
+          { merge: true }
+        );
+        
+        setQuantity(updatedQuantity)
+        setMessage(`${product.title} quantity updated to ${updatedQuantity}`);
+      }
+    } else {
+      alert('Cart does not exist. Please add the product to the cart first.');
+    }
+  };
+
   // Function to handle adding to the wishlist
   const handleAddToWishlist = async () => {
     if (product && user?.uid) {
@@ -119,7 +154,7 @@ const ProductDetail = () => {
 
       if (wishlistDoc.exists()) {
         const wishlistData = wishlistDoc.data();
-        const existingProduct = wishlistData.items.find(item => item.productId === product.productId);
+        const existingProduct = wishlistData.items.find(item => item.productId === productId);
 
         if (!existingProduct) {
           // If the product does not exist in the wishlist, add it
@@ -253,9 +288,9 @@ const ProductDetail = () => {
 
           <div className="flex items-center mb-4 space-x-4">
             <div className="flex items-center border border-gray-300 rounded">
-              <button className="px-3 py-1 text-gray-600" onClick={() => handleQuantityChange('decrease')}>-</button>
+              <button className="px-3 py-1 text-gray-600" onClick={() => handleQuantityChange('decrement')}>-</button>
               <span className="px-4 py-1 border-l border-r">{quantity}</span>
-              <button className="px-3 py-1 text-gray-600" onClick={() => handleQuantityChange('increase')}>+</button>
+              <button className="px-3 py-1 text-gray-600" onClick={() => handleQuantityChange('increment')}>+</button>
             </div>
             <button className="bg-red-500 text-white px-6 py-2 rounded-lg hover:bg-red-600" onClick={handleAddToCart}>Buy Now</button>
             {isFavorite ? (
@@ -345,4 +380,4 @@ const ProductDetail = () => {
   );
 };
 
-export default ProductDetail;
+export default ProductDetailsPage;
