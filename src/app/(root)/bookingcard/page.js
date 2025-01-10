@@ -12,7 +12,7 @@ const BookingCard = () => {
   };
 
   return (
-    <div className="flex flex-col bg-white items-center py-10 font-montserrat text-black">
+    <div className="flex flex-col bg-white items-center py-10 font-poppins text-black">
       <p className="text-sm font-semibold">BOOKING ID</p>
       <div className="w-full max-w-4xl p-6 md:p-8 rounded-lg flex flex-col md:flex-row justify-between">
         {/* Left Section */}

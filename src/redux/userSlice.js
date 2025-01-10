@@ -15,8 +15,22 @@ const userSlice = createSlice({
   name: "user",
   initialState,
   reducers: {
+    // setUser(state, action) {
+    //   state.userData = { ...state.userData, ...action.payload.userData };
+    //   if (action.payload.userId) {
+    //     state.userId = action.payload.userId;
+    //   }
+    // },
     setUser(state, action) {
-      state.userData = { ...state.userData, ...action.payload.userData };
+      const userData = { ...action.payload.userData };
+
+      // Convert non-serializable fields
+      if (userData.createdAt && typeof userData.createdAt.toDate === "function") {
+        userData.createdAt = userData.createdAt.toDate().toISOString(); // Convert to ISO string
+      }
+
+      state.userData = { ...state.userData, ...userData };
+
       if (action.payload.userId) {
         state.userId = action.payload.userId;
       }

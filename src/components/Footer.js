@@ -34,7 +34,7 @@ const Footer = () => {
 
             <div className="flex items-center space-x-2 mb-4 text-sm">
               <div className="border border-white w-8 h-8 rounded-lg p-2">
-                <Image src="/images/footer/call.png" alt="Phone" width={24} height={14} />
+                <Image src="/images/footer/call.png" alt="Phone" width={24} height={24} />
               </div>
               <div>
                 <div>8390637497</div>
@@ -44,7 +44,7 @@ const Footer = () => {
 
             <div className="flex items-center space-x-2 mb-4 text-sm">
             <div className="border border-white w-8 h-8 rounded-lg p-2">
-                <Image src="/images/footer/mail.png" alt="Phone" width={24} height={14} />
+                <Image src="/images/footer/mail.png" alt="Phone" width={24} height={24} />
               </div>
               <div>
                 <div>info@bhawbhaw.com</div>

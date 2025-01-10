@@ -23,8 +23,8 @@ const ProductCard = ({ product, isRecommendation = false }) => {
   const [isInWishlist, setIsInWishlist] = useState(false);
 
   useEffect(() => {
-    setIsProductInCart(cartItems.some(item => item.id === product.id));
-    setIsInWishlist(wishlistItems.some(item => item.id === product.id));
+    setIsProductInCart(cartItems.some(item => item.productId === product.productId));
+    setIsInWishlist(wishlistItems.some(item => item.productId === product.productId));
 
     const storedUser = JSON.parse(localStorage.getItem("user"));
 

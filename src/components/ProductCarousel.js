@@ -67,7 +67,7 @@ export default function ProductCarousel() {
         }}
       >
         {activeProducts.map((product) => (
-          <SwiperSlide key={product.id} className="my-5 max-w-[21rem]">
+          <SwiperSlide key={product.productId} className="my-5 max-w-[21rem]">
             <ProductCard
               product={product}
               addToCart={() => addToCart(product)}

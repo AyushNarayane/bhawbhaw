@@ -1,42 +1,60 @@
-"use client";  // Ensures this component runs on the client side
+"use client"; 
 
-import React, { useEffect, useState } from 'react';
-import BookingCard from '../../../components/BookingCard'; // Assuming BookingCard is in the components folder
-import { useSelector } from 'react-redux';
+import React, { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { setUser } from "@/redux/userSlice";
+import { useDispatch } from "react-redux";
+import BookingCard from "@/components/BookingCard";
 
 const MyBookings = () => {
   const [bookings, setBookings] = useState([]);
-  const userId = useSelector((state) => state.user.userId); // Assuming userId is stored in Redux
+  const [userId, setUserId] = useState(null); 
+  const router = useRouter();
+  const dispatch = useDispatch()
 
-  // Fetch bookings when component mounts and when userId changes
+  // Fetch and set userId from localStorage
   useEffect(() => {
-    if (!userId) {
-      // If there's no userId, redirect to sign-in page using window.location
-      window.location.href = '/signin'; // Redirect to sign-in page
+    const storedUser = JSON.parse(localStorage.getItem("user"));
+    console.log(storedUser);
+
+    if (!storedUser?.userId) {
+      router.push("/signin"); // Redirect if no userId
       return;
     }
+
+    setUserId(storedUser.userId); // Set the userId
+    dispatch(setUser(storedUser))
+  }, [router]);
+
+  // Fetch bookings only after userId is set
+  useEffect(() => {
+    if (!userId) return; // Wait until userId is available
 
     const fetchBookings = async () => {
       try {
         const response = await fetch(`/api/services/getServiceByUserId?userId=${userId}`);
         if (response.ok) {
           const data = await response.json();
+          console.log("Fetched bookings:", data);
           setBookings(data); // Set the fetched bookings in the state
         } else {
-          console.error('Error fetching bookings');
+          console.error("Error fetching bookings");
         }
       } catch (error) {
-        console.error('Error fetching bookings:', error);
+        console.error("Error fetching bookings:", error);
       }
     };
 
-    fetchBookings(); // Fetch bookings if userId exists
-  }, [userId]); // Only rerun the effect when userId changes
+    fetchBookings(); // Fetch bookings
+  }, [userId]); // Trigger when userId changes
+
+  // Show a loading state while bookings are being fetched
+  if (!bookings) return <p className="font-poppins">Loading...</p>;
 
   return (
-    <div className="flex flex-col items-center py-10">
+    <div className="flex flex-col items-center py-10 font-poppins">
       <h2 className="text-2xl font-semibold mb-6 text-black">My Bookings</h2>
-      
+
       {bookings.length > 0 ? (
         <div className="w-full max-w-6xl space-y-8">
           {/* Map through the bookings and display each one in a vertical stack */}

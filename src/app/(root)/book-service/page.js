@@ -1,10 +1,11 @@
 "use client";
-import CalendarAndSlot from '../../../components/CalenderAndSlots';
-import ContactInformation from '../../../components/ContactInformation';
-import ReviewInformation from '../../../components/ReviewInformation';
+
 import React, { useEffect, useState } from 'react';
+import ContactInformation from '@/components/ContactInformation';
+import CalendarAndSlot from '@/components/CalenderAndSlots';
+import ReviewInformation from '@/components/ReviewInformation';
+import { db } from 'firebaseConfig';
 import { doc, setDoc, getDoc } from "firebase/firestore";
-import { db } from "../../../../firebaseConfig";
 import { useRouter } from 'next/navigation';
 import { useDispatch, useSelector } from 'react-redux';
 import toast from 'react-hot-toast';
@@ -125,10 +126,10 @@ const MultiStepForm = () => {
     }
   };
 
-  console.log(selectedService);
+  // console.log(selectedService);
 
   return (
-    <div className="flex px-10 flex-col bg-white items-center justify-center font-montserrat">
+    <div className="flex px-10 flex-col bg-white items-center justify-center font-poppins">
       <div className="w-full bg-white p-8 rounded-lg">
         <h2 className="text-2xl font-semibold mb-6 text-black">
           {selectedService ? `Book Your Service for ${selectedService.title}` : 'Book Your Service'}

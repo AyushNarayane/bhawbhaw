@@ -95,7 +95,7 @@ const ContactUs = () => {
   };
 
   return (
-    <div className='bg-white p-10'>
+    <div className='bg-white p-10 font-poppins'>
       <div className="flex flex-col items-center text-black p-8 font-poppins bg-white lg:px-16">
         <h1 className="lg:text-8xl text-4xl font-extrabold text-[#85716B]">Contact us</h1>
         <p className="text-center lg:mx-32 text-gray-600 mt-2">

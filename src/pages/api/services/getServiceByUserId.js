@@ -48,13 +48,13 @@ export default async function handler(req, res) {
       const userBookings = [];
       querySnapshot.forEach((doc) => {
         const data = doc.data();
-        console.log(`Document data: ${JSON.stringify(data)}`);
+        // console.log(`Document data: ${JSON.stringify(data)}`);
         if (data.userId === userId) {
           userBookings.push({ id: doc.id, ...data });
         }
       });
 
-      console.log(`User bookings: ${JSON.stringify(userBookings)}`);
+      // console.log(`User bookings: ${JSON.stringify(userBookings)}`);
       res.status(200).json(userBookings);
     } catch (error) {
       console.error('Error fetching bookings for user:', error);

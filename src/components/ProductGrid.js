@@ -91,7 +91,7 @@ const ProductGrid = () => {
   }
 
   return (
-    <div className="bg-white py-12 px-12">
+    <div className="bg-white py-12 px-12 font-poppins">
       <Toaster />
       <div className="flex">
         {/* Filters Section */}

@@ -3,7 +3,7 @@ import BodyConditionScore from '@/components/BodyCondition'
 
 const SearchServices = () => {
   return (
-    <div className="relative bg-white font-montserrat">
+    <div className="relative bg-white font-poppins">
       {/* Background Image Section */}
       <div className="bg-cover bg-center h-80 relative" style={{ backgroundImage: 'url("/images/searchservice/background.png")' }}>
         <div className="absolute "></div>

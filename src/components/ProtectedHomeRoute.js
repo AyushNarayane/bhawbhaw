@@ -17,7 +17,7 @@ const ProtectedHomeRoute = (WrappedComponent) => {
 
     useEffect(() => {
       const unsubscribe = onAuthStateChanged(auth, async (user) => {
-        console.log(user);
+        // console.log(user);
 
         if (user) {
           try {
@@ -29,10 +29,13 @@ const ProtectedHomeRoute = (WrappedComponent) => {
               const userDoc = querySnapshot.docs[0];
               const userData = userDoc.data();
 
-              console.log(userData);
+              // console.log(userDoc.id);
               dispatch(
                 setUser({
-                  userData: { ...userData },
+                  userData: {
+                    name: userData.name,
+                    email: userData.email,
+                  },
                   userId: userDoc.id,
                 })
               );

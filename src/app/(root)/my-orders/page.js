@@ -40,7 +40,7 @@ const MyOrders = () => {
 
   return (
     
-    <div className="p-6 bg-white text-black min-h-screen font-montserrat">
+    <div className="p-6 bg-white text-black min-h-screen font-poppins">
         <div className="flex items-center mt-4 md:mt-8">
     <span className="text-sm md:text-lg text-[#676767]">Home</span>
     <img src="images/services/arrow.png" alt="Arrow" className="mx-2 w-3 h-3 md:w-4 md:h-4" />
