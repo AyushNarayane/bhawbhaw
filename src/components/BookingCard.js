@@ -94,7 +94,7 @@ const BookingCard = ({ booking }) => {
                 </span>
               </p>
             </div>
-            {bookingStatus === "incoming" && isTimeSlotPassed() && (
+            {bookingStatus === "incoming" && (
               <button
                 onClick={markAsCompleted}
                 className="bg-green-500 text-white px-4 py-2 rounded-lg mt-4 hover:bg-green-600"

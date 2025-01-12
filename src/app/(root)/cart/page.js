@@ -280,46 +280,35 @@ const Cart = () => {
 
           {/* COUPONS SECTION */}
           <div className="mt-4 flex flex-col sm:flex-row items-center">
-            {/* Coupon Input */}
             <div className="w-full">
-              <div className="flex w-full items-center bg-[#F0F0F0] rounded-full mb-2 sm:mb-4 p-2">
-                <div className="flex items-center gap-2">
-                  <img
-                    src="images/common/coupon.png"
-                    alt="Coupon Icon"
-                    className="w-5 h-5 sm:w-6 sm:h-6"
-                  />
-                  <input
-                    type="text"
-                    className="p-2 bg-[#F0F0F0] rounded-full outline-none text-sm"
-                    placeholder="Coupon Code"
-                    value={coupon}
-                    onChange={(e) => setCoupon(e.target.value)}
-                  />
-                  <button
-                    className="text-blue-500 text-sm sm:px-4 py-2"
-                    onClick={() => setShowCouponModal(true)}
-                  >
-                    Browse Coupons
-                  </button>
-                </div>
-              </div>
+              <div className="flex items-center bg-[#F0F0F0] rounded-full p-2">
+                <input
+                  type="text"
+                  className="flex-1 p-2 bg-[#F0F0F0] rounded-full outline-none text-sm"
+                  placeholder="Coupon Code"
+                  value={coupon}
+                  onChange={(e) => setCoupon(e.target.value)}
+                />
 
-              <div className="flex items-center gap-2">
-                {/* Apply Coupon Button */}
                 <button
-                  className="bg-[#E57A7A] text-white px-6 py-2 rounded-full w-full sm:w-auto"
+                  className="bg-[#E57A7A] text-white px-4 py-2 whitespace-nowrap text-[11px] rounded-full ml-2"
                   onClick={handleApplyCoupon}
                   disabled={validatingCoupon}
                 >
                   {validatingCoupon ? (
                     <ClipLoader size={20} color="#fff" className="mx-10" />
                   ) : (
-                    "Apply Coupon"
+                    'Apply Coupon'
                   )}
                 </button>
               </div>
-
+              <button
+                className="text-red-500 text-sm px-4 py-2"
+                onClick={() => setShowCouponModal(true)}
+              >
+                Browse Coupons
+              </button>
+              {/* Error Message */}
               {error && <p className="text-red-600 mt-2 text-sm">{error}</p>}
             </div>
 
@@ -360,7 +349,7 @@ const Cart = () => {
             )}
           </div>
 
-          <button className="w-full bg-[#E57A7A] text-white py-3 rounded-full mt-4" onClick={handleProceedToCheckout}>
+          <button className="w-full bg-red-400 text-white py-3 rounded-full mt-4" onClick={handleProceedToCheckout}>
             <p>Proceed to Checkout</p>
           </button>
         </div>

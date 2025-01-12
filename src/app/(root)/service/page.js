@@ -4,6 +4,8 @@ import React, { useState, useEffect } from "react";
 import { FaSearch } from "react-icons/fa";
 import { useRouter } from "next/navigation";
 import ServiceCard from "@/components/ServiceCard";
+import { useDispatch } from "react-redux";
+import { setSelectedService } from "@/redux/serviceSlice";
 
 const Page = () => {
   const [services, setServices] = useState([]);
@@ -13,16 +15,17 @@ const Page = () => {
   const [selectedCategory, setSelectedCategory] = useState("All");
 
   const router = useRouter();
+  const dispatch = useDispatch();
 
   // Fetch services on mount
   useEffect(() => {
     const fetchServices = async () => {
       try {
-        const response = await fetch("/api/services/getAllServices"); // Adjust the API endpoint
+        const response = await fetch("/api/services/getAllServices"); 
         if (response.ok) {
           const data = await response.json();
           // console.log(data);
-          
+
           setServices(data);
           setFilteredServices(data);
           extractCategories(data);
@@ -68,6 +71,11 @@ const Page = () => {
 
     filter();
   }, [searchQuery, selectedCategory, services]);
+
+  const handleServiceClick = (service) => {
+    dispatch(setSelectedService(service));
+    router.push(`/service/${service.serviceName}_${service.serviceId}`); 
+  };
 
   return (
     // <div className='bg-white max-w-5xl mx-auto flex flex-col items-center'>
@@ -118,7 +126,7 @@ const Page = () => {
               <ServiceCard
                 key={service.serviceId}
                 service={service}
-                onClick={() => router.push(`/service/${service.serviceName}_${service.serviceId}`)} // Navigate to service details page
+                onClick={() => handleServiceClick(service)} // Navigate to service details page
               />
             ))
           ) : (

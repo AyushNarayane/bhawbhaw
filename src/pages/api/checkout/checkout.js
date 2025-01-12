@@ -16,6 +16,7 @@ export default async function handler(req, res) {
           state,
           city,
           postalCode,
+          id
         },
         email,
         notification,
@@ -44,10 +45,11 @@ export default async function handler(req, res) {
           state,
           city,
           postalCode,
-          email
+          email,
+          id
         },
-        notification,
-        status: 'initialized',  // Order is in the initial stage
+        notification: notification || '',  // Default to an empty string if not provided
+        status: 'initialized',
         createdAt: new Date(),
       };
 
@@ -59,7 +61,7 @@ export default async function handler(req, res) {
       batch.set(orderRef, order);
 
       // Reference to the 'checkout' collection for redundancy (if needed)
-      const checkoutRef = doc(db, 'checkout', orderId);
+      const checkoutRef = doc(db, 'checkout', orderId); ``
       batch.set(checkoutRef, {
         ...order,
         createdAt: new Date(),

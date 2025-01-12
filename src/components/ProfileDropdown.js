@@ -38,14 +38,17 @@ const ProfileDropdown = () => {
       {isOpen && (
         <div className="absolute right-0 mt-2 w-48 bg-white shadow-lg rounded-lg border border-gray-200">
           <div className="py-2">
-            <Link href="/profile" className="block px-4 py-2 text-gray-800 hover:bg-gray-100">
+            <Link href="/profile" onClick={() => setIsOpen(false)} className="block px-4 py-2 text-gray-800 hover:bg-gray-100">
               Profile
             </Link>
-            <Link href="/saved-addresses" className="block px-4 py-2 text-gray-800 hover:bg-gray-100">
+            <Link href="/saved-addresses" onClick={() => setIsOpen(false)} className="block px-4 py-2 text-gray-800 hover:bg-gray-100">
               Saved Address
             </Link>
-            <Link href="/my-orders" className="block px-4 py-2 text-gray-800 hover:bg-gray-100">
+            <Link href="/my-orders" onClick={() => setIsOpen(false)} className="block px-4 py-2 text-gray-800 hover:bg-gray-100">
               Orders
+            </Link>
+            <Link href="/mybookings" onClick={() => setIsOpen(false)} className="block px-4 py-2 text-gray-800 hover:bg-gray-100">
+              Bookings
             </Link>
             <button
               onClick={onLogout}

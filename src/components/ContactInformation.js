@@ -11,7 +11,6 @@ import { setUser } from '@/redux/userSlice';
 
 const ContactInformation = ({ nextStep, handleFormDataChange, formData, savedAddresses }) => {
   const [selectedAddress, setSelectedAddress] = useState('');
-  const [savedAddressesList, setSavedAddressesList] = useState([...savedAddresses])
   const [userEmail, setUserEmail] = useState('');
   const [errors, setErrors] = useState({});
   const [formVisible, setFormVisible] = useState(false);
@@ -40,7 +39,6 @@ const ContactInformation = ({ nextStep, handleFormDataChange, formData, savedAdd
     dispatch(setUser(storedUser))
   }, []);
   
-
   // Handle selecting an address from the dropdown
   const handleAddressSelect = (addressId) => {
     if (addressId === 'new') {
@@ -48,7 +46,7 @@ const ContactInformation = ({ nextStep, handleFormDataChange, formData, savedAdd
       return;
     }
 
-    const selected = savedAddressesList.find((address) => address.id === addressId);
+    const selected = savedAddresses.find((address) => address.id === addressId);
     if (selected) {
       setSelectedAddress(addressId);
       handleFormDataChange({
@@ -89,7 +87,7 @@ const ContactInformation = ({ nextStep, handleFormDataChange, formData, savedAdd
       await setDoc(userRef, { addresses: updatedAddresses });
 
       // Update the savedAddresses state
-      setSavedAddressesList((prevAddresses) => [...prevAddresses, newAddress]);
+      savedAddresses.push(newAddress)
 
       // Close the form and reset the form data
       setFormVisible(false);
@@ -138,7 +136,7 @@ const ContactInformation = ({ nextStep, handleFormDataChange, formData, savedAdd
             className="mt-1 block text-black w-full rounded-md outline-none p-2 h-12 bg-[#F6F7FB]"
           >
             <option value="">Choose an address</option>
-            {(savedAddressesList || []).map((address) => (
+            {(savedAddresses || []).map((address) => (
               <option key={address.id} value={address.id}>
                 {address.address}
               </option>

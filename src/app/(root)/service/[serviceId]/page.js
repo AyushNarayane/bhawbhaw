@@ -5,6 +5,8 @@ import Image from 'next/image';
 import { db } from 'firebaseConfig';
 import { doc, getDoc } from 'firebase/firestore';
 import Link from 'next/link';
+import { setSelectedService } from '@/redux/serviceSlice';
+import { useRouter } from 'next/navigation';
 
 const ServiceDetailsPage = ({ params }) => {
   const { serviceId } = params;
@@ -12,6 +14,8 @@ const ServiceDetailsPage = ({ params }) => {
 
   const [service, setService] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  const router = useRouter()
 
   useEffect(() => {
     const fetchServiceDetails = async () => {
@@ -36,6 +40,11 @@ const ServiceDetailsPage = ({ params }) => {
 
     fetchServiceDetails();
   }, [extractedServiceId]);
+
+  const handleBookNow = (serviceName) => {
+    setSelectedService(serviceName);
+    router.push('/book-service');
+  };
 
   if (loading) {
     return (
@@ -89,9 +98,12 @@ const ServiceDetailsPage = ({ params }) => {
           <p className="text-lg mb-6">
             <span className="font-semibold">Contact:</span> {service.phoneNumber}
           </p>
-          <Link href='/book-service' className="px-6 py-2 bg-red-700 text-white font-semibold rounded-md hover:bg-red-800 transition">
+          <button
+            onClick={() => handleBookNow(service.serviceName)}
+            className="px-6 py-2 bg-red-700 text-white font-semibold rounded-md hover:bg-red-800 transition"
+          >
             Book Now
-          </Link>
+          </button>
         </div>
       </div>
     </div>

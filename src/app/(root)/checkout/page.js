@@ -3,11 +3,12 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from 'next/navigation';
 import { useDispatch, useSelector } from "react-redux";
-import { clearCart } from "@/redux/cartSlice";
+import { clearCart, setDeliveryFee, setTotalVal } from "@/redux/cartSlice";
 import { ClipLoader } from "react-spinners";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "firebaseConfig";
 import Image from "next/image";
+import PaymentOptions from "@/components/PaymentOptions";
 
 const CheckoutPage = () => {
   const router = useRouter();
@@ -41,6 +42,12 @@ const CheckoutPage = () => {
     postalCode: "",
     checked: false,
   });
+
+  // const [isPaymentSuccessful, setIsPaymentSuccessful] = useState(false); // Track payment success
+
+  // const handlePaymentSuccess = (status) => {
+  //   setIsPaymentSuccessful(status);
+  // };
 
   useEffect(() => {
     const storedUser = JSON.parse(localStorage.getItem("user"));
@@ -111,24 +118,6 @@ const CheckoutPage = () => {
     }
   }, [cartItems, deliveryFee]);
 
-  const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setFormData((prevData) => ({
-      ...prevData,
-      [name]: type === "checkbox" ? checked : value,
-    }));
-  };
-
-  const handleContinueShipping = (e) => {
-    e.preventDefault();
-    const { email, firstName, lastName, address, state, city, postalCode } = formData;
-    if (!email || !firstName || !lastName || !address || !state || !city || !postalCode) {
-      setError("All fields are required.");
-      return;
-    }
-    setError(null);
-  };
-
   const handleProceedToPayment = async () => {
     const orderData = {
       userId,
@@ -150,7 +139,7 @@ const CheckoutPage = () => {
     };
 
     try {
-      setLoading(true);
+      // setLoading(true);
       const response = await fetch(`/api/checkout/checkout`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -158,8 +147,12 @@ const CheckoutPage = () => {
       });
 
       if (response.ok) {
-        dispatch(clearCart()); // TODO: Clear cart after successful order
-        setIsPopupVisible(true);
+        // dispatch(clearCart()); // TODO: Clear cart after successful order
+        // setIsPopupVisible(true);
+
+        dispatch(setTotalVal(total))
+        dispatch(setDeliveryFee(deliveryFee))
+        router.push(`/payment-gateway`);
       } else {
         setError("Failed to process payment");
       }
@@ -170,6 +163,7 @@ const CheckoutPage = () => {
       setLoading(false);
     }
   };
+
 
   const closePopup = () => {
     setIsPopupVisible(false);
@@ -194,6 +188,10 @@ const CheckoutPage = () => {
             <div className="p-6 rounded-lg">
               <div className="flex items-center justify-between my-4">
                 <h3 className="text-lg lg:text-xl text-[#1D3178] font-extrabold">Shipping address</h3>
+                <button
+                  className="bg-red-500 font-normal px-4 py-2 rounded-xl text-white"
+                  onClick={() => router.push('/saved-addresses')}
+                >+ New Address</button>
               </div>
 
               {savedAddresses.length > 0 ? (
@@ -319,6 +317,10 @@ const CheckoutPage = () => {
           </div>
         </div>
       )}
+
+      {/* Payment Section
+      <PaymentOptions total={total} deliveryFee={deliveryFee} onSuccess={handlePaymentSuccess} />
+      {isPaymentSuccessful && alert('Payment successful')} */}
     </div>
   );
 };
