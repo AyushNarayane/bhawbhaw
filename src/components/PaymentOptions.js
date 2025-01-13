@@ -1,7 +1,6 @@
 'use client'
 
 import React, { useState } from "react";
-import { useRouter } from 'next/navigation';
 
 const PaymentOptions = ({ total, deliveryFee, onSuccess }) => {
   const [selectedMethod, setSelectedMethod] = useState("COD");
@@ -10,7 +9,6 @@ const PaymentOptions = ({ total, deliveryFee, onSuccess }) => {
     expiryDate: "",
     cvv: "",
   });
-  const router = useRouter();
 
   const handlePaymentSubmit = (e) => {
     e.preventDefault();
@@ -95,36 +93,6 @@ const PaymentOptions = ({ total, deliveryFee, onSuccess }) => {
                 </label>
               </div>
             </div>
-
-            {/* Card Details Form */}
-            {selectedMethod === "Card" && (
-              <div className="mt-6 space-y-4">
-                <h3 className="text-lg font-medium text-gray-700">Enter Card Details</h3>
-                <input
-                  type="text"
-                  placeholder="Card Number"
-                  value={cardDetails.cardNumber}
-                  onChange={(e) => setCardDetails({ ...cardDetails, cardNumber: e.target.value })}
-                  className="w-full p-3 border border-gray-300 rounded-lg"
-                />
-                <div className="flex space-x-4">
-                  <input
-                    type="text"
-                    placeholder="Expiry Date (MM/YY)"
-                    value={cardDetails.expiryDate}
-                    onChange={(e) => setCardDetails({ ...cardDetails, expiryDate: e.target.value })}
-                    className="w-1/2 p-3 border border-gray-300 rounded-lg"
-                  />
-                  <input
-                    type="text"
-                    placeholder="CVV"
-                    value={cardDetails.cvv}
-                    onChange={(e) => setCardDetails({ ...cardDetails, cvv: e.target.value })}
-                    className="w-1/2 p-3 border border-gray-300 rounded-lg"
-                  />
-                </div>
-              </div>
-            )}
 
             {/* Payment Summary */}
             <div className="mt-6 border-t pt-4">

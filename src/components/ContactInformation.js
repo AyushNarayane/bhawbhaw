@@ -69,12 +69,13 @@ const ContactInformation = ({ nextStep, handleFormDataChange, formData, savedAdd
         return;
       }
 
-      const userRef = doc(db, 'saved_addresses', userId);
+      const userRef = doc(db, 'users', userId);
       const userDoc = await getDoc(userRef);
 
       const newAddress = {
         ...formDataForNewAddress,
         id: crypto.randomUUID(),
+        createdAt: new Date().toISOString(),
       };
 
       let updatedAddresses = [];
@@ -83,8 +84,11 @@ const ContactInformation = ({ nextStep, handleFormDataChange, formData, savedAdd
       } else {
         updatedAddresses = [newAddress];
       }
-
-      await setDoc(userRef, { addresses: updatedAddresses });
+      
+      await setDoc(userRef, {
+        ...userDoc.data(), // Preserve existing user data
+        addresses: updatedAddresses,
+      });
 
       // Update the savedAddresses state
       savedAddresses.push(newAddress)

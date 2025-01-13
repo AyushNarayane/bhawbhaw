@@ -43,7 +43,7 @@ const MultiStepForm = () => {
     // Fetch saved addresses from Firestore
     const fetchSavedAddresses = async () => {
       try {
-        const addressRef = doc(db, 'saved_addresses', userId);
+        const addressRef = doc(db, 'users', userId);
         const userDoc = await getDoc(addressRef)
 
         if (userDoc.exists()) {

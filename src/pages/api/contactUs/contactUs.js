@@ -4,7 +4,7 @@ import { doc, setDoc } from 'firebase/firestore';
 
 export default async function handler(req, res) {
   if (req.method === 'POST') {
-    const { personalInfo, serviceInfo } = req.body;
+    const { personalInfo, subjectInfo } = req.body;
 
     try {
       
@@ -12,7 +12,7 @@ export default async function handler(req, res) {
 
       const combinedData = {
         ...personalInfo,
-        ...serviceInfo,
+        ...subjectInfo,
         createdAt: new Date(),
         updatedAt: new Date(),
       };

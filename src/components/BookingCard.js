@@ -1,19 +1,26 @@
 import Image from "next/image";
-import { doc, updateDoc } from "firebase/firestore";
-import { db } from "firebaseConfig";
+import { doc, getDoc, updateDoc } from "firebase/firestore";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { db, storage } from "firebaseConfig";
 import { useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
 
 const BookingCard = ({ booking }) => {
   const [bookingStatus, setBookingStatus] = useState(booking.status);
+  const [isReviewModalOpen, setReviewModalOpen] = useState(false);
+  const [reviewData, setReviewData] = useState({
+    stars: 0,
+    image: null,
+    message: "",
+    title: "",
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const isTimeSlotPassed = () => {
     const currentDate = new Date();
-    const bookingDate = new Date(booking.calendarAndSlot.date);
     const [startTime] = booking.calendarAndSlot.timeSlot.split(" - ");
     const bookingTime = new Date(`${booking.calendarAndSlot.date} ${startTime}`);
-
-    return currentDate > bookingTime; // True if current time is after the booking time
+    return currentDate > bookingTime;
   };
 
   const markAsCompleted = async () => {
@@ -33,6 +40,69 @@ const BookingCard = ({ booking }) => {
     }
   };
 
+  const handleFileUpload = async (file) => {
+    if (!file) return null;
+    try {
+      const fileRef = ref(storage, `reviews/${booking.id}/${file.name}`);
+      await uploadBytes(fileRef, file);
+      return await getDownloadURL(fileRef);
+    } catch (error) {
+      console.error("Error uploading file:", error);
+      toast.error("Failed to upload image.");
+      return null;
+    }
+  };
+
+  const handleSubmitReview = async () => {
+    try {
+      setIsSubmitting(true);
+      toast.loading("Submitting review...");
+  
+      let imageUrl = null;
+      if (reviewData.image) {
+        imageUrl = await handleFileUpload(reviewData.image);
+      }
+  
+      const newReview = {
+        stars: reviewData.stars,
+        title: reviewData.title,
+        message: reviewData.message,
+        image: imageUrl,
+        createdAt: new Date().toISOString(),
+      };
+  
+      // Fetch existing reviews
+      const bookingRef = doc(db, "bookings", booking.id);
+      const bookingDoc = await getDoc(bookingRef);
+      let existingReviews = [];
+      if (bookingDoc.exists()) {
+        existingReviews = bookingDoc.data().reviews || [];
+      }
+  
+      // Add the new review to the existing reviews array
+      const updatedReviews = [...existingReviews, newReview];
+  
+      // Update the reviews array in Firestore
+      await updateDoc(bookingRef, { reviews: updatedReviews });
+  
+      toast.dismiss();
+      toast.success("Review submitted successfully!");
+      setReviewData({
+        stars: 1,
+        title: "",
+        message: "",
+        image: null,
+      });
+      setReviewModalOpen(false)
+    } catch (error) {
+      console.error("Error submitting review:", error);
+      toast.dismiss();
+      toast.error("Failed to submit review.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };  
+
   return (
     <div className="flex flex-col bg-white shadow-md rounded-lg p-6 mb-4 font-montserrat text-black">
       <Toaster />
@@ -43,34 +113,27 @@ const BookingCard = ({ booking }) => {
           <Image
             width={500}
             height={500}
-            src={booking.selectedService?.image?.[0] || '/images/common/dummy.png'}
-            alt={booking.selectedService?.title || 'Service'}
+            src={booking.selectedService?.image?.[0] || "/images/common/dummy.png"}
+            alt={booking.selectedService?.title || "Service"}
             className="w-40 h-40 object-cover rounded-md"
           />
-
           <div className="mt-4 md:mt-0 md:ml-4">
             <h2 className="text-md font-bold">{booking.selectedService?.title}</h2>
             <p className="text-sm">
               <span className="text-[#676767]">SERVICE NAME: </span>
-              <span className="font-semibold text-black">
-                {booking.selectedService?.serviceName}
-              </span>
+              <span className="font-semibold text-black">{booking.selectedService?.serviceName}</span>
             </p>
             <p className="text-sm">
               <span className="text-[#676767]">ADDRESS: </span>
-              <span className="font-semibold text-black">
-                {booking.selectedService?.address}
-              </span>
+              <span className="font-semibold text-black">{booking.selectedService?.address}</span>
             </p>
             <p className="text-sm">
               <span className="text-[#676767]">PRICE PER HOUR: </span>
-              <span className="font-semibold text-black">
-                ₹{booking.selectedService?.pricePerHour || 'N/A'}
-              </span>
+              <span className="font-semibold text-black">₹{booking.selectedService?.pricePerHour || "N/A"}</span>
             </p>
             <p className="text-sm">
               <span className="text-[#676767]">STATUS: </span>
-              <span className={`font-semibold ${bookingStatus === 'incoming' ? 'text-green-600' : 'text-red-600'}`}>
+              <span className={`font-semibold ${bookingStatus === "incoming" ? "text-green-600" : "text-red-600"}`}>
                 {bookingStatus.toUpperCase()}
               </span>
             </p>
@@ -84,14 +147,13 @@ const BookingCard = ({ booking }) => {
               <p className="text-sm text-[#676767]">
                 BOOKED AT:
                 <span className="font-semibold text-black">
-                  {' '}{new Date(booking.selectedService?.createdAt).toLocaleDateString()}
+                  {" "}
+                  {new Date(booking.selectedService?.createdAt).toLocaleDateString()}
                 </span>
               </p>
               <p className="text-sm text-[#676767]">
                 CONTACT:
-                <span className="font-semibold text-black">
-                  {' '}{booking.contactInfo?.phoneNumber || 'N/A'}
-                </span>
+                <span className="font-semibold text-black"> {booking.contactInfo?.phoneNumber || "N/A"}</span>
               </p>
             </div>
             {bookingStatus === "incoming" && (
@@ -102,9 +164,79 @@ const BookingCard = ({ booking }) => {
                 Mark as Completed
               </button>
             )}
+            {bookingStatus === "completed" && (
+              <button
+                onClick={() => setReviewModalOpen(true)}
+                className="bg-blue-500 text-white px-4 py-2 rounded-lg mt-4 hover:bg-blue-600"
+              >
+                Give Review
+              </button>
+            )}
           </div>
         </div>
       </div>
+
+      {/* Review Modal */}
+      {isReviewModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+          <div className="bg-white rounded-lg p-6 w-1/2">
+            <h2 className="text-lg font-bold mb-4">Submit Your Review</h2>
+            <label className="block mb-2">
+              Stars:
+              <input
+                type="number"
+                min="1"
+                max="5"
+                value={reviewData.stars}
+                onChange={(e) => setReviewData({ ...reviewData, stars: parseInt(e.target.value, 10) })}
+                className="border border-gray-300 rounded px-2 py-1 w-full"
+                onKeyDown={(e) => e.preventDefault()}
+              />
+            </label>
+            <label className="block mb-2">
+              Title:
+              <input
+                type="text"
+                value={reviewData.title}
+                onChange={(e) => setReviewData({ ...reviewData, title: e.target.value })}
+                className="border border-gray-300 rounded px-2 py-1 w-full"
+              />
+            </label>
+            <label className="block mb-2">
+              Message:
+              <textarea
+                value={reviewData.message}
+                onChange={(e) => setReviewData({ ...reviewData, message: e.target.value })}
+                className="border border-gray-300 rounded px-2 py-1 w-full"
+              ></textarea>
+            </label>
+            <label className="block mb-2">
+              Image (optional):
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => setReviewData({ ...reviewData, image: e.target.files[0] })}
+                className="border border-gray-300 rounded px-2 py-1 w-full"
+              />
+            </label>
+            <div className="flex justify-end mt-4">
+              <button
+                onClick={() => setReviewModalOpen(false)}
+                className="bg-gray-500 text-white px-4 py-2 rounded-lg mr-2"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSubmitReview}
+                className="bg-blue-500 text-white px-4 py-2 rounded-lg"
+                disabled={isSubmitting}
+              >
+                Submit
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

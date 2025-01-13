@@ -1,7 +1,8 @@
 // Firebase initialization for Firestore, Authentication, and optional Analytics
 import { initializeApp } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
-import { getAuth, onAuthStateChanged } from 'firebase/auth';
+import { getAuth } from 'firebase/auth';
+import { getStorage } from "firebase/storage";
 import { getAnalytics, isSupported } from 'firebase/analytics';
 
 // Firebase configuration object
@@ -24,6 +25,9 @@ const db = getFirestore(app);
 // Initialize Firebase Authentication
 const auth = getAuth(app);
 
+// Initialize Firebase Storage
+const storage = getStorage(app);
+
 // Initialize Analytics if supported
 let analytics;
 isSupported()
@@ -37,7 +41,7 @@ isSupported()
   });
 
 // Export Firestore, Auth, and Analytics (if initialized)
-export { db, auth, analytics };
+export { db, auth, analytics, storage };
 
 // Example usage of onAuthStateChanged (optional if you want to handle auth state here)
 // onAuthStateChanged(auth, (user) => {

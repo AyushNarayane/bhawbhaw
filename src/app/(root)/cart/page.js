@@ -9,6 +9,7 @@ import { db } from "firebaseConfig";
 import { collection, doc, getDoc, getDocs, query, setDoc, where } from "firebase/firestore";
 import toast, { Toaster } from "react-hot-toast";
 import Image from "next/image";
+import Link from "next/link";
 
 const Cart = () => {
   const [cartItems, setCartItems] = useState([])
@@ -232,7 +233,12 @@ const Cart = () => {
               <div className="flex items-center mb-4 sm:mb-0">
                 <img src={item.images[0]} alt={item.title} className="w-20 h-20 sm:w-24 sm:h-24 object-contain rounded-lg bg-[#f0eeed]" />
                 <div className="ml-4">
-                  <h3 className="font-bold text-base md:text-lg">{item.title}</h3>
+                  <Link
+                    href={`/productdetails/${item.productId}`}
+                    className="font-bold text-base md:text-lg hover:underline underline-offset-2"
+                  >
+                    {item.title}
+                  </Link>
                   <p className="text-xs md:text-sm my-1">Size: <span className="text-[#676767]">{item.size}</span></p>
                   <p className="font-bold text-lg">INR {item.sellingPrice}</p>
                 </div>

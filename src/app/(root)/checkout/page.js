@@ -78,13 +78,13 @@ const CheckoutPage = () => {
 
         // Fetch the saved addresses from Firestore
         const userId = storedUser.userId;
-        const addressRef = doc(db, "saved_addresses", userId);
+        const addressRef = doc(db, "users", userId);
         const userDoc = await getDoc(addressRef);
 
         if (userDoc.exists()) {
           const data = userDoc.data();
           setSavedAddresses(data.addresses || []);
-          setFormData(data.addresses[0]);
+          setFormData(data.addresses?.[0] || {});
         } else {
           console.log("No saved addresses found.");
         }

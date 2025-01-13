@@ -50,6 +50,9 @@ const ProfileDropdown = () => {
             <Link href="/mybookings" onClick={() => setIsOpen(false)} className="block px-4 py-2 text-gray-800 hover:bg-gray-100">
               Bookings
             </Link>
+            <Link href="/helpdesk" onClick={() => setIsOpen(false)} className="block px-4 py-2 text-gray-800 hover:bg-gray-100">
+              Helpdesk
+            </Link>
             <button
               onClick={onLogout}
               className="w-full text-left px-4 py-2 text-gray-800 hover:bg-gray-100"

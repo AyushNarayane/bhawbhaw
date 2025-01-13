@@ -39,7 +39,7 @@ const SavedAddresses = () => {
 
         setUserId(storedUser.userId);
 
-        const userRef = doc(db, "saved_addresses", storedUser.userId);
+        const userRef = doc(db, "users", storedUser.userId);
         const userDoc = await getDoc(userRef);
 
         if (userDoc.exists()) {
@@ -58,16 +58,23 @@ const SavedAddresses = () => {
   // Add Address
   const handleAddAddress = async () => {
     try {
-      setIsloading(true)
+      setIsloading(true);
+
       if (!userId) {
         console.error("User ID is undefined.");
         return;
       }
 
-      const userRef = doc(db, "saved_addresses", userId);
+      const userRef = doc(db, "users", userId);
       const userDoc = await getDoc(userRef);
 
-      const newAddress = { ...formData, id: crypto.randomUUID() };
+      // Generate the new address with a timestamp
+      const newAddress = {
+        ...formData,
+        id: crypto.randomUUID(),
+        createdAt: new Date().toISOString() // ISO string format for consistency
+      };
+
       let updatedAddresses = [];
 
       if (userDoc.exists()) {
@@ -76,21 +83,28 @@ const SavedAddresses = () => {
         updatedAddresses = [newAddress];
       }
 
-      await setDoc(userRef, { addresses: updatedAddresses });
+      // Update the Firestore document
+      await setDoc(userRef, {
+        ...userDoc.data(),
+        addresses: updatedAddresses
+      });
+
       setAddresses(updatedAddresses);
       resetForm();
+      console.log("Address added successfully.");
     } catch (error) {
       console.error("Error adding address:", error);
     } finally {
-      setIsloading(false)
+      setIsloading(false);
     }
   };
 
   // Update Address
   const handleUpdateAddress = async (id) => {
     try {
-      setIsloading(true)
-      const userRef = doc(db, "saved_addresses", userId);
+      setIsloading(true);
+
+      const userRef = doc(db, "users", userId);
       const userDoc = await getDoc(userRef);
 
       if (!userDoc.exists()) {
@@ -102,21 +116,27 @@ const SavedAddresses = () => {
         addr.id === id ? { ...addr, ...formData } : addr
       );
 
-      await setDoc(userRef, { addresses: updatedAddresses });
+      await setDoc(userRef, {
+        ...userDoc.data(), // Preserve other user data
+        addresses: updatedAddresses
+      });
+
       setAddresses(updatedAddresses);
       resetForm();
+      console.log("Address updated successfully.");
     } catch (error) {
       console.error("Error updating address:", error);
     } finally {
-      setIsloading(false)
+      setIsloading(false);
     }
   };
 
   // Delete Address
   const handleDeleteAddress = async (addressId) => {
     try {
-      setIsloading(true)
-      const userRef = doc(db, "saved_addresses", userId);
+      setIsloading(true);
+
+      const userRef = doc(db, "users", userId);
       const userDoc = await getDoc(userRef);
 
       if (!userDoc.exists()) {
@@ -128,12 +148,17 @@ const SavedAddresses = () => {
         (addr) => addr.id !== addressId
       );
 
-      await setDoc(userRef, { addresses: updatedAddresses });
+      await setDoc(userRef, {
+        ...userDoc.data(), // Preserve other user data
+        addresses: updatedAddresses
+      });
+
       setAddresses(updatedAddresses);
+      console.log("Address deleted successfully.");
     } catch (error) {
       console.error("Error deleting address:", error);
     } finally {
-      setIsloading(false)
+      setIsloading(false);
     }
   };
 

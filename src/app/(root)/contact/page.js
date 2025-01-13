@@ -10,8 +10,8 @@ const ContactUs = () => {
     phoneNumber: '',
   });
 
-  const [serviceInfo, setServiceInfo] = useState({
-    service: '',
+  const [subjectInfo, setSubjectInfo] = useState({
+    subject: '',
     message: '',
   });
 
@@ -26,10 +26,10 @@ const ContactUs = () => {
     });
   };
 
-  const handleServiceInfoChange = (e) => {
+  const handleSubjectInfoChange = (e) => {
     const { name, value } = e.target;
-    setServiceInfo({
-      ...serviceInfo,
+    setSubjectInfo({
+      ...subjectInfo,
       [name]: value,
     });
   };
@@ -49,8 +49,8 @@ const ContactUs = () => {
       newErrors.phoneNumber = 'Invalid phone number format';
     }
 
-    if (!serviceInfo.service.trim()) newErrors.service = 'Service is required';
-    if (!serviceInfo.message.trim()) newErrors.message = 'Message is required';
+    if (!subjectInfo.subject.trim()) newErrors.subject = 'Subject is required';
+    if (!subjectInfo.message.trim()) newErrors.message = 'Message is required';
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -68,7 +68,7 @@ const ContactUs = () => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({personalInfo, serviceInfo}),
+        body: JSON.stringify({personalInfo, subjectInfo}),
       });
 
       if (!response.ok) {
@@ -80,8 +80,8 @@ const ContactUs = () => {
         email: '',
         phoneNumber: '',
       });
-      setServiceInfo({
-        service: '',
+      setSubjectInfo({
+        subject: '',
         message: '',
       });
       setErrors({});
@@ -145,25 +145,25 @@ const ContactUs = () => {
             </div>
 
             <div className="flex flex-col">
-              <label className="text-[#846F67] text-2xl">Service</label>
+              <label className="text-[#846F67] text-2xl">Subject</label>
               <input
                 type="text"
-                name="service"
+                name="subject"
                 placeholder="Ex Dog walking"
-                value={serviceInfo.service}
-                onChange={handleServiceInfoChange}
+                value={subjectInfo.subject}
+                onChange={handleSubjectInfoChange}
                 className="mt-1 p-2 border rounded-md text-gray-600 bg-[#F3EAE7]"
                 required
               />
-              {errors.service && <span className="text-red-600">{errors.service}</span>}
+              {errors.subject && <span className="text-red-600">{errors.subject}</span>}
             </div>
             <div className="md:col-span-2 flex flex-col">
               <label className="text-[#846F67] text-2xl">Message</label>
               <textarea
                 name="message"
                 placeholder="Write your message here.."
-                value={serviceInfo.message}
-                onChange={handleServiceInfoChange}
+                value={subjectInfo.message}
+                onChange={handleSubjectInfoChange}
                 className="mt-1 p-2 border rounded-md text-[#85716B] bg-[#F3EAE7] h-24"
                 required
               />
