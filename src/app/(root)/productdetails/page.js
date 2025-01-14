@@ -77,7 +77,7 @@ const ProductDetail = () => {
 
   const handleAddToCart = async () => {
     if (product && user?.uid) {
-      const cartRef = doc(db, 'carts', user.uid);
+      const cartRef = doc(db, 'cart', user.uid);
       const cartDoc = await getDoc(cartRef);
 
       if (cartDoc.exists()) {

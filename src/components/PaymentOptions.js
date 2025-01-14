@@ -4,18 +4,9 @@ import React, { useState } from "react";
 
 const PaymentOptions = ({ total, deliveryFee, onSuccess }) => {
   const [selectedMethod, setSelectedMethod] = useState("COD");
-  const [cardDetails, setCardDetails] = useState({
-    cardNumber: "",
-    expiryDate: "",
-    cvv: "",
-  });
-
+  
   const handlePaymentSubmit = (e) => {
     e.preventDefault();
-    if (selectedMethod === "Card" && (!cardDetails.cardNumber || !cardDetails.expiryDate || !cardDetails.cvv)) {
-      alert("Please fill in all card details!");
-      return;
-    }
 
     // Simulate payment processing
     const paymentSuccessful = true;

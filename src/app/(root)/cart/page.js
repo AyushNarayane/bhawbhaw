@@ -355,7 +355,11 @@ const Cart = () => {
             )}
           </div>
 
-          <button className="w-full bg-red-400 text-white py-3 rounded-full mt-4" onClick={handleProceedToCheckout}>
+          <button
+            disabled={cartItems.length === 0}
+            className={`w-full bg-red-400 text-white py-3 rounded-full mt-4 ${cartItems.length === 0 ? 'cursor-not-allowed bg-red-300' : 'cursor-pointer'}`}
+            onClick={handleProceedToCheckout}
+          >
             <p>Proceed to Checkout</p>
           </button>
         </div>

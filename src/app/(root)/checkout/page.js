@@ -139,7 +139,7 @@ const CheckoutPage = () => {
     };
 
     try {
-      // setLoading(true);
+      setLoading(true);
       const response = await fetch(`/api/checkout/checkout`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

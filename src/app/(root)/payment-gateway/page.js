@@ -5,25 +5,38 @@ import PaymentOptions from '@/components/PaymentOptions'
 import { useDispatch, useSelector } from 'react-redux';
 import { setUser } from '@/redux/userSlice';
 import { ClipLoader } from 'react-spinners';
+import { useRouter } from 'next/navigation';
+import { doc, updateDoc } from 'firebase/firestore';
+import { db } from 'firebaseConfig';
 
 const PaymentGateway = () => {
   const dispatch = useDispatch();
+  const router = useRouter();
   const [isPaymentSuccessful, setIsPaymentSuccessful] = useState(false); // Track payment success
   const { total, deliveryFee } = useSelector((state) => state.cart);
   const [loading, setLoading] = useState(false)
+  const [userId, setUserId] = useState()
 
   useEffect(() => {
     setLoading(true);
 
     // Fetch user data
+    //also usestate and set user here here from storedUser.userId
     const storedUser = JSON.parse(localStorage.getItem('user'));
     dispatch(setUser(storedUser));
+    setUserId(storedUser.userId)
 
     setLoading(false);
   }, [dispatch]);
 
-  const handlePaymentSuccess = (status) => {
+  const handlePaymentSuccess = async (status) => {
     setIsPaymentSuccessful(status);
+
+    if (isPaymentSuccessful) {
+      const cartRef = doc(db, 'cart', userId)
+      await updateDoc(cartRef, { items: [] })
+      router.push('/my-orders')
+    }
   };
 
   if (loading) {
@@ -42,7 +55,7 @@ const PaymentGateway = () => {
         deliveryFee={deliveryFee}
         onSuccess={handlePaymentSuccess}
       />
-      {isPaymentSuccessful && alert('Payment successful')}
+      {/* {isPaymentSuccessful && alert('Payment successful')} */}
     </div>
   )
 }
