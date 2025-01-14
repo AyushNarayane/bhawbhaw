@@ -200,7 +200,7 @@ const ProductCard = ({ product, isRecommendation = false }) => {
               className="w-5 h-5"
             />
           ))}
-          <span className="text-gray-600 text-xs ml-4">({product.reviews || 8})</span>
+          <span className="text-gray-600 text-xs ml-4">({product.reviews?.length || 0})</span>
         </div>
       </div>
 

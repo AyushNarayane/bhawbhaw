@@ -1,9 +1,9 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { doc, getDoc, collection, getDocs, query, where, setDoc } from "firebase/firestore";
+import { doc, getDoc, collection, getDocs, query, where, setDoc, arrayUnion, updateDoc } from "firebase/firestore";
 import { db } from "firebaseConfig";
-import { AiFillHeart, AiOutlineHeart } from "react-icons/ai";
+import { AiFillHeart, AiFillStar, AiOutlineHeart } from "react-icons/ai";
 import { FaArrowLeftLong, FaArrowRightLong } from "react-icons/fa6";
 import { useSelector } from "react-redux";
 import ProductCard from "@/components/ProductCard";
@@ -23,6 +23,12 @@ const ProductDetailsPage = ({ params }) => {
   const [isFavorite, setIsFavorite] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [message, setMessage] = useState('');
+  const [review, setReview] = useState({
+    title: '',
+    message: '',
+    stars: 0,
+    createdAt: new Date(),
+  });
 
   const productsPerPage = 3; // For pagination
   const totalPages = Math.ceil(relatedProducts.length / productsPerPage);
@@ -108,7 +114,6 @@ const ProductDetailsPage = ({ params }) => {
     }
 
     const cartRef = doc(db, 'cart', user);
-
     const cartDoc = await getDoc(cartRef);
 
     if (cartDoc.exists()) {
@@ -126,7 +131,7 @@ const ProductDetailsPage = ({ params }) => {
           alert('Quantity cannot be less than 1');
           return;
         }
-        
+
         await setDoc(
           cartRef,
           {
@@ -137,7 +142,7 @@ const ProductDetailsPage = ({ params }) => {
           },
           { merge: true }
         );
-        
+
         setQuantity(updatedQuantity)
         setMessage(`${product.title} quantity updated to ${updatedQuantity}`);
       }
@@ -210,6 +215,42 @@ const ProductDetailsPage = ({ params }) => {
     currentPage * productsPerPage
   );
 
+  const handleAddReview = async () => {
+    const newReview = {
+      ...review,
+      createdAt: new Date().toISOString(),
+    };
+
+    try {
+      const productRef = doc(db, 'products', productId);
+      const productDoc = await getDoc(productRef);
+
+      if (productDoc.exists()) {
+        const productData = productDoc.data();
+        const updatedReviews = [...(productData.reviews || []), newReview];
+
+        // Update the document with the updated reviews array
+        await updateDoc(productRef, {
+          reviews: updatedReviews,
+        });
+
+        // Update the local product state
+        setProduct((prevProduct) => ({
+          ...prevProduct,
+          reviews: updatedReviews,
+        }));
+
+        setReview({ title: '', message: '', stars: 0 });
+        alert('Review added successfully!');
+      } else {
+        alert('Product not found.');
+      }
+    } catch (error) {
+      console.error('Error adding review:', error);
+      alert('Failed to add review.');
+    }
+  };
+
   if (!product) return <div>Loading...</div>;
 
   return (
@@ -225,7 +266,8 @@ const ProductDetailsPage = ({ params }) => {
         <div className="w-full lg:w-1/2 h-auto mb-6 lg:mb-0 bg-gray-200 flex items-center justify-center">
           <img
             className="w-full object-contain"
-            src={product.images[0]} // Using the first image
+            src={product.images[0]} 
+            // Using the first image
             alt={product.title}
             width={500}
             height={500}
@@ -243,7 +285,9 @@ const ProductDetailsPage = ({ params }) => {
                   <CiStar key={index} size={20} className="text-[#FFAD33]" />
                 )
               ))}
-              <span className="text-gray-600 ml-2">({product.reviews} Reviews)</span>
+              <span className="text-gray-600 ml-2">
+                ({product.reviews?.length || 0} Reviews)
+              </span>
               <span className='text-black mx-4'>|</span>
               <span className="text-green-600">In Stock</span>
             </span>
@@ -375,6 +419,73 @@ const ProductDetailsPage = ({ params }) => {
         >
           <FaArrowRightLong size={24} />
         </div>
+      </div>
+
+
+      {/* Reviews Section */}
+      <div className="mt-8">
+        <h2 className="text-xl font-semibold mb-4">Customer Reviews</h2>
+        {/* Add Review Form */}
+        <div className="mb-6">
+          <h3 className="text-lg font-semibold mb-2">Write a Review</h3>
+          <input
+            type="text"
+            placeholder="Review Title"
+            value={review.title}
+            onChange={(e) => setReview({ ...review, title: e.target.value })}
+            className="w-full p-2 border rounded mb-2"
+          />
+          <textarea
+            placeholder="Review Message"
+            value={review.message}
+            onChange={(e) => setReview({ ...review, message: e.target.value })}
+            className="w-full p-2 border rounded mb-2"
+            rows={4}
+          ></textarea>
+          <div className="flex items-center mb-4">
+            <span className="mr-2">Rating:</span>
+            {Array.from({ length: 5 }, (_, index) => (
+              <button
+                key={index}
+                className={`text-xl ${index < review.stars ? 'text-[#FFAD33]' : 'text-gray-400'}`}
+                onClick={() => setReview({ ...review, stars: index + 1 })}
+              >
+                <AiFillStar />
+              </button>
+            ))}
+          </div>
+          <button
+            onClick={handleAddReview}
+            className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+          >
+            Submit Review
+          </button>
+        </div>
+
+        {/* Display Reviews */}
+        {product.reviews?.length ? (
+          <div className="space-y-4">
+            {product.reviews.map((rev, index) => (
+              <div key={index} className="border-b py-4">
+                <div className="flex items-center mb-2">
+                  {Array.from({ length: 5 }, (_, i) => (
+                    <AiFillStar
+                      key={i}
+                      className={`${i < rev.stars ? 'text-[#FFAD33]' : 'text-gray-400'}`}
+                    />
+                  ))}
+                </div>
+                <h4 className="text-lg font-semibold">{rev.title}</h4>
+                <p className="text-gray-600">{rev.message}</p>
+                <p className="text-sm text-gray-500">
+                  Reviewed on: {new Date(rev.createdAt).toLocaleDateString()}
+                </p>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="text-gray-600">No reviews yet. Be the first to review this product!</p>
+        )}
       </div>
     </div>
   );
