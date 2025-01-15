@@ -1,5 +1,6 @@
 "use client"; // Ensures client-side rendering
 
+import Image from "next/image";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 
@@ -39,74 +40,107 @@ const MyOrders = () => {
   }
 
   return (
-    
-    <div className="p-6 bg-white text-black min-h-screen font-poppins">
-        <div className="flex items-center mt-4 md:mt-8">
-    <span className="text-sm md:text-lg text-[#676767]">Home</span>
-    <img src="images/services/arrow.png" alt="Arrow" className="mx-2 w-3 h-3 md:w-4 md:h-4" />
-    <span className="text-sm md:text-lg">My Orders</span>
-  </div>
-  <h2 className="text-2xl pt-1 md:text-3xl font-semibold mb-4">My Orders</h2>
-      {orders.length > 0 ? (
-        <div className="w-full max-w-4xl space-y-6">
-          {orders.map((order) => (
-            <div key={order.id} className="border border-gray-300 bg-white p-4 rounded-lg">
-              {/* Order ID and Status */}
-              <h3 className="font-bold text-lg mb-2">Order ID: {order.id}</h3>
-              <p className="text-sm text-gray-500 mb-4">Status: {order.status}</p>
+    <div className="p-6 bg-gray-50 text-black min-h-screen font-poppins">
+      <div className="max-w-5xl mx-auto">
+        {/* Breadcrumb */}
+        <div className="flex items-center mt-4 md:mt-8 text-sm md:text-lg text-gray-500">
+          <span>Home</span>
+          <Image
+            src="/images/services/arrow.png"
+            alt="Arrow"
+            width={16}
+            height={16}
+            className="mx-2"
+          />
+          <span className="text-gray-700 font-medium">My Orders</span>
+        </div>
 
-              {/* Shipping Address */}
-              <div className="text-sm mb-4">
-                <p className="font-semibold">Shipping Address:</p>
-                <p>
-                  {order.shippingAddress.apartment}, {order.shippingAddress.address},{" "}
-                  {order.shippingAddress.city}, {order.shippingAddress.state} -{" "}
-                  {order.shippingAddress.postalCode}
-                </p>
-              </div>
+        {/* Header */}
+        <h2 className="text-2xl md:text-3xl font-bold mt-4 mb-6 text-gray-800 text-center sm:text-left">
+          My Orders
+        </h2>
 
-              {/* Items in the Order */}
-              <div className="space-y-4">
-                {order.items.map((item) => (
-                  <div
-                    key={item.id}
-                    className="border border-gray-300 bg-white p-4 rounded-lg flex items-center justify-between flex-col sm:flex-row"
+        {orders.length > 0 ? (
+          <div className="w-full space-y-8">
+            {orders.map((order) => (
+              <div
+                key={order.id}
+                className="border border-gray-200 bg-white shadow-sm hover:shadow-lg transition-shadow p-6 rounded-lg"
+              >
+                {/* Order ID and Status */}
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className="font-bold text-lg text-gray-800">Order ID: {order.id}</h3>
+                  <p
+                    className={`text-sm font-medium ${order.status === 'Delivered'
+                      ? 'text-green-600'
+                      : order.status === 'Pending'
+                        ? 'text-yellow-500'
+                        : 'text-red-500'
+                      }`}
                   >
-                    <div className="flex items-center mb-4 sm:mb-0">
+                    {order.status}
+                  </p>
+                </div>
+
+                {/* Shipping Address */}
+                <div className="text-sm mb-6">
+                  <p className="font-semibold text-gray-700">Shipping Address:</p>
+                  <p className="text-gray-600">
+                    {order.shippingAddress.apartment}, {order.shippingAddress.address},{" "}
+                    {order.shippingAddress.city}, {order.shippingAddress.state} -{" "}
+                    {order.shippingAddress.postalCode}
+                  </p>
+                </div>
+
+                {/* Items */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {order.items.map((item) => (
+                    <div
+                      key={item.id}
+                      className="border border-gray-200 bg-white p-4 rounded-lg shadow-sm flex flex-col items-center hover:shadow-lg transition-shadow"
+                    >
                       {/* Item Image */}
-                      <img
+                      <Image
                         src={item.images[0] || "/images/common/dummy.png"}
                         alt={item.title}
-                        className="w-20 h-20 sm:w-24 sm:h-24 object-contain rounded-lg bg-[#f0eeed]"
+                        width={96}
+                        height={96}
+                        className="object-contain rounded-lg bg-gray-100 mb-4"
                       />
                       {/* Item Details */}
-                      <div className="ml-4">
-                        <h3 className="font-bold text-base md:text-lg">{item.title}</h3>
-                        <p className="text-xs md:text-sm my-1">
-                          Size: <span className="text-[#676767]">{item.size}</span>
-                        </p>
-                        <p className="font-bold text-lg">INR {item.sellingPrice}</p>
+                      <div className="text-center">
+                        <h4 className="font-bold text-sm md:text-base text-gray-800">{item.title}</h4>
+                        <p className="text-xs text-gray-500 mt-1">Size: {item.size}</p>
+                        <p className="font-bold text-lg text-gray-900 mt-2">INR {item.sellingPrice}</p>
+                      </div>
+                      {/* Quantity */}
+                      <div className="mt-4 bg-gray-100 px-4 py-1 rounded-full text-sm font-medium text-gray-700">
+                        Qty: {item.quantity || 1}
                       </div>
                     </div>
+                  ))}
+                </div>
 
-                    {/* Item Quantity */}
-                    <div className="flex lg:flex-col sm:flex-row-reverse items-center lg:items-end w-full lg:w-auto justify-between">
-                      <div className="flex items-center mt-12 bg-[#F0F0F0] px-2 py-1 rounded-2xl">
-                        <span className="mx-2">{item.quantity || 1}</span>
-                      </div>
-                    </div>
-                  </div>
-                ))}
+                {/* Total Amount */}
+                <p className="text-right mt-6 font-bold text-xl text-gray-800">
+                  Total: INR {order.totalAmount}
+                </p>
               </div>
-
-              {/* Total Amount */}
-              <p className="text-right mt-4 font-bold text-lg">Total: INR {order.totalAmount + 15}</p>
-            </div>
-          ))}
-        </div>
-      ) : (
-        <p className="text-gray-600">You have no orders yet.</p>
-      )}
+            ))}
+          </div>
+        ) : (
+          <div className="flex flex-col items-center justify-center text-center mt-20 text-gray-600">
+            <Image
+              src="/images/common/no-orders.png"
+              alt="No Orders"
+              width={160}
+              height={160}
+              className="object-contain mb-6"
+            />
+            <p className="text-lg font-medium">You have no orders yet.</p>
+          </div>
+        )}
+      </div>
     </div>
   );
 };

@@ -3,7 +3,7 @@ import React from "react";
 
 const PetCareSection = () => {
   return (
-    <section className="bg-[#fcfcfc] font-poppins">
+    <section className="bg-[#fcfcfc] font-poppins p-2">
       {/* Main Title and Image Section */}
       <div className="text-center relative mx-auto">
         {/* Hero Image (Hidden on small screens) */}

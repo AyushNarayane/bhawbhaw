@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+'use client'
+import { useState } from "react";
 
-function FilterComponent({ onFilter }) {
+const  FilterComponent = ({ onFilter, products })=> {
   const [selectedSubcategories, setSelectedSubcategories] = useState({});
   const [selectedBrands, setSelectedBrands] = useState({});
   const [minPrice, setMinPrice] = useState('');
@@ -22,8 +23,14 @@ function FilterComponent({ onFilter }) {
   };
 
   const handleFilter = () => {
-    onFilter({ min: minPrice, max: maxPrice });
-    setIsFilterOpen(false); // Close the filter after applying
+    const filters = {
+      subcategories: Object.keys(selectedSubcategories).filter((key) => selectedSubcategories[key]),
+      brands: Object.keys(selectedBrands).filter((key) => selectedBrands[key]),
+      min: minPrice,
+      max: maxPrice,
+    };
+    onFilter(filters); // Pass all filters to the parent
+    setIsFilterOpen(false); // Close the filter panel
   };
 
   const handleClearFilter = () => {
@@ -31,9 +38,12 @@ function FilterComponent({ onFilter }) {
     setSelectedBrands({});
     setMinPrice('');
     setMaxPrice('');
-    onFilter({ min: '', max: '' });
-    setIsFilterOpen(false); // Close the filter after clearing
+    onFilter({ subcategories: [], brands: [], min: '', max: '' });
+    setIsFilterOpen(false); // Close the filter panel
   };
+
+  const uniqueSubcategories = [...new Set(products.map((product) => product.subCategory))];
+  const uniqueBrands = [...new Set(products.map((product) => product.brand || 'Unknown'))]; // Handle missing brands
 
   return (
     <div>
@@ -55,9 +65,8 @@ function FilterComponent({ onFilter }) {
 
       {/* Sliding Filter Panel */}
       <div
-        className={`fixed top-0 left-0 h-full bg-white shadow-2xl w-3/4 max-w-xs transform ${
-          isFilterOpen ? 'translate-x-0' : '-translate-x-full'
-        } transition-transform duration-300 z-50`}
+        className={`fixed top-0 left-0 h-full bg-white shadow-2xl w-3/4 max-w-xs transform ${isFilterOpen ? 'translate-x-0' : '-translate-x-full'
+          } transition-transform duration-300 z-50`}
       >
         <div className="p-6 font-poppins text-[#4D413E]">
           <h2 className="text-2xl mb-4">Filters</h2>
@@ -65,7 +74,7 @@ function FilterComponent({ onFilter }) {
           {/* Subcategory Section */}
           <div className="mb-6">
             <h3 className="text-lg mb-2">Subcategory</h3>
-            {['Dry Food', 'Wet Food', 'Milk for puppies'].map((item) => (
+            {uniqueSubcategories.map((item) => (
               <div key={item} className="flex items-center mb-2">
                 <input
                   type="checkbox"
@@ -81,7 +90,7 @@ function FilterComponent({ onFilter }) {
           {/* Brands Section */}
           <div className="mb-6">
             <h3 className="text-lg mb-2">Brands</h3>
-            {['Select', 'Orijen', 'Darling', 'Pro Plan', 'N & D', 'Acana'].map((brand) => (
+            {uniqueBrands.map((brand) => (
               <div key={brand} className="flex items-center mb-2">
                 <input
                   type="checkbox"

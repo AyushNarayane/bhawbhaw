@@ -388,7 +388,7 @@ const ProductDetailsPage = ({ params }) => {
       </div>
 
       <h2 className="text-2xl font-semibold mt-12 mb-6">Related Products</h2>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="flex flex-wrap gap-10">
         {displayedProducts.map((relatedProduct) => (
           <ProductCard key={relatedProduct.id} product={relatedProduct} />
         ))}
@@ -433,13 +433,13 @@ const ProductDetailsPage = ({ params }) => {
             placeholder="Review Title"
             value={review.title}
             onChange={(e) => setReview({ ...review, title: e.target.value })}
-            className="w-full p-2 border rounded mb-2"
+            className="w-full p-2 border rounded-lg mb-2"
           />
           <textarea
             placeholder="Review Message"
             value={review.message}
             onChange={(e) => setReview({ ...review, message: e.target.value })}
-            className="w-full p-2 border rounded mb-2"
+            className="w-full p-2 border rounded-lg mb-2"
             rows={4}
           ></textarea>
           <div className="flex items-center mb-4">
@@ -456,7 +456,7 @@ const ProductDetailsPage = ({ params }) => {
           </div>
           <button
             onClick={handleAddReview}
-            className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+            className="bg-red-500 text-white px-4 py-2 rounded-xl hover:bg-red-600"
           >
             Submit Review
           </button>
@@ -466,7 +466,7 @@ const ProductDetailsPage = ({ params }) => {
         {product.reviews?.length ? (
           <div className="space-y-4">
             {product.reviews.map((rev, index) => (
-              <div key={index} className="border-b py-4">
+              <div key={index} className="border-b py-4 shadow-sm hover:shadow-lg transition-shadow rounded-xl p-4">
                 <div className="flex items-center mb-2">
                   {Array.from({ length: 5 }, (_, i) => (
                     <AiFillStar

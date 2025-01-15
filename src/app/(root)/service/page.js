@@ -21,7 +21,7 @@ const Page = () => {
   useEffect(() => {
     const fetchServices = async () => {
       try {
-        const response = await fetch("/api/services/getAllServices"); 
+        const response = await fetch("/api/services/getAllServices");
         if (response.ok) {
           const data = await response.json();
           // console.log(data);
@@ -74,7 +74,7 @@ const Page = () => {
 
   const handleServiceClick = (service) => {
     dispatch(setSelectedService(service));
-    router.push(`/service/${service.serviceName}_${service.serviceId}`); 
+    router.push(`/service/${service.serviceName}_${service.serviceId}`);
   };
 
   return (
@@ -87,12 +87,12 @@ const Page = () => {
     <div className="bg-gray-50 min-h-screen py-8 font-poppins">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <h1 className="text-3xl font-bold mb-6 text-gray-800">
+        <h1 className="text-3xl font-bold mb-6 text-center text-gray-800">
           Explore Our Services
         </h1>
 
         {/* Filters */}
-        <div className="flex items-center justify-between gap-4 mb-8">
+        <div className="flex items-center justify-between flex-wrap gap-4 mb-8 px-6">
           {/* Search Input */}
           <div className="flex items-center bg-white border border-gray-300 rounded-lg p-2 w-full max-w-md">
             <FaSearch className="text-gray-500 mr-2" />
@@ -120,7 +120,7 @@ const Page = () => {
         </div>
 
         {/* Service Grid */}
-        <div className="flex justify-start flex-wrap gap-6">
+        <div className="flex justify-start flex-wrap gap-6 max-sm:justify-center">
           {filteredServices.length > 0 ? (
             filteredServices.map((service) => (
               <ServiceCard

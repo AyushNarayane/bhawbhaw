@@ -57,12 +57,12 @@ const BookingCard = ({ booking }) => {
     try {
       setIsSubmitting(true);
       toast.loading("Submitting review...");
-  
+
       let imageUrl = null;
       if (reviewData.image) {
         imageUrl = await handleFileUpload(reviewData.image);
       }
-  
+
       const newReview = {
         stars: reviewData.stars,
         title: reviewData.title,
@@ -70,7 +70,7 @@ const BookingCard = ({ booking }) => {
         image: imageUrl,
         createdAt: new Date().toISOString(),
       };
-  
+
       // Fetch existing reviews
       const bookingRef = doc(db, "bookings", booking.id);
       const bookingDoc = await getDoc(bookingRef);
@@ -78,13 +78,13 @@ const BookingCard = ({ booking }) => {
       if (bookingDoc.exists()) {
         existingReviews = bookingDoc.data().reviews || [];
       }
-  
+
       // Add the new review to the existing reviews array
       const updatedReviews = [...existingReviews, newReview];
-  
+
       // Update the reviews array in Firestore
       await updateDoc(bookingRef, { reviews: updatedReviews });
-  
+
       toast.dismiss();
       toast.success("Review submitted successfully!");
       setReviewData({
@@ -101,10 +101,10 @@ const BookingCard = ({ booking }) => {
     } finally {
       setIsSubmitting(false);
     }
-  };  
+  };
 
   return (
-    <div className="flex flex-col bg-white shadow-md rounded-lg p-6 mb-4 font-montserrat text-black">
+    <div className="flex flex-col bg-white shadow-md hover:shadow-lg transition-shadow rounded-lg p-6 mb-4 font-montserrat text-black mx-2">
       <Toaster />
       <p className="text-sm font-semibold mb-2">BOOKING ID: {booking.bookingID}</p>
       <div className="w-full flex flex-col md:flex-row">
@@ -179,7 +179,7 @@ const BookingCard = ({ booking }) => {
       {/* Review Modal */}
       {isReviewModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-          <div className="bg-white rounded-lg p-6 w-1/2">
+          <div className="bg-white rounded-lg p-6 max-md:w-11/12">
             <h2 className="text-lg font-bold mb-4">Submit Your Review</h2>
             <label className="block mb-2">
               Stars:

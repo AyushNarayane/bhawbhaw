@@ -171,7 +171,7 @@ const CheckoutPage = () => {
   };
 
   return (
-    <div className="font-poppins py-6 text-black bg-white">
+    <div className="font-poppins py-6 text-black bg-white p-2">
       <style jsx>{`
         input::placeholder {
           color: #c1c8e1;
@@ -182,7 +182,7 @@ const CheckoutPage = () => {
       </div>
       <div className="flex flex-col lg:flex-row lg:justify-between mx-auto lg:mx-16 gap-6 lg:gap-0">
         <div className="w-full lg:w-8/12">
-          <h2 className="text-lg lg:text-xl text-[#1D3178] font-extrabold mb-4 lg:m-4">Checkout</h2>
+          <h2 className="text-lg lg:text-xl text-[#1D3178] font-extrabold mb-4 m-4">Checkout</h2>
           <div className="shadow-lg bg-[#fdfafa]">
 
             <div className="p-6 rounded-lg">

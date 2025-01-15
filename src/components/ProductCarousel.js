@@ -35,7 +35,7 @@ export default function ProductCarousel() {
         <span className="text-red-500">Products</span>
       </h2>
 
-      <div className="absolute right-0 top-0 flex items-center gap-2 z-10">
+      <div className="absolute right-0 top-0 flex items-center gap-2 z-10 mt-8">
         <button className="custom-prev-arrow bg-white text-black rounded-full p-2 shadow-md">
           &#10094;
         </button>

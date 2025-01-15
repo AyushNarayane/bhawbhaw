@@ -68,7 +68,7 @@ const ContactUs = () => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({personalInfo, subjectInfo}),
+        body: JSON.stringify({ personalInfo, subjectInfo }),
       });
 
       if (!response.ok) {
@@ -95,15 +95,15 @@ const ContactUs = () => {
   };
 
   return (
-    <div className='bg-white p-10 font-poppins'>
+    <div className="bg-white  font-poppins">
       <div className="flex flex-col items-center text-black p-8 font-poppins bg-white lg:px-16">
-        <h1 className="lg:text-8xl text-4xl font-extrabold text-[#85716B]">Contact us</h1>
-        <p className="text-center lg:mx-32 text-gray-600 mt-2">
-          We know your pets are cherished members of your family. That&apos;s why we provide loving, personalized pet sitting services tailored to their needs.
+        <h1 className="lg:text-8xl text-4xl font-extrabold text-[#85716B]">Contact Us</h1>
+        <p className="text-center lg:mx-32 text-gray-600 mt-4 mb-8 text-lg lg:text-xl">
+          We know your pets are cherished members of your family. That's why we provide loving, personalized pet sitting services tailored to their needs.
         </p>
 
-        <div className="mt-8 w-full p-6 rounded-lg border border-[#F3EAE7]">
-          <form className="grid grid-cols-1 md:grid-cols-2 gap-4" onSubmit={handleSubmit}>
+        <div className="mt-8 w-full p-6 rounded-lg border border-[#F3EAE7] shadow-lg">
+          <form className="grid grid-cols-1 gap-6 md:grid-cols-2" onSubmit={handleSubmit}>
             <div className="flex flex-col">
               <label className="text-[#846F67] text-2xl">Name</label>
               <input
@@ -112,10 +112,10 @@ const ContactUs = () => {
                 placeholder="Name"
                 value={personalInfo.name}
                 onChange={handlePersonalInfoChange}
-                className="mt-1 p-2 border rounded-md text-gray-600 bg-[#F3EAE7]"
+                className="mt-1 p-3 border rounded-md text-gray-600 bg-[#F3EAE7] focus:ring-2 focus:ring-[#FFEB3B]"
                 required
               />
-              {errors.name && <span className="text-red-600">{errors.name}</span>}
+              {errors.name && <span className="text-red-600 text-sm">{errors.name}</span>}
             </div>
             <div className="flex flex-col">
               <label className="text-[#846F67] text-2xl">Email</label>
@@ -125,10 +125,10 @@ const ContactUs = () => {
                 placeholder="Example@youremail.com"
                 value={personalInfo.email}
                 onChange={handlePersonalInfoChange}
-                className="mt-1 p-2 border rounded-md text-gray-600 bg-[#F3EAE7]"
+                className="mt-1 p-3 border rounded-md text-gray-600 bg-[#F3EAE7] focus:ring-2 focus:ring-[#FFEB3B]"
                 required
               />
-              {errors.email && <span className="text-red-600">{errors.email}</span>}
+              {errors.email && <span className="text-red-600 text-sm">{errors.email}</span>}
             </div>
             <div className="flex flex-col">
               <label className="text-[#846F67] text-2xl">Phone Number</label>
@@ -138,10 +138,10 @@ const ContactUs = () => {
                 placeholder="+777 666 8888"
                 value={personalInfo.phoneNumber}
                 onChange={handlePersonalInfoChange}
-                className="mt-1 p-2 border rounded-md text-gray-600 bg-[#F3EAE7]"
+                className="mt-1 p-3 border rounded-md text-gray-600 bg-[#F3EAE7] focus:ring-2 focus:ring-[#FFEB3B]"
                 required
               />
-              {errors.phoneNumber && <span className="text-red-600">{errors.phoneNumber}</span>}
+              {errors.phoneNumber && <span className="text-red-600 text-sm">{errors.phoneNumber}</span>}
             </div>
 
             <div className="flex flex-col">
@@ -149,13 +149,13 @@ const ContactUs = () => {
               <input
                 type="text"
                 name="subject"
-                placeholder="Ex Dog walking"
+                placeholder="Ex: Dog Walking"
                 value={subjectInfo.subject}
                 onChange={handleSubjectInfoChange}
-                className="mt-1 p-2 border rounded-md text-gray-600 bg-[#F3EAE7]"
+                className="mt-1 p-3 border rounded-md text-gray-600 bg-[#F3EAE7] focus:ring-2 focus:ring-[#FFEB3B]"
                 required
               />
-              {errors.subject && <span className="text-red-600">{errors.subject}</span>}
+              {errors.subject && <span className="text-red-600 text-sm">{errors.subject}</span>}
             </div>
             <div className="md:col-span-2 flex flex-col">
               <label className="text-[#846F67] text-2xl">Message</label>
@@ -164,49 +164,51 @@ const ContactUs = () => {
                 placeholder="Write your message here.."
                 value={subjectInfo.message}
                 onChange={handleSubjectInfoChange}
-                className="mt-1 p-2 border rounded-md text-[#85716B] bg-[#F3EAE7] h-24"
+                className="mt-1 p-3 border rounded-md text-[#85716B] bg-[#F3EAE7] focus:ring-2 focus:ring-[#FFEB3B] h-32 resize-none"
                 required
               />
-              {errors.message && <span className="text-red-600">{errors.message}</span>}
+              {errors.message && <span className="text-red-600 text-sm">{errors.message}</span>}
             </div>
             <div className="md:col-span-2">
               <button
                 type="submit"
-                className={`w-full bg-[#FFEB3B] text-[#4D413E] py-2 px-4 rounded-md text-2xl ${isLoading ? 'cursor-not-allowed opacity-50' : ''}`}
+                className={`w-full bg-[#FFEB3B] text-[#4D413E] py-3 px-6 rounded-md text-2xl transition-all duration-300 ease-in-out ${isLoading ? 'cursor-not-allowed opacity-50' : 'hover:bg-[#FFD700]'}`}
                 disabled={isLoading}
               >
                 {isLoading ? (
-                  <ClipLoader size={20} color="#fff" className="mx-10"/>
-                ) : 'Book Now'}
+                  <ClipLoader size={20} color="#fff" className="mx-10" />
+                ) : (
+                  'Book Now'
+                )}
               </button>
             </div>
           </form>
         </div>
 
-        <div className=" grid grid-cols-1 mt-5 md:grid-cols-3 gap-4 bg-[#F3EAE7] rounded-xl text-gray-600">
-          <div className="flex items-center space-x-4 p-4">
+        <div className="grid grid-cols-1 mt-8 md:grid-cols-3 gap-6 bg-[#F3EAE7] rounded-xl text-gray-600">
+          <div className="flex items-center space-x-6 p-6">
             <img src="/images/contact/clock.png" alt="Clock" className="w-16 h-16" />
             <div>
-              <h4 className="font-staatliches text-[#4D413E] text-2xl">OPEN HOURS</h4>
-              <p className='text-sm' >Mon - Fri: 9:00 AM to 6:00 PM</p>
-              <p className='text-sm' >Saturday: 9:00 AM to 2:00 PM</p>
-              <p className='text-sm' >Sunday: 9:00 AM to 2:00 PM</p>
+              <h4 className="font-staatliches text-[#4D413E] text-2xl">Open Hours</h4>
+              <p className="text-sm">Mon - Fri: 9:00 AM to 6:00 PM</p>
+              <p className="text-sm">Saturday: 9:00 AM to 2:00 PM</p>
+              <p className="text-sm">Sunday: 9:00 AM to 2:00 PM</p>
             </div>
           </div>
-          <div className="flex items-center space-x-4 p-4">
+          <div className="flex items-center space-x-6 p-6">
             <img src="/images/contact/location.png" alt="Location" className="w-16 h-16" />
             <div>
-              <h4 className="font-staatliches text-[#4D413E] text-2xl">LOCATION</h4>
-              <p className='text-sm' >123 Maple Street, Springfield, Anytown, USA</p>
-              <a href="#" className="text-[#FFEB3B]">See on map</a>
+              <h4 className="font-staatliches text-[#4D413E] text-2xl">Location</h4>
+              <p className="text-sm">123 Maple Street, Springfield, Anytown, USA</p>
+              <a href="#" className="text-[#FFEB3B] hover:text-[#FFD700]">See on map</a>
             </div>
           </div>
-          <div className="flex items-center space-x-4 p-4">
+          <div className="flex items-center space-x-6 p-6">
             <img src="/images/contact/phone.png" alt="Phone" className="w-16 h-16" />
             <div>
-              <h4 className="font-staatliches text-[#4D413E] text-2xl">CONTACT</h4>
-              <p className='text-sm' >648-423-2785</p>
-              <p className='text-sm' >Contact@gatito.com</p>
+              <h4 className="font-staatliches text-[#4D413E] text-2xl">Contact</h4>
+              <p className="text-sm">648-423-2785</p>
+              <p className="text-sm">Contact@gatito.com</p>
             </div>
           </div>
         </div>

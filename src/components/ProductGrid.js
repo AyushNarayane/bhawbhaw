@@ -3,16 +3,21 @@ import React, { useEffect, useState } from "react";
 import ProductCard from "./ProductCard";
 import ProductFilter from "./Filter";
 import { FaArrowRightLong, FaArrowLeftLong } from "react-icons/fa6";
-import { doc, setDoc, collection, getDocs, serverTimestamp } from "firebase/firestore";
-import { db } from "../../firebaseConfig";
 import toast, { Toaster } from 'react-hot-toast';
 
 const ProductGrid = () => {
   const [productData, setProductData] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const productsPerPage = 6;
+  const productsPerPage = 8;
   const [userId, setUserId] = useState(null);
+
+  useEffect(() => {
+    const storedUser = JSON.parse(localStorage.getItem('user'));
+    if (storedUser) {
+      setUserId(storedUser.userId); // Set user ID from local storage
+    }
+  }, []);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -30,13 +35,6 @@ const ProductGrid = () => {
     };
 
     fetchProducts();
-  }, []);
-
-  useEffect(() => {
-    const storedUser = JSON.parse(localStorage.getItem('user'));
-    if (storedUser) {
-      setUserId(storedUser.userId); // Set user ID from local storage
-    }
   }, []);
 
   // Pagination calculation
@@ -72,30 +70,30 @@ const ProductGrid = () => {
     currentPage * productsPerPage
   );
 
-  // Function to filter products based on price range
-  const handleFilter = ({ min, max }) => {
+  const handleFilter = ({ subcategories, brands, min, max }) => {
     const minPrice = parseFloat(min);
     const maxPrice = parseFloat(max);
 
-    if (isNaN(minPrice) || isNaN(maxPrice)) {
-      return;
-    }
-
     const filtered = productData.filter((product) => {
       const price = parseFloat(product.sellingPrice);
-      return price >= (minPrice || 0) && price <= (maxPrice || Infinity);
+      const matchesSubcategories = subcategories.length === 0 || subcategories.includes(product.subCategory);
+      const matchesBrands = brands.length === 0 || brands.includes(product.brand || 'Unknown');
+      const matchesPrice = (!minPrice || price >= minPrice) && (!maxPrice || price <= maxPrice);
+
+      return matchesSubcategories && matchesBrands && matchesPrice;
     });
 
     setFilteredProducts(filtered);
     setCurrentPage(1);
-  }
+  };
 
+  // TODO: SHOW ONLY ACTIVE PRODUCTS
   return (
     <div className="bg-white py-12 px-12 font-poppins">
       <Toaster />
       <div className="flex">
         {/* Filters Section */}
-        <ProductFilter onFilter={handleFilter} />
+        <ProductFilter onFilter={handleFilter} products={productData} />
 
         {/* Product Grid Section */}
         <div className="w-full p-4">
