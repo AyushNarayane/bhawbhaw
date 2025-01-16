@@ -9,6 +9,7 @@ import { db } from "firebaseConfig";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { setUser } from "@/redux/userSlice";
 import Link from "next/link";
+import { ClipLoader } from "react-spinners";
 
 const ProductCard = ({ product, isRecommendation = false }) => {
   // console.log(product);
@@ -21,6 +22,8 @@ const ProductCard = ({ product, isRecommendation = false }) => {
   const wishlistItems = useSelector(state => state.wishlist.items);
   const [isProductInCart, setIsProductInCart] = useState(false);
   const [isInWishlist, setIsInWishlist] = useState(false);
+  const [buyLoading, setBuyLoading] = useState(false)
+  const [cartLoading, setCartLoading] = useState(false)
 
   useEffect(() => {
     setIsProductInCart(cartItems.some(item => item.productId === product.productId));
@@ -49,8 +52,9 @@ const ProductCard = ({ product, isRecommendation = false }) => {
     // }
 
     // sessionStorage.setItem('productId', product.productId);
-
-    router.push(`/productdetails/${product.productId}`)
+    setBuyLoading(true)
+    router.push(`/cart`)
+    setBuyLoading(false)
   }
 
   const handleCartAction = async () => {
@@ -60,6 +64,7 @@ const ProductCard = ({ product, isRecommendation = false }) => {
       return;
     }
 
+    setCartLoading(true)
     try {
       const cartRef = doc(db, 'cart', user);
       const cartDoc = await getDoc(cartRef);
@@ -92,6 +97,8 @@ const ProductCard = ({ product, isRecommendation = false }) => {
     } catch (error) {
       console.error("Error updating cart:", error);
       toast.error("Failed to add product to cart");
+    } finally {
+      setCartLoading(false)
     }
   }
 
@@ -130,7 +137,7 @@ const ProductCard = ({ product, isRecommendation = false }) => {
   };
 
   return (
-    <div className="relative rounded w-80 font-montserrat overflow-hidden p-4 group shadow-lg bg-white">
+    <div className="relative rounded-lg w-80 font-montserrat overflow-hidden p-4 group shadow-md hover:shadow-lg transition-shadow bg-white">
       {/* heart */}
       <div className="absolute top-4 right-4 p-2 rounded-full bg-white shadow-md hover:bg-gray-200 focus:outline-none z-20">
         <Image
@@ -180,9 +187,14 @@ const ProductCard = ({ product, isRecommendation = false }) => {
               ₹{product.sellingPrice}
             </span>
             {product.maxRetailPrice && (
-              <span className="text-xs text-gray-500 line-through">
-                ₹{product.maxRetailPrice}
-              </span>
+              <div className="flex items-center space-x-2">
+                <span className="text-xs text-green-500 font-semibold whitespace-nowrap">
+                  {Math.round(((product.maxRetailPrice - product.sellingPrice) / product.maxRetailPrice) * 100)}% OFF
+                </span>
+                <span className="text-xs text-gray-500 line-through">
+                  ₹{product.maxRetailPrice}
+                </span>
+              </div>
             )}
           </div>
         </div>
@@ -207,16 +219,18 @@ const ProductCard = ({ product, isRecommendation = false }) => {
       <div className="relative flex justify-center gap-5 items-center mt-4 z-20">
         <button
           onClick={handleCartAction}
+          disabled={cartLoading}
           className="border bg-baw-light py-2 w-full px-4 rounded-full whitespace-nowrap"
         >
           {/* {isProductInCart ? 'Remove from Cart' : 'Add to Cart'} */}
-          Add to Cart
+          {cartLoading ? <ClipLoader color="#f47450" loading={cartLoading} size={17} /> : "Add to Cart"}
         </button>
         <button
           onClick={handleBuyAction}
           className="bg-baw-red py-2 w-full px-4 rounded-full whitespace-nowrap"
+          disabled={buyLoading}
         >
-          Buy Now
+          {buyLoading ? <ClipLoader color="#f47450" loading={buyLoading} size={17} /> : 'Buy Now'}
         </button>
       </div>
     </div>

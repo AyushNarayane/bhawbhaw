@@ -27,6 +27,7 @@ const Cart = () => {
   const [showCouponModal, setShowCouponModal] = useState(false);
   const [validatingCoupon, setValidatingCoupon] = useState(false);
   const [error, setError] = useState('');
+  const [selectedItems, setSelectedItems] = useState([]);
 
   const [isPopupVisible, setIsPopupVisible] = useState(false);
   const [isPopupVisible1, setIsPopupVisible1] = useState(false);
@@ -85,20 +86,30 @@ const Cart = () => {
   useEffect(() => {
     if (cartItems.length !== 0) {
       let subTotal = 0;
-      for (let item of cartItems) {
+      const itemsToCalculate = cartItems.filter(item => selectedItems.includes(item.productId));
+
+      for (let item of itemsToCalculate) {
         subTotal += item.sellingPrice * item.quantity;
       }
 
       setSubtotal(subTotal);
-      setTotal(subTotal + deliveryFee);
+      setTotal(subTotal + deliveryFee - (subtotal * discountAmount / 100));
     }
-  }, [cartItems, deliveryFee])
+  }, [cartItems, selectedItems, discountAmount, deliveryFee]);
 
   const handleProceedToCheckout = () => {
     if (cartItems.length === 0) {
       setIsPopupVisible(true);
     } else {
       router.push('/checkout');
+    }
+  };
+
+  const handleItemSelection = (productId) => {
+    if (selectedItems.includes(productId)) {
+      setSelectedItems(selectedItems.filter(id => id !== productId));
+    } else {
+      setSelectedItems([...selectedItems, productId]);
     }
   };
 
@@ -231,6 +242,12 @@ const Cart = () => {
           {cartItems.map((item) => (
             <div key={item.productId} className="border border-gray-300 bg-white p-4 rounded-lg flex items-center justify-between mb-4 flex-col sm:flex-row">
               <div className="flex items-center mb-4 sm:mb-0">
+                <input
+                  type="checkbox"
+                  checked={selectedItems.includes(item.productId)}
+                  onChange={() => handleItemSelection(item.productId)}
+                  className="mr-4"
+                />
                 <img src={item.images[0]} alt={item.title} className="w-20 h-20 sm:w-24 sm:h-24 object-contain rounded-lg bg-[#f0eeed]" />
                 <div className="ml-4">
                   <Link
