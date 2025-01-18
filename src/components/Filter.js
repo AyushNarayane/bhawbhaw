@@ -1,7 +1,7 @@
 'use client'
 import { useState } from "react";
 
-const  FilterComponent = ({ onFilter, products })=> {
+const FilterComponent = ({ onFilter, products }) => {
   const [selectedSubcategories, setSelectedSubcategories] = useState({});
   const [selectedBrands, setSelectedBrands] = useState({});
   const [minPrice, setMinPrice] = useState('');
@@ -46,31 +46,24 @@ const  FilterComponent = ({ onFilter, products })=> {
   const uniqueBrands = [...new Set(products.map((product) => product.brand || 'Unknown'))]; // Handle missing brands
 
   return (
-    <div>
-      {/* Filter Button */}
+    <div className="relative">
+      {/* Filter Button for Mobile */}
       <button
         onClick={() => setIsFilterOpen(true)}
-        className="fixed bottom-4 left-4 p-3 rounded-full bg-[#4D413E] text-white shadow-lg z-50"
+        className="lg:hidden fixed bottom-4 left-4 p-3 rounded-full bg-[#4D413E] text-white shadow-lg z-50"
       >
         Filters
       </button>
 
-      {/* Overlay */}
+      {/* Overlay for Mobile */}
       {isFilterOpen && (
-        <div
-          className="fixed inset-0 bg-black bg-opacity-50 z-40"
-          onClick={() => setIsFilterOpen(false)}
-        ></div>
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden" onClick={() => setIsFilterOpen(false)}></div>
       )}
 
-      {/* Sliding Filter Panel */}
-      <div
-        className={`fixed top-0 left-0 h-full bg-white shadow-2xl w-3/4 max-w-xs transform ${isFilterOpen ? 'translate-x-0' : '-translate-x-full'
-          } transition-transform duration-300 z-50`}
-      >
+      {/* Filter Panel */}
+      <div className={`fixed lg:static top-0 left-0 w-fit h-fit rounded-xl bg-white shadow-xl max-w-xs transform lg:translate-x-0 ${isFilterOpen ? 'translate-x-0' : '-translate-x-full'} transition-transform duration-300 z-50 lg:z-auto`}>
         <div className="p-6 font-poppins text-[#4D413E]">
           <h2 className="text-2xl mb-4">Filters</h2>
-
           {/* Subcategory Section */}
           <div className="mb-6">
             <h3 className="text-lg mb-2">Subcategory</h3>
@@ -144,6 +137,6 @@ const  FilterComponent = ({ onFilter, products })=> {
       </div>
     </div>
   );
-}
+};
 
 export default FilterComponent;

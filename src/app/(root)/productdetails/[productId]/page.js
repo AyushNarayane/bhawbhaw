@@ -8,6 +8,7 @@ import { FaArrowLeftLong, FaArrowRightLong } from "react-icons/fa6";
 import { useSelector } from "react-redux";
 import ProductCard from "@/components/ProductCard";
 import { CiStar } from "react-icons/ci";
+import toast, { Toaster } from "react-hot-toast";
 
 const ProductDetailsPage = ({ params }) => {
   const router = useRouter();
@@ -216,45 +217,85 @@ const ProductDetailsPage = ({ params }) => {
   );
 
   const handleAddReview = async () => {
+    if (!user) {
+      toast.error('You need to be logged in to add a review.');
+      return;
+    }
+  
     const newReview = {
       ...review,
       createdAt: new Date().toISOString(),
     };
-
+  
     try {
+      // Check if the user has purchased the product
+      const ordersRef = collection(db, 'orders');
+      const userOrdersQuery = query(ordersRef, where('userId', '==', user));
+      const userOrdersSnapshot = await getDocs(userOrdersQuery);
+  
+      let hasPurchased = false;
+      const orderDocsToUpdate = []; // To store references to orders to update
+  
+      userOrdersSnapshot.forEach((doc) => {
+        const order = doc.data();
+        const purchasedProduct = order.items.find((item) => item.productId === productId);
+  
+        if (purchasedProduct) {
+          hasPurchased = true;
+          orderDocsToUpdate.push(doc.ref); // Add the order document reference to update later
+        }
+      });
+  
+      if (!hasPurchased) {
+        toast.error('You can only review products you have purchased.');
+        return;
+      }
+  
+      // Proceed to add the review if the user has purchased the product
       const productRef = doc(db, 'products', productId);
       const productDoc = await getDoc(productRef);
-
+  
       if (productDoc.exists()) {
         const productData = productDoc.data();
         const updatedReviews = [...(productData.reviews || []), newReview];
-
-        // Update the document with the updated reviews array
-        await updateDoc(productRef, {
-          reviews: updatedReviews,
-        });
-
-        // Update the local product state
+  
+        // Update the product document with the new review
+        await updateDoc(productRef, { reviews: updatedReviews });
+  
+        // Update local state
         setProduct((prevProduct) => ({
           ...prevProduct,
           reviews: updatedReviews,
         }));
-
+  
+        // Add the review to all relevant orders
+        const updateOrderPromises = orderDocsToUpdate.map((orderRef) =>
+          updateDoc(orderRef, {
+            items: arrayUnion({
+              ...productData, // Spread the product details
+              reviews: updatedReviews,
+            }),
+          })
+        );
+  
+        await Promise.all(updateOrderPromises);
+  
         setReview({ title: '', message: '', stars: 0 });
-        alert('Review added successfully!');
+        toast.success('Review added successfully!');
       } else {
-        alert('Product not found.');
+        toast.error('Product not found.');
       }
     } catch (error) {
       console.error('Error adding review:', error);
-      alert('Failed to add review.');
+      toast.error('Failed to add review.');
     }
-  };
+  };  
 
   if (!product) return <div>Loading...</div>;
 
   return (
     <div className="container mx-auto p-6 bg-white text-black font-poppins">
+      <Toaster />
       {message && (
         <div className="bg-green-100 text-green-700 p-4 mb-4 rounded-md">
           {message}
@@ -266,7 +307,7 @@ const ProductDetailsPage = ({ params }) => {
         <div className="w-full lg:w-1/2 h-auto mb-6 lg:mb-0 bg-gray-200 flex items-center justify-center">
           <img
             className="w-full object-contain"
-            src={product.images[0]} 
+            src={product.images[0]}
             // Using the first image
             alt={product.title}
             width={500}

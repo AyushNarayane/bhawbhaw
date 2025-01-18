@@ -1,87 +1,98 @@
+import React from 'react'
+import Link from "next/link";
 import Image from 'next/image';
-import Link from 'next/link';
+import { FaTwitter, FaLinkedin, FaFacebook, FaInstagram } from 'react-icons/fa';
 
 const Footer = () => {
   return (
-    <footer className="bg-[#85716B] text-white py-12 px-6 md:px-8 font-poppins">
-      <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center space-y-8 md:space-y-0">
-        
-        {/* Logo */}
-        <div className="text-center md:text-left md:mr-10">
+    <div className="bg-[#85716B] text-white py-16 px-5 md:px-10 font-poppins">
+      <div className="container mx-auto grid grid-cols-1 lg:grid-cols-4 gap-8 lg:px-16">
+
+        <div className="flex justify-center lg:justify-start mb-8 lg:mb-0">
           <Image
-            height={200}
-            width={200}
+            width={180}
+            height={180}
             src="/images/logo2.png"
-            alt="Bhaw Logo"
-            className="mx-auto md:mx-0"
+            // className="w-36 max-h-20"
+            alt="Footer Logo"
           />
         </div>
 
-        {/* Opening Hours, Social Media, Contacts */}
-        <div className="flex flex-col md:flex-row justify-between w-full space-y-8 md:space-y-0">
-          
-          {/* Opening Hours */}
-          <div className="text-center md:text-left w-full md:w-1/3">
-            <h2 className="text-xl font-semibold mb-3">Opening Hours</h2>
-            <p className="text-sm mb-2">Mon - Fri: 9:00 AM - 6:00 PM</p>
-            <p className="text-sm mb-2">Saturday: 9:00 AM - 6:00 PM</p>
-            <p className="text-sm mb-2">Sunday: Closed</p>
-          </div>
+        <div className="text-center lg:text-left">
+          <h3 className="font-semibold text-lg mb-4">Quick Links</h3>
+          <ul className="text-xs font-extralight space-y-2">
+            <li><Link href="/about">About</Link></li>
+            <li><Link href="/contact">Contact Us</Link></li>
+            <li><Link href="/careers">Careers</Link></li>
+            <li><Link href="/directories">Directories</Link></li>
+          </ul>
+        </div>
 
-          {/* Social Media */}
-          <div className="text-center md:text-left w-full md:w-1/3">
-            <h2 className="text-xl font-semibold mb-3">Social Media</h2>
-            <div className="space-y-2 flex flex-col">
-              <Link href="#" className="hover:underline text-sm">Twitter ↗</Link>
-              <Link href="#" className="hover:underline text-sm">LinkedIn ↗</Link>
-              <Link href="#" className="hover:underline text-sm">Facebook ↗</Link>
-              <Link href="#" className="hover:underline text-sm">Instagram ↗</Link>
-            </div>
-          </div>
+        <div className="text-center lg:text-left">
+          <h3 className="font-semibold text-lg mb-4">Directories</h3>
+          <ul className="text-xs font-extralight space-y-2">
+            <li><Link href="/directory?option=sellers">Sellers</Link></li>
+            <li><Link href="/directory?option=jobs">Jobs</Link></li>
+            <li><Link href="/directory?option=newsletters">Newsletters</Link></li>
+            <li><Link href="/directory?option=services">Services</Link></li>
+            <li><Link href="/directory?option=products">Products</Link></li>
+            <li><Link href="/directory?option=tags">Tags</Link></li>
+            <li><Link href="/directory?option=categories">Categories</Link></li>
+          </ul>
+        </div>
 
-          {/* Contacts */}
-          <div className="text-center md:text-left w-full md:w-1/3">
-            <h2 className="text-xl font-semibold mb-3">Contacts</h2>
-
-            {/* Phone */}
-            <div className="flex items-center justify-center md:justify-start space-x-3 mb-4">
-              <Image src="/images/footer/call.png" alt="Phone" width={24} height={24} />
-              <div className="text-sm">
-                <div>8390637497</div>
-                <div>8318571489</div>
-              </div>
-            </div>
-
-            {/* Email */}
-            <div className="flex items-center justify-center md:justify-start space-x-3 mb-4">
-              <Image src="/images/footer/mail.png" alt="Email" width={24} height={24} />
-              <div className="text-sm">
-                <div>info@bhawbhaw.com</div>
-                <div>bhawbhaw.com</div>
-              </div>
-            </div>
-
-            {/* Address */}
-            <div className="flex items-center justify-center md:justify-start space-x-3">
-              <Image src="/images/footer/map.png" alt="Location" width={24} height={14} />
-              <span className="text-sm">Bandra W , Mumbai</span>
-            </div>
-          </div>
-
+        <div className="text-center lg:text-left">
+          <h3 className="font-semibold">Contacts</h3>
+          <ul className="mt-4 space-y-4 text-xs font-extralight">
+            <li className="flex items-center justify-center lg:justify-start space-x-2">
+              <Image
+                width="300"
+                height="300"
+                src="/images/footer/call.png"
+                className="w-7 h-7 border border-white rounded-md p-[5px]"
+                alt="Call Icon"
+              />
+              <span>8390637497<br />8318571489</span>
+            </li>
+            <li className="flex items-center justify-center lg:justify-start space-x-2">
+              <Image
+                width="300"
+                height="300"
+                src="/images/footer/mail.png"
+                className="w-7 h-7 border border-white rounded-md p-[5px]"
+                alt="Email Icon"
+              />
+              <span>info@bhawbhaw.com<br />www.bhawbhaw.com</span>
+            </li>
+            <li className="flex items-center justify-center lg:justify-start space-x-2">
+              <Image
+                width="300"
+                height="300"
+                src="/images/footer/map.png"
+                className="w-7 h-7 border border-white rounded-md p-[5px]"
+                alt="Location Icon"
+              />
+              <span>Bandra W , Mumbai</span>
+            </li>
+          </ul>
         </div>
       </div>
 
-      {/* Bottom Footer */}
-      <div className="border-t border-white/40 mt-8 pt-6 text-center md:text-left flex flex-col md:flex-row justify-between items-center">
-        <p className="text-sm text-white">&copy; 2024 bhawbhaw.com</p>
-        <div className="space-x-4 mt-2 md:mt-0">
-          <Link href="#" className="text-white text-sm hover:underline">Privacy Policy</Link>
-          <span className="text-white">|</span>
-          <Link href="#" className="text-white text-sm hover:underline">Cookies</Link>
+      <div className="border-t border-gray-300 mt-6 pt-4 text-center font-extralight text-sm text-gray-400 mx-auto w-full sm:flex sm:justify-between sm:px-10">
+        <p className="text-white mb-4 sm:mb-0">
+          © 2025 Bhawbhaw.com
+        </p>
+        <div className="text-white">
+          <ul className="flex justify-center sm:justify-start space-x-4">
+            <li><Link href="/"><FaTwitter size={20} /></Link></li>
+            <li><Link href="/"><FaLinkedin size={20} /></Link></li>
+            <li><Link href="/"><FaFacebook size={20} /></Link></li>
+            <li><Link href="/"><FaInstagram size={20} /></Link></li>
+          </ul>
         </div>
       </div>
-    </footer>
-  );
-};
+    </div>
+  )
+}
 
 export default Footer;

@@ -252,6 +252,7 @@ const Cart = () => {
                 <div className="ml-4">
                   <Link
                     href={`/productdetails/${item.productId}`}
+                    target="_blank"
                     className="font-bold text-base md:text-lg hover:underline underline-offset-2"
                   >
                     {item.title}

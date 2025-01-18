@@ -1,51 +1,47 @@
-'use client'
+'use client';
 import Image from 'next/image';
 import React, { useState } from 'react';
-import { FaArrowRightLong } from 'react-icons/fa6';
 
 const pets = [
-  { name: 'Cats', img: '/images/hero/cat.png' },
-  { name: 'Dogs', img: '/images/hero/dog.png' },
-  { name: 'Parrots', img: '/images/hero/parrot.png' },
-  { name: 'Hamsters', img: '/images/hero/hamester.png' },
-  { name: 'Fishes', img: '/images/hero/fish.png' },
-  { name: 'Other Pets', img: '/images/hero/other.png' }
+  {
+    name: 'Cats',
+    img: '/images/hero/cat.png',
+    categories: ['Grooming Supply', 'Clothing and Shoes', 'Bowls and Feeders']
+  },
+  {
+    name: 'Dogs',
+    img: '/images/hero/dog.png',
+    categories: ['Collar and Harness', 'Training and Behaviour', 'Dog Food']
+  },
+  {
+    name: 'Parrots',
+    img: '/images/hero/parrot.png',
+    categories: ['Treats', 'Cages', 'Bird Food']
+  },
+  {
+    name: 'Hamsters',
+    img: '/images/hero/hamester.png',
+    categories: ['Cages', 'Treats', 'Chewing Toys']
+  },
+  {
+    name: 'Fishes',
+    img: '/images/hero/fish.png',
+    categories: ['Aquariums and Tanks', 'Fish Food', 'Water Plants']
+  },
+  {
+    name: 'Other Pets',
+    img: '/images/hero/other.png',
+    categories: ['Health Treatments', 'Cleaning Supplies', 'Toys']
+  },
 ];
-
-const categories = [
-  { name: "Caller and Harness" },
-  { name: "Crates" },
-  { name: "Ticks and Flea" },
-  { name: "Grooming Supply" },
-  { name: "Treats" },
-  { name: "Clothing and Shoes" },
-  { name: "Cleaning Supplies" },
-  { name: "Puppy Supplies" },
-  { name: "Bowls and Feeders" },
-  { name: "Training and Behaviour" },
-  { name: "Pet Food" },
-  { name: "Pet Furnitures" },
-  { name: "Aquariums and Tanks" },
-  { name: "Illuminations" },
-  { name: "Heaters, and Regulators" },
-  { name: "Equipment and Ornaments" },
-  { name: "Water Plants" },
-  { name: "Health Treatments" },
-  { name: "Aquarium Services and Maintenance" },
-  { name: "Fish Food and Aquarium Food" },
-  { name: "Aerators, Filters, and Pumps" },
-  { name: "Measuring Instruments" },
-  { name: "Natural and Artificial Stones, Pebbles" },
-  { name: "Fertilizers and Plant Protection" }
-];
-
-const filterButtons = ["All", "Foods", "Clothes", "Toys", "Vitamins", "Shampoo", "Collars", "Bowls", "Beds", "Treats", "Containers"];
 
 const PetCategories = () => {
-  const [selectedFilter, setSelectedFilter] = useState('All');
+  const [selectedPet, setSelectedPet] = useState(null);
+  const [filteredCategories, setFilteredCategories] = useState([]);
 
-  const handleFilterClick = (item) => {
-    setSelectedFilter(item);
+  const handlePetClick = (pet) => {
+    setSelectedPet(pet.name);
+    setFilteredCategories(pet.categories);
   };
 
   return (
@@ -71,74 +67,45 @@ const PetCategories = () => {
         </div>
       </div>
 
-      {/* Category Section */}
+      {/* Pets Section */}
       <div className="w-full">
-        <h3 className="text-2xl mb-4 font-semibold text-black text-center">Categories</h3>
+        <h3 className="text-2xl mb-4 font-semibold text-black text-center">Pets</h3>
         <div className="flex justify-center gap-3 flex-wrap w-full pb-2">
-          {categories.map((category, index) => (
+          {pets.map((pet) => (
             <div
-              key={index}
-              className="flex items-center justify-center cursor-pointer bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-md px-4 py-2 shadow-sm transition-all duration-200 text-sm"
-            >
-              {category.name}
+              key={pet.name}
+              onClick={() => handlePetClick(pet)}
+              className={`flex flex-col justify-evenly items-center cursor-pointer bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-md px-4 py-2 shadow-sm transition-all duration-100 text-sm size-48 ${selectedPet === pet.name ? 'bg-yellow-400 text-white' : ''}`}>
+              <Image
+                src={pet.img}
+                alt={pet.name}
+                height={100}
+                width={100}
+                className="mb-2"
+              />
+              <span>{pet.name}</span>
             </div>
           ))}
         </div>
       </div>
 
-      <div className='w-full h-px bg-gray-300 mt-4'/>
-
-      {/* Filter Section with Images and Divider */}
-      <div className="flex items-center mt-4 space-x-4 flex-wrap justify-center gap-4 pb-2">
-        {/* Left Image */}
-        <Image
-          height={100}
-          width={100}
-          src="/images/hero/search.png"
-          alt="Search Icon"
-          className="size-12 md:size-16"
-        />
-
-        {/* Divider */}
-        <div className="hidden md:block border-l border-gray-400 h-10 mx-4"></div>
-
-        {/* Filter Buttons */}
-        <div className="flex flex-wrap items-center gap-2 justify-center bg-gray-100 px-3 py-2 rounded-3xl shadow-sm">
-          {filterButtons.map((item, index) => (
-            <button
-              key={index}
-              onClick={() => handleFilterClick(item)}
-              className={`py-2 px-4 rounded-2xl text-sm font-medium transition duration-300 ${selectedFilter === item
-                ? "bg-yellow-400 text-white"
-                : "bg-white text-gray-700 hover:bg-yellow-100"
-                }`}
-            >
-              {item}
-            </button>
-          ))}
+      {/* Categories Section */}
+      <div className="w-full">
+        <h3 className="text-2xl my-4 font-semibold text-black text-center">Categories</h3>
+        <div className="flex justify-center gap-3 flex-wrap w-full pb-2">
+          {filteredCategories.length > 0 ? (
+            filteredCategories.map((category, index) => (
+              <div
+                key={index}
+                className="flex items-center justify-center cursor-pointer bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-md px-4 py-2 shadow-sm transition-all duration-200 text-sm"
+              >
+                {category}
+              </div>
+            ))
+          ) : (
+            <p className="text-gray-500 text-center">Please select a pet to see related categories.</p>
+          )}
         </div>
-
-        {/* Divider */}
-        <div className="hidden md:block border-l border-gray-400 h-10 mx-4"></div>
-
-        {/* Right Image */}
-        <Image
-          height={100}
-          width={100}
-          src="/images/hero/setting.png"
-          alt="Settings Icon"
-          className="size-10 md:size-12"
-        />
-
-        <button className="flex items-center justify-center size-10 bg-yellow-400 rounded-full shadow-md md:w-12 md:h-12 hover:bg-yellow-500">
-          <Image
-            height={100}
-            width={100}
-            src="/images/hero/arrow.png"
-            alt="Arrow Icon"
-            className="size-6 md:size-8"
-          />
-        </button>
       </div>
     </div>
   );

@@ -31,7 +31,7 @@ const HelpdeskPage = () => {
       dispatch(setUser(storedUser))
 
       try {
-        const docRef = doc(db, "user_queries", storedUser.userId);
+        const docRef = doc(db, "userQueries", storedUser.userId);
         const userDoc = await getDoc(docRef);
 
         if (userDoc.exists()) {
@@ -65,7 +65,7 @@ const HelpdeskPage = () => {
     try {
       setIsLoading(true)
 
-      const userRef = doc(db, "user_queries", userId);
+      const userRef = doc(db, "userQueries", userId);
       const userDoc = await getDoc(userRef);
       let updatedQueries = [];
       if (userDoc.exists()) {

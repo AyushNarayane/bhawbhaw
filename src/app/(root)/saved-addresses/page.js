@@ -259,7 +259,7 @@ const SavedAddresses = () => {
                     onChange={(e) =>
                       setFormData({ ...formData, [field]: e.target.value })
                     }
-                    className="w-full px-4 py-3 border rounded-md outline-none"
+                    className="w-full px-4 py-3 border rounded-md outline-none text-black"
                   />
                 )
               )}
