@@ -56,13 +56,13 @@ const Page = () => {
 
       if (searchQuery) {
         result = result.filter((service) =>
-          service.title.toLowerCase().includes(searchQuery.toLowerCase())
+          service.serviceType.toLowerCase().includes(searchQuery.toLowerCase())
         );
       }
 
       if (selectedCategory !== "All") {
         result = result.filter(
-          (service) => service.serviceName === selectedCategory
+          (service) => service.serviceType === selectedCategory
         );
       }
 
@@ -74,7 +74,7 @@ const Page = () => {
 
   const handleServiceClick = (service) => {
     dispatch(setSelectedService(service));
-    router.push(`/service/${service.serviceName}_${service.serviceId}`);
+    router.push(`/service-providers`);
   };
 
   return (
@@ -124,7 +124,7 @@ const Page = () => {
           {filteredServices.length > 0 ? (
             filteredServices.map((service) => (
               <ServiceCard
-                key={service.serviceId}
+                key={service.createdAt}
                 service={service}
                 onClick={() => handleServiceClick(service)} // Navigate to service details page
               />

@@ -1,7 +1,7 @@
 'use client';
 import React, { useState, useEffect } from "react";
 import { useRouter } from 'next/navigation';
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import { setDiscount } from "@/redux/cartSlice";
 import { ClipLoader } from "react-spinners";
 import ProtectedHomeRoute from "@/components/ProtectedHomeRoute";
@@ -10,6 +10,9 @@ import { collection, doc, getDoc, getDocs, query, setDoc, where } from "firebase
 import toast, { Toaster } from "react-hot-toast";
 import Image from "next/image";
 import Link from "next/link";
+import Popup from "@/components/Popup";
+import CartItem from "@/components/CartItem";
+import CouponSection from "@/components/CouponSection";
 
 const Cart = () => {
   const [cartItems, setCartItems] = useState([])
@@ -33,7 +36,6 @@ const Cart = () => {
   const [isPopupVisible1, setIsPopupVisible1] = useState(false);
   const [isPopupVisible2, setIsPopupVisible2] = useState(false);
 
-  const dispatch = useDispatch();
   const router = useRouter();
 
   useEffect(() => {
@@ -49,6 +51,8 @@ const Cart = () => {
 
         if (cartDoc.exists()) {
           setCartItems(cartDoc.data().items)
+          const allProductIds = cartDoc.data().items.map(item => item.productId);
+          setSelectedItems(allProductIds);
         }
       } catch (error) {
         console.log(error)
@@ -57,20 +61,12 @@ const Cart = () => {
 
     const fetchCoupons = async () => {
       try {
-        const couponsRef = collection(db, 'coupons');
-        const couponsQuery = query(couponsRef, where('status', '==', 'Active'));
-        const couponsSnapshot = await getDocs(couponsQuery);
+        const response = await fetch(`/api/coupons/getAllCoupons`)
+        const data = await response.json()
 
-        const couponsList = couponsSnapshot.docs.map((doc) => ({
-          id: doc.id,
-          couponTitle: doc.data().couponTitle,
-          discount: doc.data().discount,
-          minPrice: doc.data().minPrice,
-          timesUsed: doc.data().timesUsed,
-          createdAt: doc.data().createdAt,
-        }));
-
-        setCoupons(couponsList);
+        if (response.ok) {
+          setCoupons(data.coupons)
+        }
       } catch (error) {
         console.log(error);
       }
@@ -99,9 +95,17 @@ const Cart = () => {
 
   const handleProceedToCheckout = () => {
     if (cartItems.length === 0) {
-      setIsPopupVisible(true);
-    } else {
+      setIsPopupVisible(true); // Show popup if the cart is empty
+      return;
+    }
+
+    const selectedItemsForCheckout = cartItems.filter(item => selectedItems.includes(item.productId));
+
+    if (selectedItemsForCheckout.length > 0) {
+      sessionStorage.setItem('selectedItems', JSON.stringify(selectedItemsForCheckout));
       router.push('/checkout');
+    } else {
+      toast.error("Please select items to proceed to checkout.");
     }
   };
 
@@ -230,9 +234,9 @@ const Cart = () => {
     <div className="flex bg-white text-black flex-col px-4 md:px-8 font-poppins">
       <Toaster />
       <div className="flex items-center mt-4 md:mt-8">
-        <span className="text-sm md:text-lg text-[#676767]">Home</span>
+        <Link href='/' className="text-sm md:text-lg text-[#676767]">Home</Link>
         <img src="images/services/arrow.png" alt="Arrow" className="mx-2 w-3 h-3 md:w-4 md:h-4" />
-        <span className="text-sm md:text-lg">Cart</span>
+        <Link href='/cart' className="text-sm md:text-lg">Cart</Link>
       </div>
 
       <div className="flex flex-col lg:flex-row justify-between mt-6">
@@ -240,43 +244,14 @@ const Cart = () => {
           <h2 className="text-2xl md:text-3xl font-semibold mb-4">Your cart</h2>
           {cartItems.length === 0 && <h2 className="text-gray-400">Your Cart is Empty!</h2>}
           {cartItems.map((item) => (
-            <div key={item.productId} className="border border-gray-300 bg-white p-4 rounded-lg flex items-center justify-between mb-4 flex-col sm:flex-row">
-              <div className="flex items-center mb-4 sm:mb-0">
-                <input
-                  type="checkbox"
-                  checked={selectedItems.includes(item.productId)}
-                  onChange={() => handleItemSelection(item.productId)}
-                  className="mr-4"
-                />
-                <img src={item.images[0]} alt={item.title} className="w-20 h-20 sm:w-24 sm:h-24 object-contain rounded-lg bg-[#f0eeed]" />
-                <div className="ml-4">
-                  <Link
-                    href={`/productdetails/${item.productId}`}
-                    target="_blank"
-                    className="font-bold text-base md:text-lg hover:underline underline-offset-2"
-                  >
-                    {item.title}
-                  </Link>
-                  <p className="text-xs md:text-sm my-1">Size: <span className="text-[#676767]">{item.size}</span></p>
-                  <p className="font-bold text-lg">INR {item.sellingPrice}</p>
-                </div>
-              </div>
-              <div className="flex lg:flex-col sm:flex-row-reverse items-center lg:items-end w-full lg:w-auto justify-between">
-                <Image
-                  height={100}
-                  width={100}
-                  src="/images/common/dustbin.png"
-                  alt="Delete"
-                  className="w-5 h-5 sm:w-6 sm:h-6 cursor-pointer lg:mt-2 ml-4 sm:ml-0"
-                  onClick={() => handleDelete(item)}
-                />
-                <div className="flex items-center mt-12 bg-[#F0F0F0] px-2 py-1 rounded-2xl">
-                  <button className="px-2" onClick={() => handleQuantityChange(item.productId, -1)}>-</button>
-                  <span className="mx-2">{item.quantity || 1}</span>
-                  <button className="px-2" onClick={() => handleQuantityChange(item.productId, 1)}>+</button>
-                </div>
-              </div>
-            </div>
+            <CartItem
+              key={item.productId}
+              item={item}
+              selectedItems={selectedItems}
+              handleItemSelection={handleItemSelection}
+              handleDelete={handleDelete}
+              handleQuantityChange={handleQuantityChange}
+            />
           ))}
         </div>
 
@@ -303,75 +278,16 @@ const Cart = () => {
           </div>
 
           {/* COUPONS SECTION */}
-          <div className="mt-4 flex flex-col sm:flex-row items-center">
-            <div className="w-full">
-              <div className="flex items-center bg-[#F0F0F0] rounded-full p-2">
-                <input
-                  type="text"
-                  className="flex-1 p-2 bg-[#F0F0F0] rounded-full outline-none text-sm"
-                  placeholder="Coupon Code"
-                  value={coupon}
-                  onChange={(e) => setCoupon(e.target.value)}
-                />
-
-                <button
-                  className="bg-[#E57A7A] text-white px-4 py-2 whitespace-nowrap text-[11px] rounded-full ml-2"
-                  onClick={handleApplyCoupon}
-                  disabled={validatingCoupon}
-                >
-                  {validatingCoupon ? (
-                    <ClipLoader size={20} color="#fff" className="mx-10" />
-                  ) : (
-                    'Apply Coupon'
-                  )}
-                </button>
-              </div>
-              <button
-                className="text-red-500 text-sm px-4 py-2"
-                onClick={() => setShowCouponModal(true)}
-              >
-                Browse Coupons
-              </button>
-              {/* Error Message */}
-              {error && <p className="text-red-600 mt-2 text-sm">{error}</p>}
-            </div>
-
-            {/* Coupon Modal */}
-            {showCouponModal && (
-              <div className="fixed inset-0 flex justify-center items-center bg-black bg-opacity-50">
-                <div className="bg-white rounded-lg w-11/12 md:w-1/2 p-4">
-                  <div className="flex justify-between items-center mb-4">
-                    <h2 className="text-lg font-semibold">Available Coupons</h2>
-                    <button
-                      className="text-red-500 font-semibold"
-                      onClick={() => setShowCouponModal(false)}
-                    >
-                      Close
-                    </button>
-                  </div>
-                  <ul className="space-y-2">
-                    {coupons.length > 0 ? (
-                      coupons.map(c => (
-                        <li
-                          key={c.createdAt}
-                          className="p-2 bg-gray-100 rounded-md cursor-pointer hover:bg-gray-200"
-                          onClick={() => {
-                            setCoupon(c.couponTitle);
-                            setDiscountAmount(c.discount)
-                            setShowCouponModal(false);
-                          }}
-                        >
-                          <p className="font-medium">{c.couponTitle}</p>
-                        </li>
-                      ))
-                    ) : (
-                      <p className="text-sm text-gray-500">No coupons available.</p>
-                    )}
-                  </ul>
-                </div>
-              </div>
-            )}
-          </div>
+          <CouponSection
+            coupon={coupon}
+            setCoupon={setCoupon}
+            handleApplyCoupon={handleApplyCoupon}
+            showCouponModal={showCouponModal}
+            setShowCouponModal={setShowCouponModal}
+            validatingCoupon={validatingCoupon}
+            coupons={coupons}
+            error={error}
+          />
 
           <button
             disabled={cartItems.length === 0}
@@ -385,87 +301,30 @@ const Cart = () => {
 
       {/* Popups for Empty Cart, Invalid Coupon, and Minimum Subtotal */}
       {isPopupVisible && (
-        <div className="fixed inset-0 flex items-center justify-center bg-gray-500 bg-opacity-50 z-50">
-          <div className="bg-white p-8 rounded-lg shadow-lg relative">
-            <button
-              className="absolute top-2 right-2"
-              onClick={closePopup}
-              aria-label="Close popup"
-            >
-              <img
-                src="/images/services/cross.png"
-                alt="Close"
-                className="w-4 h-4 m-1"
-              />
-            </button>
-            <div className="flex flex-col mx-32 my-3 items-center">
-              <img
-                src="/images/services/cancel.png"
-                alt="Fail Icon"
-                className="w-32 h-32 mb-7"
-              />
-              <h3 className="text-lg font-semibold mb-2">Your cart is empty!</h3>
-              <p>Please add items to your cart before proceeding.</p>
-              <button className="mt-4 bg-[#E57A7A] text-white px-4 py-2 rounded" onClick={closePopup}>Close</button>
-            </div>
-          </div>
-        </div>
+        <Popup
+          imageSrc="/images/services/cancel.png"
+          title="Your cart is empty!"
+          message="Please add items to your cart before proceeding."
+          closePopup={closePopup}
+        />
       )}
 
       {isPopupVisible1 && (
-        <div className="fixed inset-0 flex items-center justify-center bg-gray-500 bg-opacity-50 z-50">
-          <div className="bg-white p-8 rounded-lg shadow-lg relative">
-            <button
-              className="absolute top-2 right-2"
-              onClick={closePopup1}
-              aria-label="Close popup"
-            >
-              <img
-                src="/images/services/cross.png"
-                alt="Close"
-                className="w-4 h-4 m-1"
-              />
-            </button>
-            <div className="flex flex-col mx-32 my-3 items-center">
-              <img
-                src="/images/services/cancel.png"
-                alt="Fail Icon"
-                className="w-32 h-32 mb-7"
-              />
-              <h3 className="text-lg font-semibold mb-2 mx-auto">Invalid Coupon!</h3>
-              <p>The coupon code you entered is not valid.</p>
-              <button className="mt-4 bg-[#E57A7A] text-white px-4 py-2 rounded" onClick={closePopup1}>Close</button>
-            </div>
-          </div>
-        </div>
+        <Popup
+          imageSrc="/images/services/cancel.png"
+          title="Invalid Coupon!"
+          message="The coupon code you entered is not valid."
+          closePopup={closePopup1}
+        />
       )}
 
       {isPopupVisible2 && (
-        <div className="fixed inset-0 flex items-center justify-center bg-gray-500 bg-opacity-50 z-50">
-          <div className="bg-white p-8 rounded-lg shadow-lg relative">
-            <button
-              className="absolute top-2 right-2"
-              onClick={closePopup2}
-              aria-label="Close popup"
-            >
-              <img
-                src="/images/services/cross.png"
-                alt="Close"
-                className="w-4 h-4 m-1"
-              />
-            </button>
-            <div className="flex flex-col mx-32 my-3 items-center">
-              <img
-                src="/images/services/cancel.png"
-                alt="Fail Icon"
-                className="w-32 h-32 mb-7"
-              />
-              <h3 className="text-lg font-semibold mb-2">Minimum Subtotal Not Attained!</h3>
-              <p>To apply this coupon, your subtotal must be a bit higher.</p>
-              <button className="mt-4 bg-[#E57A7A] text-white px-4 py-2 rounded" onClick={closePopup2}>Close</button>
-            </div>
-          </div>
-        </div>
+        <Popup
+          imageSrc="/images/services/cancel.png"
+          title="Minimum Subtotal Not Attained!"
+          message="To apply this coupon, your subtotal must be a bit higher."
+          closePopup={closePopup2}
+        />
       )}
     </div>
   );

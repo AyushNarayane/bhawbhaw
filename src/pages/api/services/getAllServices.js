@@ -7,7 +7,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    const servicesCollection = collection(db, 'services');
+    const servicesCollection = collection(db, 'serviceProviders');
     const servicesSnapshot = await getDocs(servicesCollection);
 
     const services = servicesSnapshot.docs.map(doc => ({

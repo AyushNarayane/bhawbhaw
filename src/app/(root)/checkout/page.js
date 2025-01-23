@@ -81,11 +81,9 @@ const CheckoutPage = () => {
           console.log("No saved addresses found.");
         }
 
-        const cartRef = doc(db, 'cart', userId);
-        const cartDoc = await getDoc(cartRef);
-        if (cartDoc.exists()) {
-          const cartData = cartDoc.data();
-          setCartItems(cartData.items);
+        const storedCart = sessionStorage.getItem('selectedItems'); // Fetch from sessionStorage
+        if (storedCart) {
+          setCartItems(JSON.parse(storedCart)); 
         }
       } catch (error) {
         console.error("Error fetching saved addresses:", error);
@@ -138,9 +136,10 @@ const CheckoutPage = () => {
       });
 
       if (response.ok) {
+        const data = await response.json()
         dispatch(setTotalVal(total))
         dispatch(setDeliveryFee(deliveryFee))
-        router.push(`/payment-gateway`);
+        router.push(`/payment-gateway?orderId=${data.orderId}`);
       } else {
         setError("Failed to process payment");
       }

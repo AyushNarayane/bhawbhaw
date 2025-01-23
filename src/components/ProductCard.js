@@ -24,6 +24,7 @@ const ProductCard = ({ product, isRecommendation = false }) => {
   const [isInWishlist, setIsInWishlist] = useState(false);
   const [buyLoading, setBuyLoading] = useState(false)
   const [cartLoading, setCartLoading] = useState(false)
+  const [wishlistLoading, setWishlistLoading] = useState(false)
 
   useEffect(() => {
     setIsProductInCart(cartItems.some(item => item.productId === product.productId));
@@ -58,7 +59,6 @@ const ProductCard = ({ product, isRecommendation = false }) => {
   }
 
   const handleCartAction = async () => {
-
     if (!user) {
       toast.error("Please log in to add products to your cart.");
       return;
@@ -102,18 +102,43 @@ const ProductCard = ({ product, isRecommendation = false }) => {
     }
   }
 
-  const handleWishlistAction = () => {
+  const handleWishlistAction = async () => {
     if (!user) {
       toast.error("Please log in to manage your wishlist.");
       return;
     }
 
-    if (isInWishlist) {
-      dispatch(removeFromWishlist(product));
-      toast.success("Product removed from wishlist");
-    } else {
-      dispatch(addToWishlist(product));
-      toast.success("Product added to wishlist");
+    setWishlistLoading(true);
+    try {
+      const wishlistRef = doc(db, 'wishlists', user);
+      const wishlistDoc = await getDoc(wishlistRef);
+
+      if (wishlistDoc.exists()) {
+        const wishlistData = wishlistDoc.data();
+        const existingProduct = wishlistData.items.find(item => item.productId === product.productId);
+
+        if (existingProduct) {
+          // If product is already in wishlist
+          toast.error("Product is already in your wishlist.");
+        } else {
+          // Add new product to wishlist
+          await setDoc(
+            wishlistRef,
+            { items: [...wishlistData.items, { ...product }] },
+            { merge: true }
+          );
+          toast.success("Product added to wishlist");
+        }
+      } else {
+        // First item in wishlist
+        await setDoc(wishlistRef, { items: [{ ...product }] });
+        toast.success("Product added to wishlist");
+      }
+    } catch (error) {
+      console.error("Error updating wishlist:", error);
+      toast.error("Failed to add product to wishlist");
+    } finally {
+      setWishlistLoading(false);
     }
   };
 
@@ -139,7 +164,10 @@ const ProductCard = ({ product, isRecommendation = false }) => {
   return (
     <div className="relative rounded-lg w-80 font-montserrat overflow-hidden p-4 group shadow-md hover:shadow-lg transition-shadow bg-white">
       {/* heart */}
-      <div className="absolute top-4 right-4 p-2 rounded-full bg-white shadow-md hover:bg-gray-200 focus:outline-none z-20">
+      <div
+        aria-disabled={wishlistLoading}
+        className={`absolute top-4 right-4 p-2 rounded-full bg-white shadow-md hover:bg-gray-200 focus:outline-none z-20 ${wishlistLoading ? 'cursor-not-allowed' : ''}`}
+      >
         <Image
           height={50}
           width={50}

@@ -2,9 +2,9 @@
 
 import React, { useState } from "react";
 
-const PaymentOptions = ({ total, deliveryFee, onSuccess }) => {
+const PaymentOptions = ({ total, deliveryFee, onSuccess, mode = 'checkout' }) => {
   const [selectedMethod, setSelectedMethod] = useState("COD");
-  
+
   const handlePaymentSubmit = (e) => {
     e.preventDefault();
 
@@ -87,14 +87,18 @@ const PaymentOptions = ({ total, deliveryFee, onSuccess }) => {
 
             {/* Payment Summary */}
             <div className="mt-6 border-t pt-4">
-              <div className="flex justify-between mb-2">
-                <span className="text-gray-500">Subtotal:</span>
-                <span>₹ {total - deliveryFee}</span>
-              </div>
-              <div className="flex justify-between mb-2">
-                <span className="text-gray-500">Delivery Fee:</span>
-                <span>₹ {deliveryFee}</span>
-              </div>
+              {mode === 'checkout' && (
+                <>
+                  <div className="flex justify-between mb-2">
+                    <span className="text-gray-500">Subtotal:</span>
+                    <span>₹ {total - deliveryFee}</span>
+                  </div>
+                  <div className="flex justify-between mb-2">
+                    <span className="text-gray-500">Delivery Fee:</span>
+                    <span>₹ {deliveryFee}</span>
+                  </div>
+                </>
+              )}
               <div className="flex justify-between font-semibold text-lg">
                 <span>Total:</span>
                 <span>₹ {total}</span>

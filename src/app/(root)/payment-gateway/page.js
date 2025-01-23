@@ -1,30 +1,33 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
-import PaymentOptions from '@/components/PaymentOptions'
+import React, { useEffect, useState } from 'react';
+import PaymentOptions from '@/components/PaymentOptions';
 import { useDispatch, useSelector } from 'react-redux';
 import { setUser } from '@/redux/userSlice';
 import { ClipLoader } from 'react-spinners';
-import { useRouter } from 'next/navigation';
-import { doc, updateDoc } from 'firebase/firestore';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { db } from 'firebaseConfig';
+import OrderSummaryModal from '@/components/OrderSummaryModal';
 
 const PaymentGateway = () => {
   const dispatch = useDispatch();
   const router = useRouter();
-  const [isPaymentSuccessful, setIsPaymentSuccessful] = useState(false); // Track payment success
+  const [isPaymentSuccessful, setIsPaymentSuccessful] = useState(false);
+  const [showModal, setShowModal] = useState(false);
   const { total, deliveryFee } = useSelector((state) => state.cart);
-  const [loading, setLoading] = useState(false)
-  const [userId, setUserId] = useState()
+  const [loading, setLoading] = useState(false);
+  const [userId, setUserId] = useState();
+  const [orderDetails, setOrderDetails] = useState(null); // Store order details
+  const params = useSearchParams();
+  const orderId = params.get('orderId')
 
   useEffect(() => {
     setLoading(true);
 
-    // Fetch user data
-    //also usestate and set user here here from storedUser.userId
     const storedUser = JSON.parse(localStorage.getItem('user'));
     dispatch(setUser(storedUser));
-    setUserId(storedUser.userId)
+    setUserId(storedUser.userId);
 
     setLoading(false);
   }, [dispatch]);
@@ -33,10 +36,42 @@ const PaymentGateway = () => {
     setIsPaymentSuccessful(status);
 
     if (isPaymentSuccessful) {
-      const cartRef = doc(db, 'cart', userId)
-      await updateDoc(cartRef, { items: [] })
-      router.push('/my-orders')
+      try {
+        // Fetch all product IDs from session storage
+        const storedItems = JSON.parse(sessionStorage.getItem('selectedItems')) || [];
+        const productIds = storedItems.map(item => item.productId);
+
+        // Remove products from the Firestore cart document
+        const cartRef = doc(db, 'cart', userId);
+        const cartDoc = await getDoc(cartRef);
+
+        if (cartDoc.exists()) {
+          const cartData = cartDoc.data();
+          const updatedItems = cartData.items.filter(item => !productIds.includes(item.productId));
+          await updateDoc(cartRef, { items: updatedItems });
+        }
+
+        // Fetch order details
+        const orderRef = doc(db, 'orders', orderId);
+        const orderDoc = await getDoc(orderRef);
+        if (orderDoc.exists()) {
+          setOrderDetails(orderDoc.data());
+        }
+
+        // Clear session storage
+        sessionStorage.removeItem('selectedItems');
+
+        setShowModal(true);
+      } catch (error) {
+        console.error('Error while clearing cart:', error);
+      }
     }
+  };
+  console.log(orderDetails);
+
+  const handleModalConfirm = () => {
+    setShowModal(false);
+    router.push('/my-orders');
   };
 
   if (loading) {
@@ -55,9 +90,13 @@ const PaymentGateway = () => {
         deliveryFee={deliveryFee}
         onSuccess={handlePaymentSuccess}
       />
-      {/* {isPaymentSuccessful && alert('Payment successful')} */}
+
+      {/* Show the modal when payment is successful */}
+      {showModal && (
+        <OrderSummaryModal order={orderDetails} onClose={handleModalConfirm} />
+      )}
     </div>
-  )
-}
+  );
+};
 
 export default PaymentGateway;

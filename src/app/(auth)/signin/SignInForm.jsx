@@ -96,7 +96,7 @@ const SignInForm = () => {
   }, [dispatch, router]);
 
   return (
-    <div className="bg-white px-6 py-10 h-fit rounded-3xl shadow-xl w-11/12 max-w-lg mx-auto mb-6 lg:mb-8 flex flex-col justify-around">
+    <div className="bg-white px-6 py-10 h-fit rounded-3xl shadow-xl w-11/12 mx-2 max-w-md mb-6 lg:mb-8 flex flex-col justify-around">
       <Toaster />
       <div className="flex flex-col mb-4">
         <div className="flex justify-start">
@@ -111,10 +111,10 @@ const SignInForm = () => {
           </Link>
         </div>
         <h2 className="text-left text-lg text-baw-light-gray">Welcome back!!!</h2>
-        <h1 className="text-left text-4xl font-bold">Sign in</h1>
+        <h1 className="text-left text-3xl sm:text-4xl font-bold">Sign in</h1>
       </div>
       <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
-        <div className="">
+        <div>
           <label className="block text-black text-sm mb-2 font-poppins" htmlFor="email">
             Email
           </label>
@@ -129,14 +129,14 @@ const SignInForm = () => {
           />
         </div>
 
-        <div className="">
+        <div>
           <label className="text-black text-sm mb-2 font-poppins flex justify-between" htmlFor="password">
             Password
             <Link href="/forget" className="text-sm text-gray-500 ml-4">Forgot Password?</Link>
           </label>
-          <div className="flex justify-between items-center bg-gray-100">
+          <div className="flex justify-between items-center bg-gray-100 rounded-sm">
             <input
-              type={showPassword ? "text" : "password"} // Toggle password visibility
+              type={showPassword ? "text" : "password"}
               id="password"
               className="w-full p-3 bg-gray-100 rounded-sm text-gray-900 focus:outline-none focus:border-red-400"
               placeholder="Enter your password"
@@ -162,7 +162,7 @@ const SignInForm = () => {
         <div className="w-full flex justify-center mt-4">
           <button
             type="submit"
-            className="w-fit rounded-full bg-red-500 text-white font-bold py-3 px-7 flex justify-center items-center hover:bg-yellow-400"
+            className="w-full sm:w-fit rounded-full bg-red-500 text-white font-bold py-3 px-7 flex justify-center items-center hover:bg-yellow-400"
             disabled={loading}
           >
             <span>{loading ? "Signing In..." : "SIGN IN"}</span>
@@ -171,16 +171,14 @@ const SignInForm = () => {
         </div>
 
         <div>
-        <p className="text-center text-gray-500">
-          <span>Don&apos;t have an account? </span>
-          <Link href="/signup" className="text-red-500 font-semibold">
-            Sign up
-          </Link>
-        </p>
-      </div>
+          <p className="text-center text-gray-500">
+            <span>Don&apos;t have an account? </span>
+            <Link href="/signup" className="text-red-500 font-semibold">
+              Sign up
+            </Link>
+          </p>
+        </div>
       </form>
-
-      
     </div>
   );
 };

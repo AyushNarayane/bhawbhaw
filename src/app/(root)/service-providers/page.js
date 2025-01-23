@@ -2,11 +2,12 @@
 
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { db } from "firebaseConfig"; // Replace with your Firebase config file
+import { db } from "firebaseConfig";
 import { collection, getDocs, query, where } from "firebase/firestore";
 import Image from "next/image";
 import { setSelectedService } from "@/redux/serviceSlice";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 const ServiceProviders = () => {
   const [vendors, setVendors] = useState([]);
@@ -90,9 +91,9 @@ const ServiceProviders = () => {
                   className="rounded-xl"
                 />
               </div>
-              <h2 className="text-xl font-bold text-gray-800 mb-2">
+              <Link href={`/service/${selectedService.serviceName}_${selectedService.serviceId}`} className="text-xl font-bold text-gray-800 mb-2 hover:underline">
                 {vendor.personalDetails.fullName}
-              </h2>
+              </Link>
               <p className="text-gray-600 mb-2">
                 <span className="font-semibold">Brand: </span> {vendor.businessDetails.brandName}
               </p>

@@ -1,17 +1,74 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { useSelector, useDispatch } from "react-redux";
 import ProductCard from "../../../components/ProductCard";
 import { FaArrowRightLong, FaArrowLeftLong } from "react-icons/fa6";
 import Protected from "@/components/ProtectedRoute";
+import { db } from "firebaseConfig";
+import { collection, doc, getDoc, getDocs, query, where } from "firebase/firestore";
+import toast, { Toaster } from "react-hot-toast";
 
-const productsPerPage = 3;
+const productsPerPage = 4;
 
 const Recommendation = () => {
-  const dispatch = useDispatch();
-  const wishlistProducts = useSelector((state) => state.wishlist.items);
+  const [wishlistProducts, setWishlistProducts] = useState([]);
+  const [forYouProducts, setForYouProducts] = useState([]);
+  const [loading, setLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [currentForYouPage, setCurrentForYouPage] = useState(1);
+
+  const userId = localStorage.getItem("userId"); // Retrieve userId from local storage
+
+  useEffect(() => {
+    const storedUser = JSON.parse(localStorage.getItem("user"));
+    const userId = storedUser.userId;
+
+    if (!userId) {
+      toast.error("User not logged in!");
+      return;
+    }
+
+    const fetchWishlist = async () => {
+      try {
+        setLoading(true);
+
+        // Get wishlist from Firestore
+        const wishlistRef = doc(db, "wishlists", userId); // Collection: 'wishlists', Document: userId
+        const wishlistDoc = await getDoc(wishlistRef);
+
+        if (wishlistDoc.exists()) {
+          const wishlistData = wishlistDoc.data();
+          const wishlistProducts = wishlistData.items || [];
+          setWishlistProducts(wishlistProducts);
+
+          // Extract unique categories from wishlist
+          const categories = [...new Set(wishlistProducts.map((product) => product.category))];
+
+          // Get recommendations based on categories
+          const productsRef = collection(db, "products"); // Assuming 'products' collection exists
+          const recommendationsQuery = query(productsRef, where("category", "in", categories));
+          const recommendationsSnapshot = await getDocs(recommendationsQuery);
+
+          const recommendations = recommendationsSnapshot.docs.map((doc) => ({
+            id: doc.id,
+            ...doc.data(),
+          }));
+
+          setForYouProducts(recommendations);
+        } else {
+          console.warn("No wishlist found for this user.");
+          setWishlistProducts([]);
+          setForYouProducts([]);
+        }
+      } catch (error) {
+        console.error("Error fetching wishlist and recommendations:", error);
+        toast.error("Failed to fetch wishlist and recommendations");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchWishlist();
+  }, [userId]);
 
   // Pagination logic for wishlist products
   const totalWishlistPages = Math.ceil(wishlistProducts.length / productsPerPage);
@@ -19,17 +76,12 @@ const Recommendation = () => {
   const indexOfFirstWishlistProduct = indexOfLastWishlistProduct - productsPerPage;
   const currentWishlistProducts = wishlistProducts.slice(indexOfFirstWishlistProduct, indexOfLastWishlistProduct);
 
-  // Create a unique set of categories from the wishlist products
-  const categories = [...new Set(wishlistProducts.map(product => product.category))];
-
-  // Filter products based on the user's wishlist categories for recommendations
-  const forYouProducts = wishlistProducts.filter(product => categories.includes(product.category));
+  // Pagination logic for recommendations
   const totalForYouPages = Math.ceil(forYouProducts.length / productsPerPage);
   const indexOfLastForYouProduct = currentForYouPage * productsPerPage;
   const indexOfFirstForYouProduct = indexOfLastForYouProduct - productsPerPage;
   const currentForYouProducts = forYouProducts.slice(indexOfFirstForYouProduct, indexOfLastForYouProduct);
 
-  // Function to get pagination numbers
   const getPaginationNumbers = (currentPage, totalPages) => {
     const paginationNumbers = [];
     let startPage = Math.max(1, currentPage - 1);
@@ -56,21 +108,30 @@ const Recommendation = () => {
   const wishlistPaginationNumbers = getPaginationNumbers(currentPage, totalWishlistPages);
   const forYouPaginationNumbers = getPaginationNumbers(currentForYouPage, totalForYouPages);
 
+  if (loading) {
+    return <p>Loading...</p>;
+  }
+
   return (
     <div className="lg:px-12 bg-white text-black p-6 font-poppins">
+      <Toaster />
       <div className="mb-6">
-        <h2 className="text-xl font-medium mb-4">Wishlist ({wishlistProducts.length})</h2>
+        <div className="flex items-center mb-6">
+          <div className="h-10 w-2 mr-5 bg-[#E57373] rounded-3xl"></div>
+          <h2 className="text-xl font-medium">Wishlist ({wishlistProducts.length})</h2>
+        </div>
         {currentWishlistProducts.length === 0 ? (
           <p>No products in your wishlist.</p>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="flex flex-wrap gap-10 justify-evenly">
             {currentWishlistProducts.map((product) => (
-              <ProductCard key={product.id} product={product} isRecommendation={true} />
+              <ProductCard key={product.productId} product={product} isRecommendation={true} />
             ))}
           </div>
         )}
 
-        <div className="flex justify-center mt-4 font-kiwi items-center">
+        {/* Wishlist Pagination */}
+        <div className="flex justify-center mt-4 items-center">
           <div
             className={`cursor-pointer mr-12 ${currentPage === 1 ? "text-[#C4B0A9]" : "text-[#85716B]"}`}
             onClick={() => currentPage > 1 && setCurrentPage(currentPage - 1)}
@@ -100,21 +161,25 @@ const Recommendation = () => {
         </div>
       </div>
 
+      <div className="h-px w-full bg-gray-300 my-6" />
+
       <div className="flex items-center mb-6">
-        <div className="h-10 w-5 mr-5 bg-[#E57373] rounded-3xl"></div>
+        <div className="h-10 w-2 mr-5 bg-[#E57373] rounded-3xl"></div>
         <h2 className="text-xl font-medium">For You ({forYouProducts.length})</h2>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      {/* Recommendations */}
+      <div className="flex flex-wrap gap-10 justify-evenly">
         {currentForYouProducts.length === 0 ? (
           <p>No recommendations available.</p>
         ) : (
           currentForYouProducts.map((product) => (
-            <ProductCard key={product.id} product={product} />
+            <ProductCard key={product.productId} product={product} />
           ))
         )}
       </div>
 
+      {/* Recommendations Pagination */}
       <div className="flex justify-center mt-4 font-kiwi items-center">
         <div
           className={`cursor-pointer mr-12 ${currentForYouPage === 1 ? "text-[#C4B0A9]" : "text-[#85716B]"}`}
