@@ -73,7 +73,7 @@ const Navbar = () => {
 
         {/* Navigation Links */}
         <ul className="hidden lg:flex flex-grow justify-center lg:space-x-8 text-gray-600">
-          <li>
+          {/* <li>
             <Link
               href="/about"
               onClick={() => setIsOpen(false)}
@@ -81,7 +81,7 @@ const Navbar = () => {
             >
               ABOUT US
             </Link>
-          </li>
+          </li> */}
           <li>
             <Link
               href="/products"

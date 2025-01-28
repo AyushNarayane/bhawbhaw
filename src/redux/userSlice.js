@@ -25,9 +25,9 @@ const userSlice = createSlice({
       const userData = { ...action.payload.userData };
 
       // Convert non-serializable fields
-      if (userData.createdAt && typeof userData.createdAt.toDate === "function") {
-        userData.createdAt = userData.createdAt.toDate().toISOString(); // Convert to ISO string
-      }
+      if (userData.createdAt && typeof userData.createdAt === "string") {
+        userData.createdAt = Timestamp.fromDate(new Date(userData.createdAt)); // Convert ISO string to Firestore Timestamp
+      }      
 
       state.userData = { ...state.userData, ...userData };
 

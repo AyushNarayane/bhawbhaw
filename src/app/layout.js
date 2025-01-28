@@ -33,7 +33,7 @@ export default function RootLayout({ children }) {
         <link href="https://fonts.googleapis.com/css2?family=Kiwi+Maru:wght@400;700&display=swap" rel="stylesheet" />
         <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;700&display=swap" rel="stylesheet" />
       </head>
-      <body className="bg-white">
+      <body className="bg-white text-black">
         <AuthProvider>
           <CartWishlistProvider>
             <ClientProvider>

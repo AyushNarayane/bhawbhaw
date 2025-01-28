@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -8,6 +8,7 @@ import Image from "next/image";
 import { setSelectedService } from "@/redux/serviceSlice";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import toast, { Toaster } from "react-hot-toast";
 
 const ServiceProviders = () => {
   const [vendors, setVendors] = useState([]);
@@ -22,15 +23,21 @@ const ServiceProviders = () => {
       try {
         setLoading(true);
 
+        console.log(selectedService);
+        
         // Fetch all vendor IDs for the selected service
-        const servicesRef = collection(db, "services");
+        const servicesRef = collection(db, "serviceProviders");
         const serviceQuery = query(
           servicesRef,
-          where("serviceId", "==", selectedService.serviceId)
+          where("__name__", "==", selectedService.id) // Use __name__ to compare document ID
         );
         const serviceSnapshot = await getDocs(serviceQuery);
+        console.log(serviceSnapshot);
+        
 
-        const vendorIds = serviceSnapshot.docs.map((doc) => doc.data().vendorId);
+        const vendorIds = serviceSnapshot.docs.map(
+          (doc) => doc.data().vendorId
+        );
 
         if (vendorIds.length === 0) {
           setVendors([]);
@@ -40,7 +47,10 @@ const ServiceProviders = () => {
 
         // Fetch vendor details using the IDs
         const vendorsRef = collection(db, "vendors");
-        const vendorQuery = query(vendorsRef, where("__name__", "in", vendorIds)); // "__name__" refers to the document ID
+        const vendorQuery = query(
+          vendorsRef,
+          where("__name__", "in", vendorIds)
+        ); // "__name__" refers to the document ID
         const vendorSnapshot = await getDocs(vendorQuery);
 
         const fetchedVendors = vendorSnapshot.docs.map((doc) => ({
@@ -57,7 +67,7 @@ const ServiceProviders = () => {
     };
 
     fetchVendors();
-  }, [selectedService.serviceId]);
+  }, [selectedService.id]);
 
   const handleBookService = () => {
     if (!userId) {
@@ -65,13 +75,16 @@ const ServiceProviders = () => {
       return;
     }
     dispatch(setSelectedService(selectedService));
-    router.push('/book-service');
-  }
+    console.log(selectedService);
+    
+    router.push("/book-service");
+  };
 
-  if (loading) return <p>Loading vendors...</p>;
+  if (loading) return <p className="text-black">Loading vendors...</p>;
 
   return (
     <div className="p-6 max-w-7xl mx-auto font-poppins">
+      <Toaster/>
       <h1 className="text-4xl font-bold mb-8 text-center text-red-600">
         {selectedService.serviceName} Providers
       </h1>
@@ -91,11 +104,15 @@ const ServiceProviders = () => {
                   className="rounded-xl"
                 />
               </div>
-              <Link href={`/service/${selectedService.serviceName}_${selectedService.serviceId}`} className="text-xl font-bold text-gray-800 mb-2 hover:underline">
+              <Link
+                href={`/service/${selectedService.name}_${selectedService.id}`}
+                className="text-xl font-bold text-gray-800 mb-2 hover:underline"
+              >
                 {vendor.personalDetails.fullName}
               </Link>
               <p className="text-gray-600 mb-2">
-                <span className="font-semibold">Brand: </span> {vendor.businessDetails.brandName}
+                <span className="font-semibold">Brand: </span>{" "}
+                {vendor.businessDetails.brandName}
               </p>
               <p className="text-gray-500 mb-2">
                 <span className="font-semibold">Location: </span>
@@ -105,7 +122,10 @@ const ServiceProviders = () => {
                 <span className="font-semibold">Phone: </span>
                 {vendor.personalDetails.phoneNumber}
               </p>
-              <button onClick={handleBookService} className="w-full bg-red-500 text-white py-2 rounded-lg hover:bg-red-600 transition">
+              <button
+                onClick={handleBookService}
+                className="w-full bg-red-500 text-white py-2 rounded-lg hover:bg-red-600 transition"
+              >
                 Book Service
               </button>
             </div>
@@ -117,7 +137,7 @@ const ServiceProviders = () => {
         </p>
       )}
     </div>
-  )
-}
+  );
+};
 
-export default ServiceProviders
+export default ServiceProviders;

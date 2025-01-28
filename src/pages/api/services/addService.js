@@ -1,6 +1,6 @@
 // pages/api/services/addService.js
 import { db } from '../../../../firebaseConfig';  // Assuming firebaseConfig is set up correctly
-import { doc, setDoc } from 'firebase/firestore';
+import { doc, setDoc, Timestamp } from 'firebase/firestore';
 
 export default async function handler(req, res) {
   if (req.method === 'POST') {
@@ -18,7 +18,7 @@ export default async function handler(req, res) {
         ...serviceData,
         vendorId,
         serviceID,  // Add the custom serviceID field
-        createdAt: new Date().toISOString(),
+        createdAt: Timestamp.now(),
       });
 
       // Return success response with the custom serviceID

@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useDispatch } from "react-redux";
 import { setTotalVal, setDeliveryFee } from "@/redux/cartSlice";
 import { ClipLoader } from "react-spinners";
-import { doc, getDoc, setDoc } from "firebase/firestore";
+import { doc, getDoc, setDoc, Timestamp } from "firebase/firestore";
 import { db } from "firebaseConfig";
 import Image from "next/image";
 import PaymentOptions from "@/components/PaymentOptions";
@@ -40,6 +40,7 @@ const CheckoutPage = () => {
     city: "",
     postalCode: "",
     checked: false,
+    id:"",
   });
 
   useEffect(() => {
@@ -108,8 +109,22 @@ const CheckoutPage = () => {
   }, [cartItems, deliveryFee]);
 
   const handleProceedToPayment = async () => {
+    setLoading(true);
+    
+    const userRef = doc(db, "users", userId);
+    const userDoc = await getDoc(userRef);
+
+    if (!userDoc.exists()) {
+      setError("User details not found");
+      setLoading(false);
+      return;
+    }
+
+    const userDetails = userDoc.data();
+
     const orderData = {
       userId,
+      userDetails,
       cartItems: cartItems,
       paymentMethod: 'COD',
       shippingAddress: {
@@ -126,9 +141,10 @@ const CheckoutPage = () => {
       notification: formData.checked,
       totalAmount: total,
     };
+    console.log(orderData);
+    
 
     try {
-      setLoading(true);
       const response = await fetch(`/api/checkout/checkout`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -166,6 +182,7 @@ const CheckoutPage = () => {
       city: "",
       postalCode: "",
       checked: false,
+      id:"",
     });
     setIsPopupVisible(true);
   };
@@ -191,7 +208,7 @@ const CheckoutPage = () => {
       const newAddress = {
         ...formData,
         id: crypto.randomUUID(),
-        createdAt: new Date().toISOString() // ISO string format for consistency
+        createdAt: Timestamp.now() // ISO string format for consistency
       };
 
       let updatedAddresses = [];

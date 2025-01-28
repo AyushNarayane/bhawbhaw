@@ -4,6 +4,7 @@ import {
   doc,
   setDoc,
   getDoc,
+  Timestamp,
 } from "firebase/firestore";
 import { db } from "firebaseConfig";
 import { useDispatch } from 'react-redux';
@@ -75,7 +76,7 @@ const ContactInformation = ({ nextStep, handleFormDataChange, formData, savedAdd
       const newAddress = {
         ...formDataForNewAddress,
         id: crypto.randomUUID(),
-        createdAt: new Date().toISOString(),
+        createdAt: Timestamp.now(),
       };
 
       let updatedAddresses = [];
@@ -130,7 +131,7 @@ const ContactInformation = ({ nextStep, handleFormDataChange, formData, savedAdd
   };
 
   return (
-    <div className="p-8 bg-white rounded-lg shadow-lg">
+    <div className="p-8 bg-white rounded-lg shadow-lg text-black">
       <div className="grid grid-cols-2 gap-6">
         <div>
           <label className="text-sm text-gray-700">Select Saved Address</label>

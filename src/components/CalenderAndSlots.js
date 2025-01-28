@@ -21,6 +21,8 @@ const CalendarAndSlot = ({ nextStep, prevStep, handleFormDataChange }) => {
     }
   };
 
+  // const availableDates = ["2025-02-01", "2025-02-03", "2025-02-05"];
+
   return (
     <div className="p-6 bg-white rounded-lg shadow-lg">
       <div className="mb-4">

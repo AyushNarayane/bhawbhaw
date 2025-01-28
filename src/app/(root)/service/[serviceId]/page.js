@@ -22,7 +22,7 @@ const ServiceDetailsPage = ({ params }) => {
       try {
         setLoading(true);
 
-        const serviceDocRef = doc(db, 'services', extractedServiceId);
+        const serviceDocRef = doc(db, 'serviceProviders', extractedServiceId);
         const serviceDoc = await getDoc(serviceDocRef);
 
         if (serviceDoc.exists()) {
@@ -65,7 +65,7 @@ const ServiceDetailsPage = ({ params }) => {
   }
 
   return (
-    <div className="max-w-5xl mx-auto p-6 font-poppins">
+    <div className="max-w-5xl mx-auto p-6 font-poppins text-black">
       {/* Header */}
       <div className="mb-6 text-center">
         <h1 className="text-3xl font-bold text-red-700">{service.title}</h1>
@@ -78,7 +78,7 @@ const ServiceDetailsPage = ({ params }) => {
         <div className="flex-shrink-0">
           <div className="relative w-full lg:w-96 h-64 rounded-md overflow-hidden">
             <Image
-              src={service.image[0] || '/placeholder.jpg'}
+              src='/placeholder.webp'
               alt={service.title}
               layout="fill"
               objectFit="cover"
@@ -93,7 +93,7 @@ const ServiceDetailsPage = ({ params }) => {
             <span className="font-semibold">Location:</span> {service.address}
           </p>
           <p className="text-lg mb-2">
-            <span className="font-semibold">Price:</span> ₹{service.pricePerHour} / hour
+            <span className="font-semibold">Price:</span> ₹{service.expectedSalary} / hour
           </p>
           <p className="text-lg mb-6">
             <span className="font-semibold">Contact:</span> {service.phoneNumber}

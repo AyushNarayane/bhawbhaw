@@ -5,13 +5,13 @@ import { useRouter, useSearchParams } from "next/navigation";
 const Directory = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const option = searchParams.get("option") || "seller"; // Get the `option` from the query parameter
+  const option = searchParams.get("option") || "vendors"; // Get the `option` from the query parameter
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   const options = [
-    { value: "seller", label: "Sellers" },
+    { value: "vendors", label: "vendors" },
     { value: "user", label: "Users" },
     { value: "products", label: "Products" },
   ];
@@ -54,7 +54,7 @@ const Directory = () => {
   }
 
   return (
-    <div className="p-8">
+    <div className="p-8 text-black">
       <h1 className="text-2xl font-bold mb-6">Directory</h1>
 
       {/* Dropdown for selecting option */}
@@ -84,6 +84,12 @@ const Directory = () => {
             {item.email && <p>Email: {item.email}</p>}
             {item.phone && <p>Phone: {item.phone}</p>}
             {item.price && <p>Price: {item.price}</p>}
+            {option === "vendors" && (
+              <>
+                <p>{item.personalDetails.fullName}</p>
+                <p>{item.personalDetails.email}</p>
+              </>
+            )}
           </li>
         ))}
       </ul>

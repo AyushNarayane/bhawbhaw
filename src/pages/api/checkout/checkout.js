@@ -6,6 +6,7 @@ export default async function handler(req, res) {
     try {
       const {
         userId,
+        userDetails,
         cartItems,
         paymentMethod,
         shippingAddress: {
@@ -24,7 +25,7 @@ export default async function handler(req, res) {
       } = req.body;
 
       // Check if required fields are present
-      if (!userId || !cartItems || !paymentMethod || !email || !firstName || !lastName || !address || !city || !state || !postalCode) {
+      if (!cartItems || !paymentMethod || !email || !firstName || !lastName || !address || !city || !state || !postalCode) {
         return res.status(400).json({ error: 'Required fields are missing' });
       }
 
@@ -34,6 +35,7 @@ export default async function handler(req, res) {
       // Order details to save to Firebase
       const order = {
         userId,
+        userDetails,
         items: cartItems,
         totalAmount,
         paymentMethod,
@@ -60,12 +62,11 @@ export default async function handler(req, res) {
       const orderRef = doc(db, 'orders', orderId);
       batch.set(orderRef, order);
 
-      // Reference to the 'checkout' collection for redundancy (if needed)
-      const checkoutRef = doc(db, 'checkout', orderId); ``
+      const checkoutRef = doc(db, 'checkout', orderId);
       batch.set(checkoutRef, {
         ...order,
         createdAt: new Date(),
-        status: 'Initialized',  // Status can also be 'Completed' after payment confirmation
+        status: 'Initialized', 
       });
 
       // Commit the batch operation

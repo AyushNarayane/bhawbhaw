@@ -5,6 +5,7 @@ import {
   doc,
   setDoc,
   getDoc,
+  Timestamp,
 } from "firebase/firestore";
 import { db } from "firebaseConfig";
 import { useRouter } from "next/navigation";
@@ -72,7 +73,7 @@ const SavedAddresses = () => {
       const newAddress = {
         ...formData,
         id: crypto.randomUUID(),
-        createdAt: new Date().toISOString() // ISO string format for consistency
+        createdAt: Timestamp.now()
       };
 
       let updatedAddresses = [];
@@ -177,7 +178,7 @@ const SavedAddresses = () => {
   };
 
   return (
-    <div className="flex flex-col items-center gap-5 bg-gray-50 py-10 px-4 mx-4 font-poppins">
+    <div className="flex flex-col items-center gap-5 bg-gray-50 py-10 px-4 mx-4 font-poppins text-black">
       <div className="flex items-center w-full justify-between">
         <h1 className="text-2xl font-bold">Saved Addresses</h1>
 

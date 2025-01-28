@@ -10,12 +10,12 @@ const ServiceCard = ({ service, onClick }) => {
       {/* Service image */}
       <div className="relative h-40 w-full rounded-md overflow-hidden">
         <Image
-          src='/placeholder.webp' // First image or placeholder
+          src='/placeholder.webp' 
           alt={service.title || "Service Image"}
           layout="fill"
           objectFit="cover"
           className="rounded-t-md"
-          priority={true} // Optimize loading for visible cards
+          priority={true}
         />
       </div>
 
@@ -24,7 +24,8 @@ const ServiceCard = ({ service, onClick }) => {
         <h3 className="text-lg font-bold text-gray-800 truncate">
           {service.title}
         </h3>
-        <p className="text-lg font-black">{service.serviceType}</p>
+        <p className="text-lg text-black">{service.serviceType}</p>
+        <p className="text-base text-gray-500">{service.specialization}</p>
       </div>
     </div>
   );

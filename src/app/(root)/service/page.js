@@ -40,11 +40,14 @@ const Page = () => {
     fetchServices();
   }, []);
 
+  // console.log(services);
+  
+
   // Extract unique categories
   const extractCategories = (services) => {
     const uniqueCategories = [
       "All",
-      ...new Set(services.map((service) => service.serviceName)),
+      ...new Set(services.map((service) => service.serviceType)),
     ];
     setCategories(uniqueCategories);
   };
@@ -84,7 +87,7 @@ const Page = () => {
     //   <BodyConditionScore />
     // </div>
 
-    <div className="bg-gray-50 min-h-screen py-8 font-poppins">
+    <div className="bg-gray-50 min-h-screen mx-auto py-8 font-poppins">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <h1 className="text-3xl font-bold mb-6 text-center text-gray-800">

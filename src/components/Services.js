@@ -7,19 +7,24 @@ import toast, { Toaster } from 'react-hot-toast';
 export default function Services() {
   const [services, setServices] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("All");
+  const [categories, setCategories] = useState([]);
 
   useEffect(() => {
-    fetch('/api/services/getAllServices')
+    fetch("/api/services/getAllServices")
       .then((response) => response.json())
-      .then((data) => setServices(data))
-      .catch((error) => console.error('Error fetching services:', error));
+      .then((data) => {
+        setServices(data);
+        const uniqueCategories = ["All", ...new Set(data.map((item) => item.serviceType))];
+        setCategories(uniqueCategories);
+      })
+      .catch((error) => console.error("Error fetching services:", error));
   }, []);
 
-  const categories = ["All", "Trainer", "Groomer", "Dog Walker"];
+  // console.log(services);
 
   const filteredServices = selectedCategory === "All"
     ? services
-    : services.filter(service => service.serviceName === selectedCategory);
+    : services.filter(service => service.serviceType === selectedCategory);
 
   return (
     <div className="bg-gray-50 min-h-screen py-8 pt-20 px-4 font-prompt">
@@ -50,7 +55,7 @@ export default function Services() {
         {/* Services Grid */}
         <div className="flex-1 grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
           {filteredServices.map((service, index) => (
-            <ServiceCard key={service.serviceID || index} service={service} />
+            <ServiceCard key={service.id || index} service={service} />
           ))}
         </div>
       </div>
@@ -80,14 +85,14 @@ function ServiceCard({ service }) {
         Popular
       </span>
       <img
-        src={service.image || "https://via.placeholder.com/150"}
-        alt={service.title}
+        src='placeholder.webp'
+        alt={service.specialization}
         className="w-full h-56 object-cover rounded-lg"
       />
       <div className="mt-4 flex-1 flex flex-col">
-        <h3 className="text-lg font-semibold text-gray-800">{service.title}</h3>
-        <p className="text-sm text-gray-500 mt-1">{service.address}</p>
-        <p className="text-lg font-semibold mt-2 text-green-600">Rs {service.pricePerHour}/hr</p>
+        <h3 className="text-lg font-semibold text-gray-800">{service.specialization}</h3>
+        <p className="text-sm text-gray-500 mt-1">{service.serviceType}</p>
+        <p className="text-lg font-semibold mt-2 text-green-600">Rs {service.expectedSalary}/hr</p>
         <div className="flex items-center mt-3 text-yellow-500">
           {'⭐'.repeat(4)} <span className="text-gray-500 text-xs ml-1">(21)</span>
         </div>

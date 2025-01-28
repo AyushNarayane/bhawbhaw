@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { doc, getDoc, updateDoc } from "firebase/firestore";
+import { doc, getDoc, Timestamp, updateDoc } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { db, storage } from "firebaseConfig";
 import { useState } from "react";
@@ -19,7 +19,9 @@ const BookingCard = ({ booking }) => {
   const isTimeSlotPassed = () => {
     const currentDate = new Date();
     const [startTime] = booking.calendarAndSlot.timeSlot.split(" - ");
-    const bookingTime = new Date(`${booking.calendarAndSlot.date} ${startTime}`);
+    const bookingTime = new Date(
+      `${booking.calendarAndSlot.date} ${startTime}`
+    );
     return currentDate > bookingTime;
   };
 
@@ -68,7 +70,7 @@ const BookingCard = ({ booking }) => {
         title: reviewData.title,
         message: reviewData.message,
         image: imageUrl,
-        createdAt: new Date().toISOString(),
+        createdAt: Timestamp.now(),
       };
 
       // Fetch existing reviews
@@ -93,7 +95,7 @@ const BookingCard = ({ booking }) => {
         message: "",
         image: null,
       });
-      setReviewModalOpen(false)
+      setReviewModalOpen(false);
     } catch (error) {
       console.error("Error submitting review:", error);
       toast.dismiss();
@@ -106,34 +108,44 @@ const BookingCard = ({ booking }) => {
   return (
     <div className="flex flex-col bg-white shadow-md hover:shadow-lg transition-shadow rounded-lg p-6 mb-4 font-montserrat text-black mx-2">
       <Toaster />
-      <p className="text-sm font-semibold mb-2">BOOKING ID: {booking.bookingID}</p>
+      <p className="text-sm font-semibold mb-2">
+        BOOKING ID: {booking.bookingID}
+      </p>
       <div className="w-full flex flex-col md:flex-row">
         {/* Left Section */}
         <div className="flex flex-col md:flex-row md:space-x-6 items-center">
           <Image
             width={500}
             height={500}
-            src={booking.selectedService?.image?.[0] || "/images/common/dummy.png"}
-            alt={booking.selectedService?.title || "Service"}
+            src='/placeholder.webp'
+            alt={booking.selectedService?.serviceType || "Service"}
             className="w-40 h-40 object-cover rounded-md"
           />
           <div className="mt-4 md:mt-0 md:ml-4">
-            <h2 className="text-md font-bold">{booking.selectedService?.title}</h2>
+            <h2 className="text-md font-bold">
+              {booking.selectedService?.specialization}
+            </h2>
             <p className="text-sm">
               <span className="text-[#676767]">SERVICE NAME: </span>
-              <span className="font-semibold text-black">{booking.selectedService?.serviceName}</span>
-            </p>
-            <p className="text-sm">
-              <span className="text-[#676767]">ADDRESS: </span>
-              <span className="font-semibold text-black">{booking.selectedService?.address}</span>
+              <span className="font-semibold text-black">
+                {booking.selectedService?.serviceType}
+              </span>
             </p>
             <p className="text-sm">
               <span className="text-[#676767]">PRICE PER HOUR: </span>
-              <span className="font-semibold text-black">₹{booking.selectedService?.pricePerHour || "N/A"}</span>
+              <span className="font-semibold text-black">
+                ₹{booking.selectedService?.expectedSalary || "N/A"}
+              </span>
             </p>
             <p className="text-sm">
               <span className="text-[#676767]">STATUS: </span>
-              <span className={`font-semibold ${bookingStatus === "incoming" ? "text-green-600" : "text-red-600"}`}>
+              <span
+                className={`font-semibold ${
+                  bookingStatus === "incoming"
+                    ? "text-green-600"
+                    : "text-red-600"
+                }`}
+              >
                 {bookingStatus.toUpperCase()}
               </span>
             </p>
@@ -148,12 +160,21 @@ const BookingCard = ({ booking }) => {
                 BOOKED AT:
                 <span className="font-semibold text-black">
                   {" "}
-                  {new Date(booking.selectedService?.createdAt).toLocaleDateString()}
+                  {booking?.selectedService?.createdAt?.toDate
+                    ? booking.selectedService.createdAt
+                        .toDate()
+                        .toLocaleString()
+                    : new Date(
+                        booking.selectedService.createdAt
+                      ).toLocaleString() || "N/A"}
                 </span>
               </p>
               <p className="text-sm text-[#676767]">
                 CONTACT:
-                <span className="font-semibold text-black"> {booking.contactInfo?.phoneNumber || "N/A"}</span>
+                <span className="font-semibold text-black">
+                  {" "}
+                  {booking.contactInfo?.phoneNumber || "N/A"}
+                </span>
               </p>
             </div>
             {bookingStatus === "incoming" && (
@@ -188,7 +209,12 @@ const BookingCard = ({ booking }) => {
                 min="1"
                 max="5"
                 value={reviewData.stars}
-                onChange={(e) => setReviewData({ ...reviewData, stars: parseInt(e.target.value, 10) })}
+                onChange={(e) =>
+                  setReviewData({
+                    ...reviewData,
+                    stars: parseInt(e.target.value, 10),
+                  })
+                }
                 className="border border-gray-300 rounded px-2 py-1 w-full"
                 onKeyDown={(e) => e.preventDefault()}
               />
@@ -198,7 +224,9 @@ const BookingCard = ({ booking }) => {
               <input
                 type="text"
                 value={reviewData.title}
-                onChange={(e) => setReviewData({ ...reviewData, title: e.target.value })}
+                onChange={(e) =>
+                  setReviewData({ ...reviewData, title: e.target.value })
+                }
                 className="border border-gray-300 rounded px-2 py-1 w-full"
               />
             </label>
@@ -206,7 +234,9 @@ const BookingCard = ({ booking }) => {
               Message:
               <textarea
                 value={reviewData.message}
-                onChange={(e) => setReviewData({ ...reviewData, message: e.target.value })}
+                onChange={(e) =>
+                  setReviewData({ ...reviewData, message: e.target.value })
+                }
                 className="border border-gray-300 rounded px-2 py-1 w-full"
               ></textarea>
             </label>
@@ -215,7 +245,9 @@ const BookingCard = ({ booking }) => {
               <input
                 type="file"
                 accept="image/*"
-                onChange={(e) => setReviewData({ ...reviewData, image: e.target.files[0] })}
+                onChange={(e) =>
+                  setReviewData({ ...reviewData, image: e.target.files[0] })
+                }
                 className="border border-gray-300 rounded px-2 py-1 w-full"
               />
             </label>

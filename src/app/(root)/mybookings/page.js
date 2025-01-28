@@ -49,7 +49,7 @@ const MyBookings = () => {
   }, [userId]); // Trigger when userId changes
 
   // Show a loading state while bookings are being fetched
-  if (!bookings) return <p className="font-poppins">Loading...</p>;
+  if (!bookings) return <p className="font-poppins text-black">Loading...</p>;
 
   return (
     <div className="flex flex-col items-center py-10 font-poppins">

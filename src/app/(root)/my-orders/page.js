@@ -1,7 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import React, { useEffect, useState } from "react";
+import Link from "next/link";
+import React, { useEffect, useId, useState } from "react";
 import { useSelector } from "react-redux";
 
 const MyOrders = () => {
@@ -13,13 +14,14 @@ const MyOrders = () => {
 
   useEffect(() => {
     const fetchOrders = async () => {
-      if (!userId) {
+      const storedUser = JSON.parse(localStorage.getItem("user"));
+      if (!useId) {
         window.location.href = "/signin"; // Redirect to sign-in if user is not logged in
         return;
       }
 
       try {
-        const response = await fetch(`/api/orders/getOrdersByUserId?userId=${userId}`);
+        const response = await fetch(`/api/orders/getOrdersByUserId?userId=${storedUser.userId}`);
         const data = await response.json();
 
         if (data.success) {
@@ -38,7 +40,7 @@ const MyOrders = () => {
   }, [userId]);
 
   if (loading) {
-    return <p className="text-center mt-6">Loading your orders...</p>;
+    return <p className="text-center text-black mt-6">Loading your orders...</p>;
   }
 
   return (
@@ -46,7 +48,7 @@ const MyOrders = () => {
       <div className="max-w-5xl mx-auto">
         {/* Breadcrumb */}
         <div className="flex items-center mt-4 md:mt-8 text-sm md:text-lg text-gray-500">
-          <span>Home</span>
+          <Link href='/'>Home</Link>
           <Image
             src="/images/services/arrow.png"
             alt="Arrow"
