@@ -1,9 +1,10 @@
-'use client';
+"use client";
 import React, { useEffect, useState } from "react";
 import ProductCard from "./ProductCard";
 import ProductFilter from "./Filter";
 import { FaArrowRightLong, FaArrowLeftLong } from "react-icons/fa6";
-import toast, { Toaster } from 'react-hot-toast';
+import toast, { Toaster } from "react-hot-toast";
+import { useRouter } from "next/navigation";
 
 const ProductGrid = () => {
   const [productData, setProductData] = useState([]);
@@ -11,11 +12,15 @@ const ProductGrid = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const productsPerPage = 8;
   const [userId, setUserId] = useState(null);
+  const router = useRouter();
 
   useEffect(() => {
-    const storedUser = JSON.parse(localStorage.getItem('user'));
+    const storedUser = JSON.parse(localStorage.getItem("user"));
     if (storedUser) {
       setUserId(storedUser.userId); // Set user ID from local storage
+    } else {
+      router.push("/signin"); // Redirect to sign-in if user is not logged in
+      return;
     }
   }, []);
 
@@ -76,9 +81,13 @@ const ProductGrid = () => {
 
     const filtered = productData.filter((product) => {
       const price = parseFloat(product.sellingPrice);
-      const matchesSubcategories = subcategories.length === 0 || subcategories.includes(product.subCategory);
-      const matchesBrands = brands.length === 0 || brands.includes(product.brand || 'Unknown');
-      const matchesPrice = (!minPrice || price >= minPrice) && (!maxPrice || price <= maxPrice);
+      const matchesSubcategories =
+        subcategories.length === 0 ||
+        subcategories.includes(product.subCategory);
+      const matchesBrands =
+        brands.length === 0 || brands.includes(product.brand || "Unknown");
+      const matchesPrice =
+        (!minPrice || price >= minPrice) && (!maxPrice || price <= maxPrice);
 
       return matchesSubcategories && matchesBrands && matchesPrice;
     });
@@ -99,17 +108,16 @@ const ProductGrid = () => {
         <div className="w-full p-4">
           <div className="flex justify-start gap-5 flex-wrap">
             {displayedProducts.map((product) => (
-              <ProductCard
-                key={product.productId}
-                product={product}
-              />
+              <ProductCard key={product.productId} product={product} />
             ))}
           </div>
 
           {/* Pagination */}
           <div className="flex justify-center mt-8 items-center">
             <div
-              className={`cursor-pointer mr-12 ${currentPage === 1 ? "text-[#C4B0A9]" : "text-[#85716B]"}`}
+              className={`cursor-pointer mr-12 ${
+                currentPage === 1 ? "text-[#C4B0A9]" : "text-[#85716B]"
+              }`}
               onClick={() => currentPage > 1 && setCurrentPage(currentPage - 1)}
             >
               <FaArrowLeftLong size={24} />
@@ -118,7 +126,11 @@ const ProductGrid = () => {
             {paginationNumbers.map((pageNumber) => (
               <button
                 key={pageNumber}
-                className={`w-8 h-8 ${currentPage === pageNumber ? "bg-[#85716B] text-white" : "bg-[#C4B0A9] text-white"} rounded-full mx-2`}
+                className={`w-8 h-8 ${
+                  currentPage === pageNumber
+                    ? "bg-[#85716B] text-white"
+                    : "bg-[#C4B0A9] text-white"
+                } rounded-full mx-2`}
                 onClick={() => setCurrentPage(pageNumber)}
               >
                 {pageNumber}
@@ -126,8 +138,12 @@ const ProductGrid = () => {
             ))}
 
             <div
-              className={`cursor-pointer ml-12 ${currentPage === totalPages ? "text-[#C4B0A9]" : "text-[#85716B]"}`}
-              onClick={() => currentPage < totalPages && setCurrentPage(currentPage + 1)}
+              className={`cursor-pointer ml-12 ${
+                currentPage === totalPages ? "text-[#C4B0A9]" : "text-[#85716B]"
+              }`}
+              onClick={() =>
+                currentPage < totalPages && setCurrentPage(currentPage + 1)
+              }
             >
               <FaArrowRightLong size={24} />
             </div>

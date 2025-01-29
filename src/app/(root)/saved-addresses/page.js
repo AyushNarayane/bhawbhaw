@@ -9,6 +9,7 @@ import {
 } from "firebase/firestore";
 import { db } from "firebaseConfig";
 import { useRouter } from "next/navigation";
+import ProtectedHomeRoute from "@/components/ProtectedHomeRoute";
 
 const SavedAddresses = () => {
   const [formVisible, setFormVisible] = useState(false);
@@ -25,6 +26,13 @@ const SavedAddresses = () => {
   const [addresses, setAddresses] = useState([]);
   const [isloading, setIsloading] = useState(false)
   const router = useRouter();
+
+    useEffect(() => {
+      const storedUser = JSON.parse(localStorage.getItem("user"));
+      if (storedUser) {
+        setUserId(storedUser.userId); // Set user ID from local storage
+      }
+    }, []);
 
   // Fetch Addresses on Mount
   useEffect(() => {
@@ -288,7 +296,7 @@ const SavedAddresses = () => {
   );
 };
 
-export default SavedAddresses;
+export default ProtectedHomeRoute(SavedAddresses);
 
 
 // "use client";

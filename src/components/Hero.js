@@ -1,6 +1,7 @@
 import React from "react";
 import "react-responsive-carousel/lib/styles/carousel.min.css"; // requires a loader
-import { Carousel } from 'react-responsive-carousel';
+import { Carousel } from "react-responsive-carousel";
+import Image from "next/image";
 
 const PetPromoBanner = () => {
   const services = [
@@ -78,9 +79,11 @@ const PetPromoBanner = () => {
                 </button>
               </div>
               <div className="lg:w-1/2 w-full mt-6 lg:mt-0 flex justify-center">
-                <img
+                <Image
                   src="/images/Home/image-1.png"
                   alt="Dog getting treat"
+                  width={800}
+                  height={560}
                   className="lg:w-[50rem] lg:h-[34rem] w-full h-auto max-w-sm sm:max-w-2xl"
                 />
               </div>
@@ -88,27 +91,33 @@ const PetPromoBanner = () => {
 
             {/* Slide 2 */}
             <div className="flex justify-center items-center">
-              <img
+              <Image
                 src="/images/Home/image-2.png"
                 alt="Slide 2"
+                width={800}
+                height={560}
                 className="w-full h-auto lg:w-[50rem] lg:h-[34rem] object-contain"
               />
             </div>
 
             {/* Slide 3 */}
             <div className="flex justify-center items-center">
-              <img
+              <Image
                 src="/images/Home/image-3.png"
                 alt="Slide 3"
+                width={800}
+                height={560}
                 className="w-full h-auto lg:w-[50rem] lg:h-[34rem] object-contain"
               />
             </div>
 
             {/* Slide 4 */}
             <div className="flex justify-center items-center">
-              <img
+              <Image
                 src="/images/Home/image-4.png"
                 alt="Slide 4"
+                width={800}
+                height={560}
                 className="w-full h-auto lg:w-[50rem] lg:h-[34rem] object-contain"
               />
             </div>

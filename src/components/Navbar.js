@@ -4,7 +4,7 @@ import Link from "next/link";
 import { FiMenu } from "react-icons/fi";
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/navigation";
-import { setUser } from "@/redux/userSlice";
+import { clearUser, setUser } from "@/redux/userSlice";
 import Image from "next/image";
 import ProfileDropdown from "./ProfileDropdown";
 
@@ -20,22 +20,14 @@ const Navbar = () => {
   const toggleDrawer = () => {
     setIsOpen(!isOpen);
   };
-  console.log(user);
 
-  useEffect(() => {
-    // const storedUser = JSON.parse(localStorage.getItem("user"));
-    // if (storedUser?.userId) {
-    //   dispatch(
-    //     setUser({
-    //       userData: {
-    //         name: storedUser.name,
-    //         email: storedUser.email,
-    //       },
-    //       userId: storedUser.userId,
-    //     })
-    //   );
-    // }
-  }, [dispatch]);
+  // useEffect(() => {
+  //   const storedUser = JSON.parse(localStorage.getItem('user'));
+  //   if (storedUser) {
+  //     setUserLocal(storedUser);
+  //   }
+  // }, [user]);
+  console.log(user);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -55,12 +47,21 @@ const Navbar = () => {
     };
   }, [isOpen, dispatch, router]);
 
+  const onLogout = () => {
+    dispatch(clearUser());
+    localStorage.removeItem("user");
+    // setUserLocal(null)
+    localStorage.removeItem("persist:root");
+    setIsOpen(false);
+    router.push("/signin");
+  };
+
   return (
     <nav className="bg-white py-5 lg:px-12 sm:px-6 px-2 relative">
       <div className="flex justify-between items-center">
         {/* Logo */}
         <div className="flex items-center">
-          <Link href='/'>
+          <Link href="/">
             <Image
               src="/images/bhawbhawfavicon.png"
               alt="BHAW Logo"
@@ -142,7 +143,7 @@ const Navbar = () => {
                   />
                 </button>
               </Link>
-              <ProfileDropdown />
+              <ProfileDropdown onLogout={onLogout} />
             </>
           ) : (
             <>
@@ -153,7 +154,9 @@ const Navbar = () => {
               </Link>
               <Link href="/signup" onClick={() => setIsOpen(false)}>
                 <button className="flex items-center justify-between w-full bg-[#ef4444] font-semibold hover:bg-[#ffb315] text-white sm:px-8 px-4 py-2 rounded-full">
-                  <p>Sign Up <span className="sm:inline-block hidden">Now</span></p>
+                  <p>
+                    Sign Up <span className="sm:inline-block hidden">Now</span>
+                  </p>
                   <img
                     src="/images/navbar/image.png"
                     alt="Icon"

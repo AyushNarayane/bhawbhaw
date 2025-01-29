@@ -1,22 +1,9 @@
 import { useState } from "react";
-import { useDispatch } from "react-redux";
-import { useRouter } from "next/navigation";
-import { clearUser, setUser } from "@/redux/userSlice";
 import Link from "next/link";
 import Image from "next/image";
 
-const ProfileDropdown = () => {
+const ProfileDropdown = ({onLogout}) => {
   const [isOpen, setIsOpen] = useState(false);
-  const dispatch = useDispatch();
-  const router = useRouter();
-
-  const onLogout = () => {
-    dispatch(clearUser())
-    localStorage.removeItem("user");
-    // localStorage.removeItem('persist:root')
-    setIsOpen(false)
-    router.push("/signin");
-  };
 
   return (
     <div className="relative z-50">

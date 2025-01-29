@@ -1,5 +1,8 @@
+'use client'
+
 import AllBlogs from "@/components/Allblogs";
 import Appointment from "@/components/Appointment";
+import ProtectedHomeRoute from "@/components/ProtectedHomeRoute";
 import React from "react";
 
 const page = () => {
@@ -11,4 +14,4 @@ const page = () => {
   );
 };
 
-export default page;
+export default ProtectedHomeRoute(page);

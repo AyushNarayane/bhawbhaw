@@ -1,5 +1,6 @@
 "use client";
 
+import ProtectedHomeRoute from "@/components/ProtectedHomeRoute";
 import Image from "next/image";
 import Link from "next/link";
 import React, { useEffect, useId, useState } from "react";
@@ -198,4 +199,4 @@ const MyOrders = () => {
   );
 };
 
-export default MyOrders;
+export default ProtectedHomeRoute(MyOrders);

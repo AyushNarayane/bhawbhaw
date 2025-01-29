@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import ServiceCard from "@/components/ServiceCard";
 import { useDispatch } from "react-redux";
 import { setSelectedService } from "@/redux/serviceSlice";
+import ProtectedHomeRoute from "@/components/ProtectedHomeRoute";
 
 const Page = () => {
   const [services, setServices] = useState([]);
@@ -19,6 +20,12 @@ const Page = () => {
 
   // Fetch services on mount
   useEffect(() => {
+    const storedUser = JSON.parse(localStorage.getItem("user"));
+    if (!storedUser) {
+      router.push("/signin"); // Redirect to sign-in if user is not logged in
+      return;
+    }
+
     const fetchServices = async () => {
       try {
         const response = await fetch("/api/services/getAllServices");
@@ -41,7 +48,6 @@ const Page = () => {
   }, []);
 
   // console.log(services);
-  
 
   // Extract unique categories
   const extractCategories = (services) => {
@@ -141,6 +147,6 @@ const Page = () => {
       </div>
     </div>
   );
-}
+};
 
-export default Page;
+export default ProtectedHomeRoute(Page);
