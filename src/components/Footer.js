@@ -32,8 +32,6 @@ const Footer = () => {
           <h3 className="font-semibold text-lg mb-4">Directories</h3>
           <ul className="text-xs font-extralight space-y-2">
             <li><Link href="/directory?option=sellers">Sellers</Link></li>
-            <li><Link href="/directory?option=jobs">Jobs</Link></li>
-            <li><Link href="/directory?option=newsletters">Newsletters</Link></li>
             <li><Link href="/directory?option=services">Services</Link></li>
             <li><Link href="/directory?option=products">Products</Link></li>
             <li><Link href="/directory?option=tags">Tags</Link></li>

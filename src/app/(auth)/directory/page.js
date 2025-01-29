@@ -1,6 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import ProtectedHomeRoute from "@/components/ProtectedHomeRoute";
 
 const Directory = () => {
   const router = useRouter();
@@ -97,4 +98,4 @@ const Directory = () => {
   );
 };
 
-export default Directory;
+export default ProtectedHomeRoute(Directory);

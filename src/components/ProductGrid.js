@@ -18,9 +18,6 @@ const ProductGrid = () => {
     const storedUser = JSON.parse(localStorage.getItem("user"));
     if (storedUser) {
       setUserId(storedUser.userId); // Set user ID from local storage
-    } else {
-      router.push("/signin"); // Redirect to sign-in if user is not logged in
-      return;
     }
   }, []);
 

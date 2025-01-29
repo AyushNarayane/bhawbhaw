@@ -80,7 +80,7 @@ const PetPromoBanner = () => {
               </div>
               <div className="lg:w-1/2 w-full mt-6 lg:mt-0 flex justify-center">
                 <Image
-                  src="/images/Home/image-1.png"
+                  src="/images/Home/Image-1.png"
                   alt="Dog getting treat"
                   width={800}
                   height={560}
@@ -92,7 +92,7 @@ const PetPromoBanner = () => {
             {/* Slide 2 */}
             <div className="flex justify-center items-center">
               <Image
-                src="/images/Home/image-2.png"
+                src="/images/Home/Image-2.png"
                 alt="Slide 2"
                 width={800}
                 height={560}
@@ -103,7 +103,7 @@ const PetPromoBanner = () => {
             {/* Slide 3 */}
             <div className="flex justify-center items-center">
               <Image
-                src="/images/Home/image-3.png"
+                src="/images/Home/Image-3.png"
                 alt="Slide 3"
                 width={800}
                 height={560}
@@ -114,7 +114,7 @@ const PetPromoBanner = () => {
             {/* Slide 4 */}
             <div className="flex justify-center items-center">
               <Image
-                src="/images/Home/image-4.png"
+                src="/images/Home/Image-4.png"
                 alt="Slide 4"
                 width={800}
                 height={560}

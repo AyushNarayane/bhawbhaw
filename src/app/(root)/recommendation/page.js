@@ -4,7 +4,14 @@ import ProductCard from "../../../components/ProductCard";
 import { FaArrowRightLong, FaArrowLeftLong } from "react-icons/fa6";
 import Protected from "@/components/ProtectedRoute";
 import { db } from "firebaseConfig";
-import { collection, doc, getDoc, getDocs, query, where } from "firebase/firestore";
+import {
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  query,
+  where,
+} from "firebase/firestore";
 import toast, { Toaster } from "react-hot-toast";
 
 const productsPerPage = 4;
@@ -41,11 +48,17 @@ const Recommendation = () => {
           setWishlistProducts(wishlistProducts);
 
           // Extract unique categories from wishlist
-          const categories = [...new Set(wishlistProducts.map((product) => product.category))];
+          const categories = [
+            ...new Set(wishlistProducts.map((product) => product.category)),
+          ];
 
           // Get recommendations based on categories
           const productsRef = collection(db, "products"); // Assuming 'products' collection exists
-          const recommendationsQuery = query(productsRef, where("category", "in", categories));
+          const recommendationsQuery = query(
+            productsRef,
+            where("category", "in", categories),
+            where("status", "==", "approved")
+          );
           const recommendationsSnapshot = await getDocs(recommendationsQuery);
 
           const recommendations = recommendationsSnapshot.docs.map((doc) => ({
@@ -71,16 +84,25 @@ const Recommendation = () => {
   }, [userId]);
 
   // Pagination logic for wishlist products
-  const totalWishlistPages = Math.ceil(wishlistProducts.length / productsPerPage);
+  const totalWishlistPages = Math.ceil(
+    wishlistProducts.length / productsPerPage
+  );
   const indexOfLastWishlistProduct = currentPage * productsPerPage;
-  const indexOfFirstWishlistProduct = indexOfLastWishlistProduct - productsPerPage;
-  const currentWishlistProducts = wishlistProducts.slice(indexOfFirstWishlistProduct, indexOfLastWishlistProduct);
+  const indexOfFirstWishlistProduct =
+    indexOfLastWishlistProduct - productsPerPage;
+  const currentWishlistProducts = wishlistProducts.slice(
+    indexOfFirstWishlistProduct,
+    indexOfLastWishlistProduct
+  );
 
   // Pagination logic for recommendations
   const totalForYouPages = Math.ceil(forYouProducts.length / productsPerPage);
   const indexOfLastForYouProduct = currentForYouPage * productsPerPage;
   const indexOfFirstForYouProduct = indexOfLastForYouProduct - productsPerPage;
-  const currentForYouProducts = forYouProducts.slice(indexOfFirstForYouProduct, indexOfLastForYouProduct);
+  const currentForYouProducts = forYouProducts.slice(
+    indexOfFirstForYouProduct,
+    indexOfLastForYouProduct
+  );
 
   const getPaginationNumbers = (currentPage, totalPages) => {
     const paginationNumbers = [];
@@ -105,8 +127,14 @@ const Recommendation = () => {
     return paginationNumbers;
   };
 
-  const wishlistPaginationNumbers = getPaginationNumbers(currentPage, totalWishlistPages);
-  const forYouPaginationNumbers = getPaginationNumbers(currentForYouPage, totalForYouPages);
+  const wishlistPaginationNumbers = getPaginationNumbers(
+    currentPage,
+    totalWishlistPages
+  );
+  const forYouPaginationNumbers = getPaginationNumbers(
+    currentForYouPage,
+    totalForYouPages
+  );
 
   if (loading) {
     return <p>Loading...</p>;
@@ -118,14 +146,20 @@ const Recommendation = () => {
       <div className="mb-6">
         <div className="flex items-center mb-6">
           <div className="h-10 w-2 mr-5 bg-[#E57373] rounded-3xl"></div>
-          <h2 className="text-xl font-medium">Wishlist ({wishlistProducts.length})</h2>
+          <h2 className="text-xl font-medium">
+            Wishlist ({wishlistProducts.length})
+          </h2>
         </div>
         {currentWishlistProducts.length === 0 ? (
           <p>No products in your wishlist.</p>
         ) : (
           <div className="flex flex-wrap gap-10 justify-evenly">
             {currentWishlistProducts.map((product) => (
-              <ProductCard key={product.productId} product={product} isRecommendation={true} />
+              <ProductCard
+                key={product.productId}
+                product={product}
+                isRecommendation={true}
+              />
             ))}
           </div>
         )}
@@ -133,7 +167,9 @@ const Recommendation = () => {
         {/* Wishlist Pagination */}
         <div className="flex justify-center mt-4 items-center">
           <div
-            className={`cursor-pointer mr-12 ${currentPage === 1 ? "text-[#C4B0A9]" : "text-[#85716B]"}`}
+            className={`cursor-pointer mr-12 ${
+              currentPage === 1 ? "text-[#C4B0A9]" : "text-[#85716B]"
+            }`}
             onClick={() => currentPage > 1 && setCurrentPage(currentPage - 1)}
             aria-label="Previous page"
           >
@@ -143,7 +179,11 @@ const Recommendation = () => {
           {wishlistPaginationNumbers.map((pageNumber) => (
             <button
               key={pageNumber}
-              className={`w-8 h-8 ${currentPage === pageNumber ? "bg-[#85716B] text-white" : "bg-[#C4B0A9] text-white"} rounded-full mx-2`}
+              className={`w-8 h-8 ${
+                currentPage === pageNumber
+                  ? "bg-[#85716B] text-white"
+                  : "bg-[#C4B0A9] text-white"
+              } rounded-full mx-2`}
               onClick={() => setCurrentPage(pageNumber)}
               aria-label={`Page ${pageNumber}`}
             >
@@ -152,8 +192,15 @@ const Recommendation = () => {
           ))}
 
           <div
-            className={`cursor-pointer ml-12 ${currentPage === totalWishlistPages ? "text-[#C4B0A9]" : "text-[#85716B]"}`}
-            onClick={() => currentPage < totalWishlistPages && setCurrentPage(currentPage + 1)}
+            className={`cursor-pointer ml-12 ${
+              currentPage === totalWishlistPages
+                ? "text-[#C4B0A9]"
+                : "text-[#85716B]"
+            }`}
+            onClick={() =>
+              currentPage < totalWishlistPages &&
+              setCurrentPage(currentPage + 1)
+            }
             aria-label="Next page"
           >
             <FaArrowRightLong size={24} />
@@ -165,7 +212,9 @@ const Recommendation = () => {
 
       <div className="flex items-center mb-6">
         <div className="h-10 w-2 mr-5 bg-[#E57373] rounded-3xl"></div>
-        <h2 className="text-xl font-medium">For You ({forYouProducts.length})</h2>
+        <h2 className="text-xl font-medium">
+          For You ({forYouProducts.length})
+        </h2>
       </div>
 
       {/* Recommendations */}
@@ -182,8 +231,12 @@ const Recommendation = () => {
       {/* Recommendations Pagination */}
       <div className="flex justify-center mt-4 font-kiwi items-center">
         <div
-          className={`cursor-pointer mr-12 ${currentForYouPage === 1 ? "text-[#C4B0A9]" : "text-[#85716B]"}`}
-          onClick={() => currentForYouPage > 1 && setCurrentForYouPage(currentForYouPage - 1)}
+          className={`cursor-pointer mr-12 ${
+            currentForYouPage === 1 ? "text-[#C4B0A9]" : "text-[#85716B]"
+          }`}
+          onClick={() =>
+            currentForYouPage > 1 && setCurrentForYouPage(currentForYouPage - 1)
+          }
           aria-label="Previous page for recommendations"
         >
           <FaArrowLeftLong size={24} />
@@ -192,7 +245,11 @@ const Recommendation = () => {
         {forYouPaginationNumbers.map((pageNumber) => (
           <button
             key={pageNumber}
-            className={`w-8 h-8 ${currentForYouPage === pageNumber ? "bg-[#85716B] text-white" : "bg-[#C4B0A9] text-white"} rounded-full mx-2`}
+            className={`w-8 h-8 ${
+              currentForYouPage === pageNumber
+                ? "bg-[#85716B] text-white"
+                : "bg-[#C4B0A9] text-white"
+            } rounded-full mx-2`}
             onClick={() => setCurrentForYouPage(pageNumber)}
             aria-label={`Page ${pageNumber} for recommendations`}
           >
@@ -201,8 +258,15 @@ const Recommendation = () => {
         ))}
 
         <div
-          className={`cursor-pointer ml-12 ${currentForYouPage === totalForYouPages ? "text-[#C4B0A9]" : "text-[#85716B]"}`}
-          onClick={() => currentForYouPage < totalForYouPages && setCurrentForYouPage(currentForYouPage + 1)}
+          className={`cursor-pointer ml-12 ${
+            currentForYouPage === totalForYouPages
+              ? "text-[#C4B0A9]"
+              : "text-[#85716B]"
+          }`}
+          onClick={() =>
+            currentForYouPage < totalForYouPages &&
+            setCurrentForYouPage(currentForYouPage + 1)
+          }
           aria-label="Next page for recommendations"
         >
           <FaArrowRightLong size={24} />

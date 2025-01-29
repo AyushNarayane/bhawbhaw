@@ -20,12 +20,6 @@ const Page = () => {
 
   // Fetch services on mount
   useEffect(() => {
-    const storedUser = JSON.parse(localStorage.getItem("user"));
-    if (!storedUser) {
-      router.push("/signin"); // Redirect to sign-in if user is not logged in
-      return;
-    }
-
     const fetchServices = async () => {
       try {
         const response = await fetch("/api/services/getAllServices");
@@ -49,11 +43,26 @@ const Page = () => {
 
   // console.log(services);
 
+  const additionalCategories = [
+    "Pet Grooming Services",
+    "Pet Boarding and Daycare",
+    "Pet Training Services",
+    "Pet Walking and Exercise",
+    "Veterinary and Health Services",
+    "Pet Transportation Services",
+    "Pet Nutrition Services",
+    "Specialized Care",
+    "Pet Adoption and Rescue Services",
+    "Pet Photography and Art",
+    "Pet Accessories and Supplies",
+  ];
+
   // Extract unique categories
   const extractCategories = (services) => {
     const uniqueCategories = [
       "All",
       ...new Set(services.map((service) => service.serviceType)),
+      ...additionalCategories,
     ];
     setCategories(uniqueCategories);
   };
