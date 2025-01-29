@@ -32,8 +32,14 @@ const ProductGrid = () => {
           throw new Error("Failed to fetch products");
         }
         const products = await response.json();
-        setProductData(products.products);
-        setFilteredProducts(products.products);
+        const activeProducts = products.products.filter(
+          (product) => product.status !== "disabled"
+        );
+
+        // setProductData(products.products);
+        // setFilteredProducts(products.products);
+        setProductData(activeProducts);
+        setFilteredProducts(activeProducts);
       } catch (error) {
         console.error("Error fetching products:", error);
       }
