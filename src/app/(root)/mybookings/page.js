@@ -15,7 +15,7 @@ const MyBookings = () => {
   // Fetch and set userId from localStorage
   useEffect(() => {
     const storedUser = JSON.parse(localStorage.getItem("user"));
-    console.log(storedUser);
+    // console.log(storedUser);
 
     if (!storedUser?.userId) {
       router.push("/signin"); // Redirect if no userId
@@ -35,7 +35,7 @@ const MyBookings = () => {
         const response = await fetch(`/api/services/getServiceByUserId?userId=${userId}`);
         if (response.ok) {
           const data = await response.json();
-          console.log("Fetched bookings:", data);
+          // console.log("Fetched bookings:", data);
           setBookings(data); // Set the fetched bookings in the state
         } else {
           console.error("Error fetching bookings");

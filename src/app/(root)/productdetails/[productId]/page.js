@@ -20,6 +20,7 @@ import { useSelector } from "react-redux";
 import ProductCard from "@/components/ProductCard";
 import { CiStar } from "react-icons/ci";
 import toast, { Toaster } from "react-hot-toast";
+import Image from "next/image";
 
 const ProductDetailsPage = ({ params }) => {
   const router = useRouter();
@@ -46,6 +47,7 @@ const ProductDetailsPage = ({ params }) => {
   const totalPages = Math.ceil(relatedProducts.length / productsPerPage);
 
   const [hasBuyed, setHasBuyed] = useState(false);
+  const [selectedImage, setSelectedImage] = useState(null);
 
   useEffect(() => {
     if (!productId) {
@@ -62,6 +64,7 @@ const ProductDetailsPage = ({ params }) => {
         if (productSnap.exists()) {
           const productData = productSnap.data();
           setProduct(productData);
+          setSelectedImage(product.images[0]);
           fetchRelatedProducts(productData.subCategory);
         } else {
           console.error("Product not found.");
@@ -76,7 +79,8 @@ const ProductDetailsPage = ({ params }) => {
       try {
         const q = query(
           collection(db, "products"),
-          where("subCategory", "==", subCategory)
+          where("subCategory", "==", subCategory),
+          where("status", "==", "approved")
         );
         const querySnapshot = await getDocs(q);
         const products = querySnapshot.docs.map((doc) => ({
@@ -115,7 +119,7 @@ const ProductDetailsPage = ({ params }) => {
 
     checkIfProductPurchased();
   }, []);
-  console.log(hasBuyed);
+  // console.log(hasBuyed);
 
   const handleAddToCart = async () => {
     if (product && user) {
@@ -369,16 +373,46 @@ const ProductDetailsPage = ({ params }) => {
 
       <div className="flex flex-col lg:flex-row lg:space-x-12">
         {/* Product Details */}
-        <div className="w-full lg:w-1/2 h-auto mb-6 lg:mb-0 bg-gray-200 flex items-center justify-center">
-          <img
-            className="w-full object-contain"
-            src={product.images[0]}
-            // Using the first image
-            alt={product.title}
-            width={500}
-            height={500}
-          />
+        <div className="flex flex-col lg:flex-row lg:space-x-6">
+      {/* Image Gallery */}
+      <div className="flex w-full lg:w-1/2">
+        {/* Thumbnails */}
+        <div className="flex flex-col space-y-2 mr-4">
+          {product.images.map((img, index) => (
+            <div
+              key={index}
+              className={`relative w-16 h-16 cursor-pointer rounded-md border ${
+                selectedImage === img ? "border-red-500" : "border-gray-300"
+              }`}
+              onClick={() => setSelectedImage(img)}
+            >
+              <Image
+                src={img}
+                alt={`Thumbnail ${index + 1}`}
+                width={64}
+                height={64}
+                objectFit="cover"
+                className="rounded-md"
+              />
+            </div>
+          ))}
         </div>
+
+        {/* Main Image */}
+        <div className="flex-1 bg-gray-200 flex items-center justify-center">
+          <div className="relative w-[500px] h-[500px]">
+            <Image
+              src={product.images[0]}
+              alt={product.title}
+              layout="fill"
+              objectFit="contain"
+              priority
+              className="rounded-md"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
 
         <div className="w-full lg:w-[35%]">
           <h1 className="text-2xl font-bold mb-4">{product.title}</h1>

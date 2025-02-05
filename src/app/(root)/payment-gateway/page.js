@@ -70,7 +70,7 @@ const PaymentGateway = () => {
       }
     }
   };
-  console.log(orderDetails);
+  // console.log(orderDetails);
 
   const handleModalConfirm = () => {
     setShowModal(false);

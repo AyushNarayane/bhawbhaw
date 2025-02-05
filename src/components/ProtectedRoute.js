@@ -17,7 +17,7 @@ const Protected = (WrappedComponent) => {
 
     useEffect(() => {
       const unsubscribe = onAuthStateChanged(auth, async (user) => {
-        console.log(user);
+        // console.log(user);
 
         if (user) {
           try {
@@ -29,7 +29,7 @@ const Protected = (WrappedComponent) => {
               const userDoc = querySnapshot.docs[0];
               const userData = userDoc.data();
 
-              console.log(userData);
+              // console.log(userData);
               dispatch(
                 setUser({
                   userData: { ...userData },

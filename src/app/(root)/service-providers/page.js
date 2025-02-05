@@ -23,7 +23,7 @@ const ServiceProviders = () => {
       try {
         setLoading(true);
 
-        console.log(selectedService);
+        // console.log(selectedService);
         
         // Fetch all vendor IDs for the selected service
         const servicesRef = collection(db, "serviceProviders");
@@ -32,7 +32,7 @@ const ServiceProviders = () => {
           where("__name__", "==", selectedService.id) // Use __name__ to compare document ID
         );
         const serviceSnapshot = await getDocs(serviceQuery);
-        console.log(serviceSnapshot);
+        // console.log(serviceSnapshot);
         
 
         const vendorIds = serviceSnapshot.docs.map(
@@ -75,7 +75,7 @@ const ServiceProviders = () => {
       return;
     }
     dispatch(setSelectedService(selectedService));
-    console.log(selectedService);
+    // console.log(selectedService);
     
     router.push("/book-service");
   };

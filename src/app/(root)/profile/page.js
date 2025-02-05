@@ -31,7 +31,7 @@ const ProfilePage = () => {
 
         if (userDoc.exists()) {
           setUserData(userDoc.data());
-          console.log(userDoc.data());
+          // console.log(userDoc.data());
           
         } else {
           console.log("User document does not exist.");

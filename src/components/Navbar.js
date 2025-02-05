@@ -10,9 +10,7 @@ import ProfileDropdown from "./ProfileDropdown";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const user = useSelector((state) => state.user.userId)
-  // const [user, setUserLocal] = useState(null); // Local state to track user
-  // const [isLoading, setIsLoading] = useState(true); // Loading state to check user in local storage
+  const user = useSelector((state) => state.user.userId);
   const dispatch = useDispatch();
   const router = useRouter();
   const drawerRef = useRef(null);
@@ -20,14 +18,6 @@ const Navbar = () => {
   const toggleDrawer = () => {
     setIsOpen(!isOpen);
   };
-
-  // useEffect(() => {
-  //   const storedUser = JSON.parse(localStorage.getItem('user'));
-  //   if (storedUser) {
-  //     setUserLocal(storedUser);
-  //   }
-  // }, [user]);
-  console.log(user);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -45,12 +35,11 @@ const Navbar = () => {
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [isOpen, dispatch, router]);
+  }, [isOpen]);
 
   const onLogout = () => {
     dispatch(clearUser());
     localStorage.removeItem("user");
-    // setUserLocal(null)
     localStorage.removeItem("persist:root");
     setIsOpen(false);
     router.push("/signin");
@@ -74,15 +63,6 @@ const Navbar = () => {
 
         {/* Navigation Links */}
         <ul className="hidden lg:flex flex-grow justify-center lg:space-x-8 text-gray-600">
-          {/* <li>
-            <Link
-              href="/about"
-              onClick={() => setIsOpen(false)}
-              className="hover:text-black text-[#8E8E8E] cursor-pointer"
-            >
-              ABOUT US
-            </Link>
-          </li> */}
           <li>
             <Link
               href="/products"
@@ -176,57 +156,53 @@ const Navbar = () => {
         </div>
       </div>
 
-      {/* Drawer Menu */}
+      {/* Mobile Drawer Menu */}
       {isOpen && (
         <div
           ref={drawerRef}
-          className="absolute top-16 left-0 w-full bg-white shadow-lg z-20 lg:hidden"
+          className="fixed top-0 left-0 w-full h-screen bg-white shadow-lg z-[100] transition-transform duration-300 transform lg:hidden"
         >
-          <ul className="flex flex-col items-center text-gray-600 p-4">
-            <li>
-              <Link
-                href="/about"
-                onClick={() => setIsOpen(false)}
-                className="hover:text-black text-[#C4B0A9] cursor-pointer py-2"
-              >
-                ABOUT US
-              </Link>
-            </li>
-            <li>
-              <Link
-                href="/products"
-                onClick={() => setIsOpen(false)}
-                className="hover:text-black text-[#C4B0A9] cursor-pointer py-2"
-              >
-                PRODUCTS
-              </Link>
-            </li>
-            <li>
-              <Link
-                href="/service"
-                onClick={() => setIsOpen(false)}
-                className="hover:text-black text-[#C4B0A9] cursor-pointer py-2"
-              >
-                SERVICES
-              </Link>
-            </li>
-            <li>
-              <Link
-                href="/blogs"
-                onClick={() => setIsOpen(false)}
-                className="hover:text-black text-[#C4B0A9] font-medium cursor-pointer py-2"
-              >
-                BLOG
-              </Link>
-            </li>
-            <li>
-              <Link
-                href="/contact"
-                onClick={() => setIsOpen(false)}
-                className="hover:text-black text-[#C4B0A9] cursor-pointer py-2"
-              >
-                CONTACT US
-              </Link>
+          <button
+            onClick={() => setIsOpen(false)}
+            className="bg-red-500 text-white rounded-full size-8 m-4 flex items-center justify-center"
+          >
+            X
+          </button>
+
+          <ul className="flex flex-col items-center text-gray-600 p-6 space-y-4">
+            {[
+              { name: "PRODUCTS", path: "/products" },
+              { name: "SERVICES", path: "/service" },
+              { name: "BLOG", path: "/blogs" },
+              { name: "CONTACT US", path: "/contact" },
+            ].map((item) => (
+              <li key={item.path}>
+                <Link
+                  href={item.path}
+                  onClick={() => setIsOpen(false)}
+                  className="hover:text-black text-[#C4B0A9] cursor-pointer py-2 text-lg font-medium"
+                >
+                  {item.name}
+                </Link>
+              </li>
+            ))}
+            <li className="py-4">
+              {user ? (
+                <ProfileDropdown onLogout={onLogout} />
+              ) : (
+                <>
+                  <Link href="/signin" onClick={() => setIsOpen(false)}>
+                    <button className="text-[#8E8E8E] px-3 py-1 rounded-md">
+                      LOGIN
+                    </button>
+                  </Link>
+                  <Link href="/signup" onClick={() => setIsOpen(false)}>
+                    <button className="bg-[#ef4444] font-semibold hover:bg-[#ffb315] text-white sm:px-8 px-4 py-2 rounded-full">
+                      Sign Up
+                    </button>
+                  </Link>
+                </>
+              )}
             </li>
           </ul>
         </div>

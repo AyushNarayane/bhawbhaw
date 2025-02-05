@@ -141,7 +141,7 @@ const CheckoutPage = () => {
       notification: formData.checked,
       totalAmount: total,
     };
-    console.log(orderData);
+    // console.log(orderData);
     
 
     try {
@@ -226,7 +226,7 @@ const CheckoutPage = () => {
       });
 
       setSavedAddresses(updatedAddresses);
-      console.log(savedAddresses);
+      // console.log(savedAddresses);
 
       resetForm();
       console.log("Address added successfully.");
