@@ -1,7 +1,7 @@
 import React from 'react'
 import Link from "next/link";
 import Image from 'next/image';
-import { FaTwitter, FaLinkedin, FaFacebook, FaInstagram } from 'react-icons/fa';
+import { FaTwitter, FaLinkedin, FaFacebook, FaInstagram, FaYoutube } from 'react-icons/fa';
 
 const Footer = () => {
   return (
@@ -82,10 +82,10 @@ const Footer = () => {
         </p>
         <div className="text-white">
           <ul className="flex justify-center sm:justify-start space-x-4">
-            <li><Link href="/"><FaTwitter size={20} /></Link></li>
-            <li><Link href="/"><FaLinkedin size={20} /></Link></li>
+            {/* <li><Link href="/"><FaTwitter size={20} /></Link></li> */}
+            <li><Link href="https://www.instagram.com/bhaw_bhaww/"><FaInstagram size={20} /></Link></li>
+            <li><Link href="/"><FaYoutube size={20} /></Link></li>
             <li><Link href="/"><FaFacebook size={20} /></Link></li>
-            <li><Link href="/"><FaInstagram size={20} /></Link></li>
           </ul>
         </div>
       </div>

@@ -135,7 +135,7 @@ const ContactUs = () => {
               <input
                 type="tel"
                 name="phoneNumber"
-                placeholder="+777 666 8888"
+                placeholder="+91 xxxxx xxxxx"
                 value={personalInfo.phoneNumber}
                 onChange={handlePersonalInfoChange}
                 className="mt-1 p-3 border rounded-md text-gray-600 bg-[#F3EAE7] focus:ring-2 focus:ring-[#FFEB3B]"
@@ -188,7 +188,7 @@ const ContactUs = () => {
         <div className="grid grid-cols-1 mt-8 md:grid-cols-3 gap-6 bg-[#F3EAE7] rounded-xl text-gray-600">
           <div className="flex items-center space-x-6 p-6">
             <img src="/images/contact/clock.png" alt="Clock" className="w-16 h-16" />
-            <div>
+            <div className='whitespace-nowrap'>
               <h4 className="font-staatliches text-[#4D413E] text-2xl">Open Hours</h4>
               <p className="text-sm">Mon - Fri: 9:00 AM to 6:00 PM</p>
               <p className="text-sm">Saturday: 9:00 AM to 2:00 PM</p>
@@ -200,14 +200,14 @@ const ContactUs = () => {
             <div>
               <h4 className="font-staatliches text-[#4D413E] text-2xl">Location</h4>
               <p className="text-sm">123 Maple Street, Springfield, Anytown, USA</p>
-              <a href="#" className="text-[#FFEB3B] hover:text-[#FFD700]">See on map</a>
+              <a href="#" className="text-[#ac9d16] hover:text-[#6d6224]">See on map</a>
             </div>
           </div>
           <div className="flex items-center space-x-6 p-6">
             <img src="/images/contact/phone.png" alt="Phone" className="w-16 h-16" />
             <div>
               <h4 className="font-staatliches text-[#4D413E] text-2xl">Contact</h4>
-              <p className="text-sm">648-423-2785</p>
+              <p className="text-sm">8390637497/ 8318571489</p>
               <p className="text-sm">Contact@gatito.com</p>
             </div>
           </div>

@@ -1,8 +1,9 @@
-import { useState, useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { useRouter } from 'next/navigation';
-import { setSelectedService } from '@/redux/serviceSlice';
-import toast, { Toaster } from 'react-hot-toast';
+import { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useRouter } from "next/navigation";
+import { setSelectedService } from "@/redux/serviceSlice";
+import toast, { Toaster } from "react-hot-toast";
+import Image from "next/image";
 
 export default function Services() {
   const [services, setServices] = useState([]);
@@ -14,7 +15,10 @@ export default function Services() {
       .then((response) => response.json())
       .then((data) => {
         setServices(data);
-        const uniqueCategories = ["All", ...new Set(data.map((item) => item.serviceType))];
+        const uniqueCategories = [
+          "All",
+          ...new Set(data.map((item) => item.serviceType)),
+        ];
         setCategories(uniqueCategories);
       })
       .catch((error) => console.error("Error fetching services:", error));
@@ -22,9 +26,10 @@ export default function Services() {
 
   // console.log(services);
 
-  const filteredServices = selectedCategory === "All"
-    ? services
-    : services.filter(service => service.serviceType === selectedCategory);
+  const filteredServices =
+    selectedCategory === "All"
+      ? services
+      : services.filter((service) => service.serviceType === selectedCategory);
 
   return (
     <div className="bg-gray-50 min-h-screen py-8 pt-20 px-4 font-prompt">
@@ -33,18 +38,26 @@ export default function Services() {
       </h1>
       <div className="flex flex-col md:flex-row">
         <aside className="w-full md:w-1/4 bg-white p-6 shadow-lg !min-h-[28rem] rounded-lg mb-6 md:mb-0 md:mr-8">
-          <h2 className="text-xl font-semibold text-gray-700 mb-4">Categories</h2>
+          <h2 className="text-xl font-semibold text-gray-700 mb-4">
+            Categories
+          </h2>
           <ul className="space-y-3 border-l-2 border-gray-200">
             {categories.map((category) => (
               <li
                 key={category}
-                className={`relative pl-4 cursor-pointer font-medium hover:text-red-600 group ${selectedCategory === category ? "text-red-600 font-semibold" : "text-gray-800"
-                  }`}
+                className={`relative pl-4 cursor-pointer font-medium hover:text-red-600 group ${
+                  selectedCategory === category
+                    ? "text-red-600 font-semibold"
+                    : "text-gray-800"
+                }`}
                 onClick={() => setSelectedCategory(category)}
               >
                 <span
-                  className={`absolute left-0 top-1/2 -translate-y-1/2 h-8 border-l-4 ${selectedCategory === category ? "border-red-600" : "border-transparent"
-                    }`}
+                  className={`absolute left-0 top-1/2 -translate-y-1/2 h-8 border-l-4 ${
+                    selectedCategory === category
+                      ? "border-red-600"
+                      : "border-transparent"
+                  }`}
                 ></span>
                 {category}
               </li>
@@ -55,7 +68,7 @@ export default function Services() {
         {/* Services Grid */}
         <div className="flex-1 grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
           {filteredServices.map((service, index) => (
-            <ServiceCard key={service.id || index} service={service} />
+            <ServiceCard key={service.createdAt || index} service={service} />
           ))}
         </div>
       </div>
@@ -75,7 +88,7 @@ function ServiceCard({ service }) {
     }
     dispatch(setSelectedService(service));
     // router.push('/book-service');
-    router.push('/service-providers');
+    router.push("/service-providers");
   };
 
   return (
@@ -84,17 +97,24 @@ function ServiceCard({ service }) {
       <span className="absolute top-2 left-2 bg-red-500 text-white text-xs font-semibold rounded-full px-2 py-1">
         Popular
       </span>
-      <img
-        src='placeholder.webp'
+      <Image
+        height={150}
+        width={150}
+        src={service.imageUrl || '/placeholder.webp'}
         alt={service.specialization}
         className="w-full h-56 object-cover rounded-lg"
       />
       <div className="mt-4 flex-1 flex flex-col">
-        <h3 className="text-lg font-semibold text-gray-800">{service.specialization}</h3>
+        <h3 className="text-lg font-semibold text-gray-800">
+          {service.specialization}
+        </h3>
         <p className="text-sm text-gray-500 mt-1">{service.serviceType}</p>
-        <p className="text-lg font-semibold mt-2 text-green-600">Rs {service.expectedSalary}/hr</p>
+        <p className="text-lg font-semibold mt-2 text-green-600">
+          Rs {service.expectedSalary}/hr
+        </p>
         <div className="flex items-center mt-3 text-yellow-500">
-          {'⭐'.repeat(4)} <span className="text-gray-500 text-xs ml-1">(21)</span>
+          {"⭐".repeat(4)}{" "}
+          <span className="text-gray-500 text-xs ml-1">(21)</span>
         </div>
         <button
           onClick={handleBookNow}
