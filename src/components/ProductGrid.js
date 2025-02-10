@@ -30,7 +30,7 @@ const ProductGrid = () => {
         }
         const products = await response.json();
         const activeProducts = products.products.filter(
-          (product) => product.status !== "disabled"
+          (product) => product.status === "active"
         );
 
         // setProductData(products.products);
