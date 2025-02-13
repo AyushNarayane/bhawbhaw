@@ -37,9 +37,9 @@ const OfferCards = () => {
             className="rounded-xl p-6 flex flex-col justify-between"
           >
             <div>
-              <h3 className="text-xl font-bold text-black mb-4">{card.title}</h3>
+              <h3 className="text-lg md:text-2xl font-bold text-black mb-4">{card.title}</h3>
               {card.description && (
-                <p className="text-gray-700 mb-4 text-sm">{card.description}</p>
+                <p className="text-gray-700 mb-3 text-sm md:text-lg">{card.description}</p>
               )}
               <img
                 src={card.image}
@@ -47,7 +47,7 @@ const OfferCards = () => {
                 className="w-full h-40 object-cover rounded-md"
               />
             </div>
-            <button className="mt-6 max-w-44 bg-[#FF6B6B] text-white text-sm font-semibold py-3 px-4 rounded-full flex items-center justify-center hover:bg-red-500 transition">
+            <button className="mt-6 max-w-44 bg-[#FF6B6B] text-white text-sm md:text-lg whitespace-nowrap font-semibold py-3 px-4 rounded-full flex items-center justify-center hover:bg-red-500 transition">
               {card.buttonText}
               <span className="ml-2">
                 <img

@@ -33,19 +33,20 @@ export default function Services() {
 
   return (
     <div className="bg-gray-50 min-h-screen py-8 pt-20 px-4 font-prompt">
-      <h1 className="text-4xl font-bold mb-10 text-gray-800 text-center">
+      <h1 className="text-3xl sm:text-4xl font-bold mb-10 text-gray-800 text-center">
         Our <span className="text-red-500">Services</span>
       </h1>
       <div className="flex flex-col md:flex-row">
+        {/* Sidebar Categories */}
         <aside className="w-full md:w-1/4 bg-white p-6 shadow-lg !min-h-[28rem] rounded-lg mb-6 md:mb-0 md:mr-8">
-          <h2 className="text-xl font-semibold text-gray-700 mb-4">
+          <h2 className="text-lg md:text-2xl font-semibold text-gray-700 mb-4">
             Categories
           </h2>
           <ul className="space-y-3 border-l-2 border-gray-200">
             {categories.map((category) => (
               <li
                 key={category}
-                className={`relative pl-4 cursor-pointer font-medium hover:text-red-600 group ${
+                className={`relative pl-4 cursor-pointer font-medium text-lg hover:text-red-600 group ${
                   selectedCategory === category
                     ? "text-red-600 font-semibold"
                     : "text-gray-800"
@@ -94,31 +95,45 @@ function ServiceCard({ service }) {
   return (
     <div className="bg-white rounded-lg shadow-lg hover:shadow-xl transition-shadow p-4 flex flex-col relative">
       <Toaster />
-      <span className="absolute top-2 left-2 bg-red-500 text-white text-xs font-semibold rounded-full px-2 py-1">
+
+      {/* Popular Badge */}
+      <span className="absolute top-2 left-2 bg-red-500 text-white text-xs sm:text-sm font-semibold rounded-full px-2 py-1">
         Popular
       </span>
+
+      {/* Service Image */}
       <Image
         height={150}
         width={150}
-        src={service.imageUrl || '/placeholder.webp'}
+        src={service.imageUrl || "/placeholder.webp"}
         alt={service.specialization}
-        className="w-full h-56 object-cover rounded-lg"
+        className="w-full h-48 sm:h-56 object-cover rounded-lg"
       />
+
+      {/* Content Section */}
       <div className="mt-4 flex-1 flex flex-col">
-        <h3 className="text-lg font-semibold text-gray-800">
+        <h3 className="text-base sm:text-2xl font-semibold text-gray-800">
           {service.specialization}
         </h3>
-        <p className="text-sm text-gray-500 mt-1">{service.serviceType}</p>
-        <p className="text-lg font-semibold mt-2 text-green-600">
+        <p className="text-xs sm:text-base text-gray-500 mt-1">
+          {service.serviceType}
+        </p>
+
+        {/* Price */}
+        <p className="text-base sm:text-lg font-semibold mt-2 text-green-600">
           Rs {service.expectedSalary}/hr
         </p>
+
+        {/* Rating */}
         <div className="flex items-center mt-3 text-yellow-500">
-          {"⭐".repeat(4)}{" "}
+          {"⭐".repeat(4)}
           <span className="text-gray-500 text-xs ml-1">(21)</span>
         </div>
+
+        {/* Book Now Button */}
         <button
           onClick={handleBookNow}
-          className="mt-4 w-full bg-red-500 text-white text-sm py-2 rounded-lg hover:bg-red-600 transition-colors"
+          className="mt-4 w-full bg-red-500 text-white text-xs sm:text-lg py-2 rounded-lg hover:bg-red-600 transition-colors"
         >
           Book Now
         </button>

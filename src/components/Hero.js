@@ -19,7 +19,6 @@ const PetPromoBanner = () => {
       <div className="w-full px-6 lg:px-20">
         <Carousel
           showThumbs={false}
-          // autoPlay
           infiniteLoop
           showStatus={false}
           className="max-w-7xl mx-auto"
@@ -47,10 +46,10 @@ const PetPromoBanner = () => {
           {/* Slide 1 */}
           <div className="flex flex-wrap justify-center items-center">
             <div className="lg:w-1/2 w-full text-center lg:text-left">
-              <h1 className="xl:text-6xl md:text-5xl sm:text-4xl text-3xl !leading-tight font-extrabold text-black mb-4 md:mb-24 font-prompt">
+              <h1 className="lg:text-6xl md:text-5xl sm:text-4xl text-2xl font-extrabold text-black mb-4 md:mb-[5rem] font-prompt">
                 Everything your pet deserves at one place!
               </h1>
-              <p className="text-black lg:w-[75%] w-full font-montserrat sm:text-base text-xs xl:text-lg lg:text-sm mb-6 mx-auto lg:mx-0">
+              <p className="text-black lg:w-[75%] w-full font-montserrat lg:text-lg md:text-base text-sm mb-6 mx-auto lg:mx-0">
                 From pet essentials to expert services, we connect you with
                 trusted vendors who care about your pets as much as you do.
               </p>

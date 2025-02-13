@@ -199,7 +199,7 @@ const ContactUs = () => {
             <img src="/images/contact/location.png" alt="Location" className="w-16 h-16" />
             <div>
               <h4 className="font-staatliches text-[#4D413E] text-2xl">Location</h4>
-              <p className="text-sm">123 Maple Street, Springfield, Anytown, USA</p>
+              <p className="text-sm">Bandra, Mumbai - India</p>
               <a href="#" className="text-[#ac9d16] hover:text-[#6d6224]">See on map</a>
             </div>
           </div>
@@ -208,7 +208,7 @@ const ContactUs = () => {
             <div>
               <h4 className="font-staatliches text-[#4D413E] text-2xl">Contact</h4>
               <p className="text-sm">8390637497/ 8318571489</p>
-              <p className="text-sm">Contact@gatito.com</p>
+              <p className="text-sm">INFO@BHAWBHAW.COM</p>
             </div>
           </div>
         </div>

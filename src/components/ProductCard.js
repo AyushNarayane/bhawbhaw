@@ -206,12 +206,12 @@ const ProductCard = ({ product, isRecommendation = false }) => {
         <div className="flex justify-between items-center mb-2">
           <Link
             href={`/productdetails/${product.productId}`}
-            className="font-black text-sm text-[#2C2C2C] hover:underline underline-offset-2"
+            className="font-black text-xl text-[#2C2C2C] hover:underline underline-offset-2"
           >
             {product.title}
           </Link>
           <div className="flex flex-col items-end">
-            <span className="text-sm font-semibold text-gray-800">
+            <span className="text-lg font-semibold text-gray-800">
               ₹{product.sellingPrice}
             </span>
             {product.maxRetailPrice && (
@@ -227,7 +227,7 @@ const ProductCard = ({ product, isRecommendation = false }) => {
           </div>
         </div>
 
-        <p className="text-gray-700 my-5 text-xs w-64">{product.description}</p>
+        <p className="text-gray-700 my-3 text-normal w-64">{product.description}</p>
 
         <div className="flex items-center">
           {Array.from({ length: Math.floor(product.rating || 4) }, (_, index) => (
@@ -248,14 +248,14 @@ const ProductCard = ({ product, isRecommendation = false }) => {
         <button
           onClick={handleCartAction}
           disabled={cartLoading}
-          className="border bg-baw-light py-2 w-full px-4 rounded-full whitespace-nowrap"
+          className="border bg-baw-light py-2 w-full px-4 rounded-full whitespace-nowrap font-semibold"
         >
           {/* {isProductInCart ? 'Remove from Cart' : 'Add to Cart'} */}
           {cartLoading ? <ClipLoader color="#f47450" loading={cartLoading} size={17} /> : "Add to Cart"}
         </button>
         <button
           onClick={handleBuyAction}
-          className="bg-baw-red py-2 w-full px-4 rounded-full whitespace-nowrap"
+          className="bg-baw-red py-2 w-full px-4 rounded-full whitespace-nowrap font-semibold"
           disabled={buyLoading}
         >
           {buyLoading ? <ClipLoader color="#f47450" loading={buyLoading} size={17} /> : 'Buy Now'}
