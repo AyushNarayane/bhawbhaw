@@ -27,7 +27,9 @@ export default function ProductCarousel() {
     fetchProducts();
   }, []);
 
-  const activeProducts = productData.filter(product => product.status !== "disabled");
+  const activeProducts = productData.filter(
+    (product) => product.status === "active"
+  );
 
   return (
     <div className="relative px-4 py-8 font-prompt">

@@ -24,7 +24,7 @@ const ServiceCard = ({ service, onClick }) => {
         <h3 className="text-lg font-bold text-gray-800 truncate">
           {/* {service.name} */}
         </h3>
-        <p className="text-lg` text-black">{service.serviceType}</p>
+        <p className="text-xl font-semibold text-black">{service.serviceType}</p>
         <p className="text-base text-gray-500">{service.specialization}</p>
       </div>
     </div>
