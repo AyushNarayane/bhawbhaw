@@ -448,7 +448,7 @@ const ProductDetailsPage = ({ params }) => {
           {/* Color and Size Selection */}
           <div className="flex flex-col mb-4">
             <div className="flex">
-              <h3 className="text-lg font-semibold mb-2 mr-5">Colors:</h3>
+              {/* <h3 className="text-lg font-semibold mb-2 mr-5">Colors:</h3>
               <div className="flex space-x-2 mb-4">
                 {colors.map((color, index) => (
                   <button
@@ -462,7 +462,7 @@ const ProductDetailsPage = ({ params }) => {
                     onClick={() => setSelectedColor(color)}
                   />
                 ))}
-              </div>
+              </div> */}
             </div>
             <div className="flex">
               <h3 className="text-lg font-semibold mr-5 mb-2">Size:</h3>

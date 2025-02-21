@@ -206,13 +206,13 @@ const ProductCard = ({ product, isRecommendation = false }) => {
         <div className="flex justify-between items-center mb-2">
           <Link
             href={`/productdetails/${product.productId}`}
-            className="font-black text-xl text-[#2C2C2C] hover:underline underline-offset-2"
+            className="font-black text-xl text-[#2C2C2C] hover:underline underline-offset-2 line-clamp-1"
           >
             {product.title}
           </Link>
           <div className="flex flex-col items-end">
             <span className="text-lg font-semibold text-gray-800">
-              ₹{product.sellingPrice}
+              {product.sellingPrice}
             </span>
             {product.maxRetailPrice && (
               <div className="flex items-center space-x-2">
@@ -220,14 +220,14 @@ const ProductCard = ({ product, isRecommendation = false }) => {
                   {Math.round(((product.maxRetailPrice - product.sellingPrice) / product.maxRetailPrice) * 100)}% OFF
                 </span>
                 <span className="text-xs text-gray-500 line-through">
-                  ₹{product.maxRetailPrice}
+                  {product.maxRetailPrice}
                 </span>
               </div>
             )}
           </div>
         </div>
 
-        <p className="text-gray-700 my-3 text-normal w-64">{product.description}</p>
+        <p className="text-gray-700 my-3 text-normal w-64 line-clamp-2">{product.description}</p>
 
         <div className="flex items-center">
           {Array.from({ length: Math.floor(product.rating || 4) }, (_, index) => (
