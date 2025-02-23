@@ -45,6 +45,9 @@ const ProductGrid = () => {
     fetchProducts();
   }, []);
 
+  // console.log(productData);
+  
+
   // Pagination calculation
   const totalPages = Math.ceil(filteredProducts.length / productsPerPage);
   const getPaginationNumbers = (currentPage, totalPages) => {

@@ -196,7 +196,7 @@ const ProductCard = ({ product, isRecommendation = false }) => {
           height={200}
           width={200}
           className="w-full h-48 object-contain"
-          src={product.images[0] || '/product-placeholder.webp'}
+          src={product.images?.[0] || '/product-placeholder.webp'}
           alt={product.title}
         />
       </div>
