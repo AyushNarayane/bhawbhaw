@@ -123,7 +123,7 @@ function ServiceCard({ service }) {
         <p className="text-base sm:text-lg font-semibold mt-2 text-green-600">
           Rs {service.expectedSalary}/hr
         </p>
-        <p>{service.id}</p>
+        {/* <p>{service.id}</p> */}
 
         {/* Rating */}
         <div className="flex items-center mt-3 text-yellow-500">
