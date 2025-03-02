@@ -13,6 +13,22 @@ const PetPromoBanner = () => {
     { icon: "/images/Home/service5.png", title: "Rescue a Dog" },
   ];
 
+  // const [images, setImages] = useState([]);
+
+  // useEffect(() => {
+  //   const fetchImages = async () => {
+  //     try {
+  //       const querySnapshot = await getDocs(collection(db, "bannerImgs"));
+  //       const imageUrls = querySnapshot.docs.map(doc => doc.data().imageUrl);
+  //       setImages(imageUrls);
+  //     } catch (error) {
+  //       console.error("Error fetching images from Firebase: ", error);
+  //     }
+  //   };
+
+  //   fetchImages();
+  // }, []);
+
   return (
     <section className="relative bg-[#F3F4F6] pt-4 flex flex-wrap justify-center items-center">
       {/* Carousel Section */}
