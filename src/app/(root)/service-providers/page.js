@@ -24,7 +24,7 @@ const ServiceProviders = () => {
         setLoading(true);
 
         // console.log(selectedService);
-        
+
         // Fetch all vendor IDs for the selected service
         const servicesRef = collection(db, "serviceProviders");
         const serviceQuery = query(
@@ -33,7 +33,7 @@ const ServiceProviders = () => {
         );
         const serviceSnapshot = await getDocs(serviceQuery);
         // console.log(serviceSnapshot);
-        
+
 
         const vendorIds = serviceSnapshot.docs.map(
           (doc) => doc.data().vendorId
@@ -67,6 +67,7 @@ const ServiceProviders = () => {
     };
 
     fetchVendors();
+    
   }, [selectedService.id]);
 
   const handleBookService = () => {
@@ -76,7 +77,7 @@ const ServiceProviders = () => {
     }
     dispatch(setSelectedService(selectedService));
     // console.log(selectedService);
-    
+
     router.push("/book-service");
   };
 
@@ -84,7 +85,7 @@ const ServiceProviders = () => {
 
   return (
     <div className="p-6 max-w-7xl mx-auto font-poppins">
-      <Toaster/>
+      <Toaster />
       <h1 className="text-4xl font-bold mb-8 text-center text-red-600">
         {selectedService.serviceName} Providers
       </h1>

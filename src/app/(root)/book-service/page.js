@@ -132,7 +132,7 @@ const MultiStepForm = () => {
     <div className="flex px-10 flex-col bg-white items-center justify-center font-poppins">
       <div className="w-full bg-white p-8 rounded-lg">
         <h2 className="text-2xl font-semibold mb-6 text-black">
-          {selectedService ? `Book Your Service for ${selectedService.title}` : 'Book Your Service'}
+          {selectedService ? `Book Your Service for ${selectedService.specialization}` : 'Book Your Service'}
         </h2>
 
         <div className="flex items-center mb-8">
