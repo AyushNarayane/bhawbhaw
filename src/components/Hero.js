@@ -84,7 +84,7 @@ const PetPromoBanner = () => {
                 alt="Dog getting treat"
                 width={800}
                 height={800}
-                className="w-full h-auto lg:w-[50rem] lg:h-[34rem] object-cover p-3"
+                className="w-full h-auto lg:h-[34rem] object-contain"
               />
             </div>
           </div>
@@ -96,7 +96,7 @@ const PetPromoBanner = () => {
               alt="Slide 2"
               width={800}
               height={800}
-              className="w-full h-auto lg:w-[50rem] lg:h-[34rem] object-contain"
+              className="w-full h-auto lg:h-[34rem] object-contain"
             />
           </div>
 
@@ -107,7 +107,7 @@ const PetPromoBanner = () => {
               alt="Slide 3"
               width={800}
               height={800}
-              className="w-full h-auto lg:w-[50rem] lg:h-[34rem] object-contain"
+              className="w-full h-auto lg:h-[34rem] object-contain"
             />
           </div>
 
@@ -116,9 +116,9 @@ const PetPromoBanner = () => {
             <Image
               src="/images/Home/Image-4.png"
               alt="Slide 4"
-              width={800}
+              width={1200}
               height={800}
-              className="w-full h-auto lg:w-[50rem] lg:h-[34rem] object-contain"
+              className="w-full h-auto lg:h-[34rem] object-contain"
             />
           </div>
         </Carousel>

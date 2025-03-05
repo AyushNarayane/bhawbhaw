@@ -6,13 +6,13 @@ const OfferCards = () => {
     {
       title: "Pet Cafe",
       description: "Coffee for you, treats for them",
-      image: "/images/Home/f1.jpg",
+      image: "/images/Home/f2.jpg",
       buttonText: "Discover Now",
     },
     {
       title: "Holiday travel",
-      description: "Special Diwali Day Offer",
-      image: "/images/Home/f2.jpg",
+      description: "",
+      image: "/images/Home/f4.jpg",
       buttonText: "Discover Now",
     },
     {
@@ -24,7 +24,7 @@ const OfferCards = () => {
     {
       title: "Pet Events",
       description: "",
-      image: "/images/Home/f4.jpg",
+      image: "/images/Home/f1.jpg",
       buttonText: "Discover Now",
     },
   ];
