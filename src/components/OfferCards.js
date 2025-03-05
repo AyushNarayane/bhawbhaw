@@ -1,29 +1,30 @@
+import Image from "next/image";
 import React from "react";
 
 const OfferCards = () => {
   const cards = [
     {
-      title: "Expert pet Services",
-      description: "",
-      image: "/images/Home/Image-1.png",
+      title: "Pet Cafe",
+      description: "Coffee for you, treats for them",
+      image: "/images/Home/f1.jpg",
       buttonText: "Discover Now",
     },
     {
-      title: "20% OFF on pet items",
+      title: "Holiday travel",
       description: "Special Diwali Day Offer",
-      image: "/images/Home/Image-2.png",
+      image: "/images/Home/f2.jpg",
       buttonText: "Discover Now",
     },
     {
-      title: "Pet health and Activity",
+      title: "Pet Insurance",
+      description: "Vet Bills? No worries!",
+      image: "/images/Home/f3.jpg",
+      buttonText: "Discover Now",
+    },
+    {
+      title: "Pet Events",
       description: "",
-      image: "/images/Home/Image-3.png",
-      buttonText: "Discover Now",
-    },
-    {
-      title: "Grooming Tips",
-      description: "Get grooming tips from professional vets",
-      image: "/images/Home/Image-4.png",
+      image: "/images/Home/f4.jpg",
       buttonText: "Discover Now",
     },
   ];
@@ -41,16 +42,20 @@ const OfferCards = () => {
               {card.description && (
                 <p className="text-gray-700 mb-3 text-sm md:text-lg">{card.description}</p>
               )}
-              <img
+              <Image
+                width={800}
+                height={500}
                 src={card.image}
                 alt={card.title}
-                className="w-full h-40 object-cover rounded-md"
+                className="w-full h-60 object-contain rounded-md"
               />
             </div>
             <button className="mt-6 max-w-44 bg-[#FF6B6B] text-white text-sm md:text-lg whitespace-nowrap font-semibold py-3 px-4 rounded-full flex items-center justify-center hover:bg-red-500 transition">
               {card.buttonText}
               <span className="ml-2">
-                <img
+                <Image
+                  width={800}
+                  height={500}
                   src="/images/navbar/image.png"
                   alt="Icon"
                   className="w-5 h-5 ml-2"

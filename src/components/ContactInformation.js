@@ -39,7 +39,7 @@ const ContactInformation = ({ nextStep, handleFormDataChange, formData, savedAdd
     }
     dispatch(setUser(storedUser))
   }, []);
-  
+
   // Handle selecting an address from the dropdown
   const handleAddressSelect = (addressId) => {
     if (addressId === 'new') {
@@ -85,7 +85,7 @@ const ContactInformation = ({ nextStep, handleFormDataChange, formData, savedAdd
       } else {
         updatedAddresses = [newAddress];
       }
-      
+
       await setDoc(userRef, {
         ...userDoc.data(), // Preserve existing user data
         addresses: updatedAddresses,

@@ -61,7 +61,7 @@ const PetPromoBanner = () => {
         >
           {/* Slide 1 */}
           <div className="flex flex-wrap justify-center items-center">
-            <div className="lg:w-1/2 w-full text-center lg:text-left">
+            {/* <div className="lg:w-1/2 w-full text-center lg:text-left">
               <h1 className="lg:text-6xl md:text-5xl sm:text-4xl text-2xl font-extrabold text-black mb-4 md:mb-[5rem] font-prompt">
                 Everything your pet deserves at one place!
               </h1>
@@ -77,14 +77,14 @@ const PetPromoBanner = () => {
                   className="ml-2 w-5 h-5 object-contain"
                 />
               </button>
-            </div>
-            <div className="lg:w-1/2 w-full mt-6 lg:mt-0 flex justify-center">
+            </div> */}
+            <div className=" w-full mt-6 lg:mt-0 flex justify-center">
               <Image
-                src="/images/Home/Image-1.png"
+                src="/images/Home/banner1.jpg"
                 alt="Dog getting treat"
                 width={800}
                 height={800}
-                className="lg:w-[50rem] lg:h-[34rem] w-full h-auto max-w-sm sm:max-w-2xl"
+                className="w-full h-auto lg:w-[50rem] lg:h-[34rem] object-cover p-3"
               />
             </div>
           </div>
