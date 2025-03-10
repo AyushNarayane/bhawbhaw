@@ -46,7 +46,7 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="bg-white py-5 lg:px-12 sm:px-6 px-2 relative">
+    <nav className="bg-[#39646e] text-white py-5 lg:px-12 sm:px-6 px-2 relative">
       <div className="flex justify-between items-center">
         {/* Logo */}
         <div className="flex items-center">
@@ -67,7 +67,7 @@ const Navbar = () => {
             <Link
               href="/products"
               onClick={() => setIsOpen(false)}
-              className="hover:text-black text-[#8E8E8E] cursor-pointer"
+              className="hover:text-black text-white cursor-pointer"
             >
               PRODUCTS
             </Link>
@@ -76,7 +76,7 @@ const Navbar = () => {
             <Link
               href="/service"
               onClick={() => setIsOpen(false)}
-              className="hover:text-black text-[#8E8E8E] cursor-pointer"
+              className="hover:text-black text-white cursor-pointer"
             >
               SERVICES
             </Link>
@@ -85,7 +85,7 @@ const Navbar = () => {
             <Link
               href="/blogs"
               onClick={() => setIsOpen(false)}
-              className="hover:text-black text-[#8E8E8E] font-medium cursor-pointer"
+              className="hover:text-black text-white font-medium cursor-pointer"
             >
               BLOG
             </Link>
@@ -94,7 +94,7 @@ const Navbar = () => {
             <Link
               href="/contact"
               onClick={() => setIsOpen(false)}
-              className="hover:text-black text-[#8E8E8E] cursor-pointer"
+              className="hover:text-black text-white cursor-pointer"
             >
               CONTACT US
             </Link>
@@ -128,7 +128,7 @@ const Navbar = () => {
           ) : (
             <>
               <Link href="/signin" onClick={() => setIsOpen(false)}>
-                <button className="text-[#8E8E8E] px-3 py-1 rounded-md">
+                <button className="text-white px-3 py-1 rounded-md">
                   LOGIN
                 </button>
               </Link>
@@ -192,7 +192,7 @@ const Navbar = () => {
               ) : (
                 <>
                   <Link href="/signin" onClick={() => setIsOpen(false)}>
-                    <button className="text-[#8E8E8E] px-3 py-1 rounded-md">
+                    <button className="text-white px-3 py-1 rounded-md">
                       LOGIN
                     </button>
                   </Link>

@@ -66,9 +66,9 @@ const AllBlogs = () => {
   return (
     <div className="px-4  font-poppins mb-20">
       {/* Blog Header */}
-      <div className="text-center mb-12">
+      <div className="text-center">
         <h1 className="text-[5rem] sm:text-[6rem] md:text-[7rem] font-bold text-[#85716B]">BLOGS</h1>
-        <p className="text-lg text-black -mt-7 mx-2 md:mx-52">
+        {/* <p className="text-lg text-black -mt-7 mx-2 md:mx-52">
           We know your pets are cherished members of your family. That’s why we provide loving,
           personalized pet sitting services tailored to their needs.
         </p>
@@ -76,7 +76,7 @@ const AllBlogs = () => {
         <button className="mt-6 bg-[#FFEB3B] text-black py-2 px-4 rounded text-xl">
           Book Now
         </button>
-        </Link>
+        </Link> */}
       </div>
 
       {/* Latest Blog Posts Section */}

@@ -143,7 +143,7 @@ const ContactInformation = ({ nextStep, handleFormDataChange, formData, savedAdd
             <option value="">Choose an address</option>
             {(savedAddresses || []).map((address) => (
               <option key={address.id} value={address.id}>
-                {address.address}
+                {address.apartment}
               </option>
             ))}
             <option value="new">+ Add New Address</option>

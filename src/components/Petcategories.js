@@ -1,37 +1,37 @@
-'use client';
-import Image from 'next/image';
-import React, { useState } from 'react';
+"use client";
+import Image from "next/image";
+import React, { useState } from "react";
 
 const pets = [
   {
-    name: 'Cats',
-    img: '/images/hero/cat.png',
-    categories: ['Grooming Supply', 'Clothing and Shoes', 'Bowls and Feeders']
+    name: "Cats",
+    img: "/images/hero/category/cat.jpg",
+    categories: ["Grooming Supply", "Clothing and Shoes", "Bowls and Feeders"],
   },
   {
-    name: 'Dogs',
-    img: '/images/hero/dog.png',
-    categories: ['Collar and Harness', 'Training and Behaviour', 'Dog Food']
+    name: "Dogs",
+    img: "/images/hero/category/dog.jpg",
+    categories: ["Collar and Harness", "Training and Behaviour", "Dog Food"],
   },
   {
-    name: 'Parrots',
-    img: '/images/hero/parrot.png',
-    categories: ['Treats', 'Cages', 'Bird Food']
+    name: "Parrots",
+    img: "/images/hero/category/bird.jpg",
+    categories: ["Treats", "Cages", "Bird Food"],
   },
   {
-    name: 'Hamsters',
-    img: '/images/hero/hamester.png',
-    categories: ['Cages', 'Treats', 'Chewing Toys']
+    name: "Rabbits",
+    img: "/images/hero/category/rabbit.jpg",
+    categories: ["Cages", "Treats", "Chewing Toys"],
   },
   {
-    name: 'Fishes',
-    img: '/images/hero/fish.png',
-    categories: ['Aquariums and Tanks', 'Fish Food', 'Water Plants']
+    name: "Fishes",
+    img: "/images/hero/category/fish.jpg",
+    categories: ["Aquariums and Tanks", "Fish Food", "Water Plants"],
   },
   {
-    name: 'Other Pets',
-    img: '/images/hero/other.png',
-    categories: ['Health Treatments', 'Cleaning Supplies', 'Toys']
+    name: "Other Pets",
+    img: "/images/hero/category/horse.jpg",
+    categories: ["Health Treatments", "Cleaning Supplies", "Toys"],
   },
 ];
 
@@ -46,10 +46,9 @@ const PetCategories = () => {
 
   return (
     <div className="font-poppins bg-white px-5 flex flex-col items-center overflow-hidden">
-
       {/* Header Section */}
       <div className="flex justify-end px-10 w-full my-4">
-        <div className="flex items-center justify-center">
+        {/* <div className="flex items-center justify-center">
           <h1 className="text-base md:text-3xl text-[#4D413E] font-semibold -mr-6 md:leading-10 text-right whitespace-nowrap">
             <span className='whitespace-normal'>
               Find What Your Pet Needs Here.
@@ -64,18 +63,32 @@ const PetCategories = () => {
             alt="Dog's toy with 3 pieces of rope"
             className="md:w-72 w-52"
           />
-        </div>
+        </div> */}
+
+        <Image
+          src="/images/hero/category/productBanner.jpg"
+          alt="banner image"
+          layout="responsive"
+          width={1920}
+          height={1080}
+          priority
+        />
       </div>
 
       {/* Pets Section */}
       <div className="w-full">
-        <h3 className="text-2xl mb-4 font-semibold text-black text-center">Pets</h3>
+        <h3 className="text-2xl mb-4 font-semibold text-black text-center">
+          Pets
+        </h3>
         <div className="flex justify-center gap-3 flex-wrap w-full pb-2">
           {pets.map((pet) => (
             <div
               key={pet.name}
               onClick={() => handlePetClick(pet)}
-              className={`flex flex-col justify-evenly items-center cursor-pointer bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-md px-4 py-2 shadow-sm transition-all duration-100 text-sm size-48 ${selectedPet === pet.name ? 'bg-yellow-400 text-white' : ''}`}>
+              className={`flex flex-col justify-evenly items-center cursor-pointer bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-md px-4 py-2 shadow-sm transition-all duration-100 text-sm size-48 ${
+                selectedPet === pet.name ? "bg-yellow-400 text-white" : ""
+              }`}
+            >
               <Image
                 src={pet.img}
                 alt={pet.name}
@@ -91,7 +104,9 @@ const PetCategories = () => {
 
       {/* Categories Section */}
       <div className="w-full">
-        <h3 className="text-2xl my-4 font-semibold text-black text-center">Categories</h3>
+        <h3 className="text-2xl my-4 font-semibold text-black text-center">
+          Categories
+        </h3>
         <div className="flex justify-center gap-3 flex-wrap w-full pb-2">
           {filteredCategories.length > 0 ? (
             filteredCategories.map((category, index) => (
@@ -103,7 +118,9 @@ const PetCategories = () => {
               </div>
             ))
           ) : (
-            <p className="text-gray-500 text-center">Please select a pet to see related categories.</p>
+            <p className="text-gray-500 text-center">
+              Please select a pet to see related categories.
+            </p>
           )}
         </div>
       </div>

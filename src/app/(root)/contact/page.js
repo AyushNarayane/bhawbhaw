@@ -178,7 +178,7 @@ const ContactUs = () => {
                 {isLoading ? (
                   <ClipLoader size={20} color="#fff" className="mx-10" />
                 ) : (
-                  'Book Now'
+                  'Submit'
                 )}
               </button>
             </div>
