@@ -1,12 +1,15 @@
 "use client";
 import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import { FiMenu } from "react-icons/fi";
+import { FiMenu, FiSearch } from "react-icons/fi";
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/navigation";
 import { clearUser, setUser } from "@/redux/userSlice";
 import Image from "next/image";
 import ProfileDropdown from "./ProfileDropdown";
+import SpeechRecognition, {
+  useSpeechRecognition,
+} from "react-speech-recognition";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -14,6 +17,31 @@ const Navbar = () => {
   const dispatch = useDispatch();
   const router = useRouter();
   const drawerRef = useRef(null);
+
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const navLinks = [
+    { name: "DOGS AND CATS", href: "/" },
+    { name: "AQUARIUM", href: "/" },
+    { name: "PRODUCTS", href: "/products" },
+    { name: "SERVICES", href: "/service" },
+    { name: "BLOG", href: "/blogs" },
+    { name: "CONTACT US", href: "/contact" },
+    { name: "DEALS", href: "/contact" },
+    { name: "KNOW YOUR PET", href: "/" },
+  ];
+
+  // Voice input functionality using react-speech-recognition
+  const { transcript, listening, resetTranscript } = useSpeechRecognition();
+
+  const handleSearchChange = (event) => {
+    setSearchTerm(event.target.value);
+  };
+
+  const handleVoiceSearch = () => {
+    // Start voice recognition
+    SpeechRecognition.startListening({ continuous: true, language: "en-US" });
+  };
 
   const toggleDrawer = () => {
     setIsOpen(!isOpen);
@@ -46,9 +74,9 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="bg-[#39646e] text-white py-5 lg:px-12 sm:px-6 px-2 relative">
+    <nav className="bg-[#39646e] text-white py-5 lg:px-12 sm:px-6 px-2 relative whitespace-nowrap">
+      {/* Bottom Section: Navigation Links */}
       <div className="flex justify-between items-center">
-        {/* Logo */}
         <div className="flex items-center">
           <Link href="/">
             <Image
@@ -63,42 +91,17 @@ const Navbar = () => {
 
         {/* Navigation Links */}
         <ul className="hidden lg:flex flex-grow justify-center lg:space-x-8 text-gray-600">
-          <li>
-            <Link
-              href="/products"
-              onClick={() => setIsOpen(false)}
-              className="hover:text-black text-white cursor-pointer"
-            >
-              PRODUCTS
-            </Link>
-          </li>
-          <li>
-            <Link
-              href="/service"
-              onClick={() => setIsOpen(false)}
-              className="hover:text-black text-white cursor-pointer"
-            >
-              SERVICES
-            </Link>
-          </li>
-          <li>
-            <Link
-              href="/blogs"
-              onClick={() => setIsOpen(false)}
-              className="hover:text-black text-white font-medium cursor-pointer"
-            >
-              BLOG
-            </Link>
-          </li>
-          <li>
-            <Link
-              href="/contact"
-              onClick={() => setIsOpen(false)}
-              className="hover:text-black text-white cursor-pointer"
-            >
-              CONTACT US
-            </Link>
-          </li>
+          {navLinks.map((link, index) => (
+            <li key={index}>
+              <Link
+                href={link.href}
+                onClick={() => setIsOpen(false)}
+                className="hover:text-black text-white cursor-pointer"
+              >
+                {link.name}
+              </Link>
+            </li>
+          ))}
         </ul>
 
         {/* Icons and Buttons */}
@@ -128,7 +131,7 @@ const Navbar = () => {
           ) : (
             <>
               <Link href="/signin" onClick={() => setIsOpen(false)}>
-                <button className="text-white px-3 py-1 rounded-md">
+                <button className="text-black px-4 py-2 bg-white rounded-full">
                   LOGIN
                 </button>
               </Link>
@@ -152,6 +155,32 @@ const Navbar = () => {
         <div className="lg:hidden flex items-center">
           <button onClick={toggleDrawer} className="focus:outline-none">
             <FiMenu className="w-6 h-6 ml-4 text-gray-600 hover:text-black" />
+          </button>
+        </div>
+      </div>
+
+      {/* Top Section: Search Bar */}
+      <div className="flex flex-col items-center mb-3">
+        <div className="flex items-center border-2 border-gray-300 rounded-full px-4 py-1 max-w-2xl w-full">
+          <FiSearch className="text-gray-100 size-5" />
+          <input
+            type="text"
+            value={searchTerm || transcript}
+            onChange={handleSearchChange}
+            placeholder="Search..."
+            className="bg-transparent outline-none ml-2 w-full"
+          />
+          <button
+            onClick={handleVoiceSearch}
+            className="ml-2 p-1 bg-gray-200 rounded-full"
+          >
+            <Image
+              src="/images/navbar/voice-icon.png"
+              alt="Voice Search"
+              width={24}
+              height={24}
+              className="h-7 w-8 rounded-full"
+            />{" "}
           </button>
         </div>
       </div>

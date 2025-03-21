@@ -105,8 +105,11 @@ const Page = () => {
     <div className="bg-gray-50 min-h-screen mx-auto py-8 font-poppins">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <h1 className="text-4xl font-bold mb-6 text-center text-gray-800">
+        <h1 className="text-4xl font-bold text-center text-gray-800">
           Explore Our Services
+        </h1>
+        <h1 className="text-sm text-gray-500 text-center mt-2 mb-6">
+          Showing available services in your city
         </h1>
 
         {/* Filters */}

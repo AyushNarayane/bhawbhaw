@@ -29,9 +29,10 @@ const ProductGrid = () => {
           throw new Error("Failed to fetch products");
         }
         const products = await response.json();
-        const activeProducts = products.products.filter(
-          (product) => product.status === "active"
-        );
+        const activeProducts = products.products
+          .filter((product) => product.status === "active")
+          .sort((a, b) => a.sellingPrice - b.sellingPrice);
+        // console.log(activeProducts);
 
         // setProductData(products.products);
         // setFilteredProducts(products.products);
@@ -46,7 +47,6 @@ const ProductGrid = () => {
   }, []);
 
   // console.log(productData);
-  
 
   // Pagination calculation
   const totalPages = Math.ceil(filteredProducts.length / productsPerPage);

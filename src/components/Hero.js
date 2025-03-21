@@ -36,6 +36,7 @@ const PetPromoBanner = () => {
         <Carousel
           showThumbs={false}
           infiniteLoop
+          autoPlay
           showStatus={false}
           className="max-w-7xl mx-auto"
           renderArrowPrev={(clickHandler, hasPrev) =>
