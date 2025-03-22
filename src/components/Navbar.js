@@ -17,7 +17,6 @@ const Navbar = () => {
   const dispatch = useDispatch();
   const router = useRouter();
   const drawerRef = useRef(null);
-
   const [searchTerm, setSearchTerm] = useState("");
 
   const navLinks = [
@@ -31,17 +30,49 @@ const Navbar = () => {
     { name: "KNOW YOUR PET", href: "/" },
   ];
 
-  // Voice input functionality using react-speech-recognition
   const { transcript, listening, resetTranscript } = useSpeechRecognition();
+
+  // Function to fetch products
+  const fetchProducts = async (searchTerm) => {
+    try {
+      const response = await fetch("/api/products/getProducts");
+      if (!response.ok) {
+        throw new Error("Failed to fetch products");
+      }
+      const products = await response.json();
+      const activeProducts = products.products.filter(
+        (product) =>
+          product.status === "active" &&
+          (product.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            product.description
+              .toLowerCase()
+              .includes(searchTerm.toLowerCase()))
+      );
+
+      if (activeProducts.length > 0) {
+        router.push(`/productdetails/${activeProducts[0].productId}`);
+      } else {
+        alert("No products found matching your search.");
+      }
+    } catch (error) {
+      console.error("Error fetching products:", error);
+    }
+  };
 
   const handleSearchChange = (event) => {
     setSearchTerm(event.target.value);
   };
 
   const handleVoiceSearch = () => {
-    // Start voice recognition
     SpeechRecognition.startListening({ continuous: true, language: "en-US" });
   };
+
+  useEffect(() => {
+    if (transcript) {
+      setSearchTerm(transcript);
+      fetchProducts(transcript);
+    }
+  }, [transcript]);
 
   const toggleDrawer = () => {
     setIsOpen(!isOpen);
@@ -73,9 +104,18 @@ const Navbar = () => {
     router.push("/signin");
   };
 
+  const handleSearch = () => {
+    fetchProducts(searchTerm || transcript); 
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter") {
+      handleSearch();
+    }
+  };
+
   return (
     <nav className="bg-[#39646e] text-white py-5 lg:px-12 sm:px-6 px-2 relative whitespace-nowrap">
-      {/* Bottom Section: Navigation Links */}
       <div className="flex justify-between items-center">
         <div className="flex items-center">
           <Link href="/">
@@ -162,14 +202,17 @@ const Navbar = () => {
       {/* Top Section: Search Bar */}
       <div className="flex flex-col items-center mb-3">
         <div className="flex items-center border-2 border-gray-300 rounded-full px-4 py-1 max-w-2xl w-full">
-          <FiSearch className="text-gray-100 size-5" />
           <input
             type="text"
             value={searchTerm || transcript}
             onChange={handleSearchChange}
+            onKeyDown={handleKeyDown}
             placeholder="Search..."
             className="bg-transparent outline-none ml-2 w-full"
           />
+          <button onClick={handleSearch} className="ml-2 p-1 rounded-full">
+            <FiSearch className="text-white size-5" />
+          </button>
           <button
             onClick={handleVoiceSearch}
             className="ml-2 p-1 bg-gray-200 rounded-full"
