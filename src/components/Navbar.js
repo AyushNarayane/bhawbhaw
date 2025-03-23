@@ -18,6 +18,7 @@ const Navbar = () => {
   const router = useRouter();
   const drawerRef = useRef(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [suggestions, setSuggestions] = useState([]); // For search suggestions
 
   const navLinks = [
     { name: "DOGS AND CATS", href: "/" },
@@ -32,35 +33,48 @@ const Navbar = () => {
 
   const { transcript, listening, resetTranscript } = useSpeechRecognition();
 
-  // Function to fetch products
+  // Function to fetch products (check localStorage first)
   const fetchProducts = async (searchTerm) => {
-    try {
-      const response = await fetch("/api/products/getProducts");
-      if (!response.ok) {
-        throw new Error("Failed to fetch products");
+    let products = JSON.parse(localStorage.getItem("products"));
+    
+    // If products are not in localStorage, fetch from API
+    if (!products) {
+      try {
+        const response = await fetch("/api/products/getProducts");
+        if (!response.ok) {
+          throw new Error("Failed to fetch products");
+        }
+        products = await response.json();
+        localStorage.setItem("products", JSON.stringify(products));  // Store fetched products in localStorage
+      } catch (error) {
+        console.error("Error fetching products:", error);
+        return [];
       }
-      const products = await response.json();
-      const activeProducts = products.products.filter(
-        (product) =>
-          product.status === "active" &&
-          (product.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            product.description
-              .toLowerCase()
-              .includes(searchTerm.toLowerCase()))
-      );
-
-      if (activeProducts.length > 0) {
-        router.push(`/productdetails/${activeProducts[0].productId}`);
-      } else {
-        alert("No products found matching your search.");
-      }
-    } catch (error) {
-      console.error("Error fetching products:", error);
     }
+
+    // Filter products based on search term
+    const activeProducts = products.products.filter(
+      (product) =>
+        product.status === "active" &&
+        (product.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          product.description
+            .toLowerCase()
+            .includes(searchTerm.toLowerCase()))
+    );
+
+    return activeProducts;
   };
 
-  const handleSearchChange = (event) => {
-    setSearchTerm(event.target.value);
+  const handleSearchChange = async (event) => {
+    const input = event.target.value;
+    setSearchTerm(input);
+
+    if (input) {
+      const filteredProducts = await fetchProducts(input);
+      setSuggestions(filteredProducts); // Update suggestions based on the search term
+    } else {
+      setSuggestions([]); // Clear suggestions if search term is empty
+    }
   };
 
   const handleVoiceSearch = () => {
@@ -70,7 +84,7 @@ const Navbar = () => {
   useEffect(() => {
     if (transcript) {
       setSearchTerm(transcript);
-      fetchProducts(transcript);
+      fetchProducts(transcript); // Fetch products on speech recognition
     }
   }, [transcript]);
 
@@ -104,9 +118,17 @@ const Navbar = () => {
     router.push("/signin");
   };
 
-  const handleSearch = () => {
-    fetchProducts(searchTerm || transcript); 
+  const handleSearch = async () => {
+    const activeProducts = await fetchProducts(searchTerm || transcript);
+  
+    if (activeProducts.length > 0) {
+      // Redirect to /search with the query parameter directly in the URL
+      router.push(`/search?query=${encodeURIComponent(searchTerm || transcript)}`);
+    } else {
+      alert("No products found matching your search.");
+    }
   };
+  
 
   const handleKeyDown = (e) => {
     if (e.key === "Enter") {
@@ -201,7 +223,7 @@ const Navbar = () => {
 
       {/* Top Section: Search Bar */}
       <div className="flex flex-col items-center mb-3">
-        <div className="flex items-center border-2 border-gray-300 rounded-full px-4 py-1 max-w-2xl w-full">
+        <div className="flex items-center border-2 border-gray-300 rounded-full px-4 py-1 max-w-2xl w-full relative">
           <input
             type="text"
             value={searchTerm || transcript}
@@ -223,8 +245,23 @@ const Navbar = () => {
               width={24}
               height={24}
               className="h-7 w-8 rounded-full"
-            />{" "}
+            />
           </button>
+          
+          {/* Display Suggestions */}
+          {suggestions.length > 0 && (
+            <div className="absolute top-full rounded-lg left-0 right-0 bg-white border border-gray-300 mt-1 max-h-60 overflow-y-auto z-[100]">
+              {suggestions.map((product) => (
+                <Link
+                  key={product.productId}
+                  href={`/productdetails/${product.productId}`}
+                  className="block px-4 py-2 text-black hover:bg-gray-100"
+                >
+                  {product.title}
+                </Link>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 
@@ -242,11 +279,11 @@ const Navbar = () => {
           </button>
 
           <ul className="flex flex-col items-center text-gray-600 p-6 space-y-4">
-            {[
-              { name: "PRODUCTS", path: "/products" },
+            {[ 
+              { name: "PRODUCTS", path: "/products" }, 
               { name: "SERVICES", path: "/service" },
               { name: "BLOG", path: "/blogs" },
-              { name: "CONTACT US", path: "/contact" },
+              { name: "CONTACT US", path: "/contact" }
             ].map((item) => (
               <li key={item.path}>
                 <Link
