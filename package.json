@@ -13,6 +13,7 @@
     "@reduxjs/toolkit": "^2.3.0",
     "firebase": "^11.0.1",
     "next": "14.2.15",
+    "nodemailer": "^6.10.0",
     "persist": "^0.2.7",
     "react": "^18",
     "react-dom": "^18",

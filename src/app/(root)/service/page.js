@@ -14,34 +14,11 @@ const Page = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [categories, setCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("All");
+  const [city, setCity] = useState("");
+  const [hasSubmittedCity, setHasSubmittedCity] = useState(false);
 
   const router = useRouter();
   const dispatch = useDispatch();
-
-  // Fetch services on mount
-  useEffect(() => {
-    const fetchServices = async () => {
-      try {
-        const response = await fetch("/api/services/getAllServices");
-        if (response.ok) {
-          const data = await response.json();
-          // console.log(data);
-
-          setServices(data);
-          setFilteredServices(data);
-          extractCategories(data);
-        } else {
-          console.error("Error fetching services");
-        }
-      } catch (error) {
-        console.error("Error fetching services:", error);
-      }
-    };
-
-    fetchServices();
-  }, []);
-
-  // console.log(services);
 
   const additionalCategories = [
     "Pet Grooming Services",
@@ -67,7 +44,32 @@ const Page = () => {
     setCategories(uniqueCategories);
   };
 
-  // Filter services by search query and category
+  // Fetch services once city is submitted
+  useEffect(() => {
+    if (!hasSubmittedCity) return;
+
+    const fetchServices = async () => {
+      try {
+        const response = await fetch(
+          `/api/services/getAllServices?city=${encodeURIComponent(city)}`
+        );
+        if (response.ok) {
+          const data = await response.json();
+          setServices(data);
+          setFilteredServices(data);
+          extractCategories(data);
+        } else {
+          console.error("Error fetching services");
+        }
+      } catch (error) {
+        console.error("Error fetching services:", error);
+      }
+    };
+
+    fetchServices();
+  }, [city, hasSubmittedCity]);
+
+  // Filter services by search and category
   useEffect(() => {
     const filter = () => {
       let result = services;
@@ -95,13 +97,31 @@ const Page = () => {
     router.push(`/service-providers`);
   };
 
-  return (
-    // <div className='bg-white max-w-5xl mx-auto flex flex-col items-center'>
-    //   <ServiceHeader />
-    //   <MoreInfo />
-    //   <BodyConditionScore />
-    // </div>
+  // Show city input first
+  if (!hasSubmittedCity) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100 font-poppins">
+        <h2 className="text-2xl font-semibold mb-4 text-gray-800">
+          Enter Your City
+        </h2>
+        <input
+          type="text"
+          placeholder="e.g., Mumbai"
+          value={city}
+          onChange={(e) => setCity(e.target.value)}
+          className="px-4 py-2 border border-gray-300 rounded-md w-64 text-gray-700 mb-4"
+        />
+        <button
+          onClick={() => setHasSubmittedCity(true)}
+          className="bg-red-600 text-white px-6 py-2 rounded-md hover:bg-red-700"
+        >
+          Show Services
+        </button>
+      </div>
+    );
+  }
 
+  return (
     <div className="bg-gray-50 min-h-screen mx-auto py-8 font-poppins">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
@@ -109,7 +129,8 @@ const Page = () => {
           Explore Our Services
         </h1>
         <h1 className="text-sm text-gray-500 text-center mt-2 mb-6">
-          Showing available services in your city
+          Showing available services in{" "}
+          <span className="font-medium">{city}</span>
         </h1>
 
         {/* Filters */}
@@ -147,7 +168,7 @@ const Page = () => {
               <ServiceCard
                 key={service.createdAt}
                 service={service}
-                onClick={() => handleServiceClick(service)} // Navigate to service details page
+                onClick={() => handleServiceClick(service)}
               />
             ))
           ) : (

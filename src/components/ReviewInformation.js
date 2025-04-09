@@ -122,127 +122,161 @@ const ReviewInformation = ({ prevStep, formData = {}, handleSubmit }) => {
     router.push("/mybookings"); // Redirect to bookings page
   };
 
+  /* -----------CAN BE USED WHEN MAILS ARE AVAILABLE-----------
+  const closePopup = async () => {
+    try {
+      const transporter = nodemailer.createTransport({
+        service: "gmail",
+        auth: {
+          user: "admin-email@gmail.com",
+          pass: "admin-email-password",
+        },
+      });
+
+      const customerMailOptions = {
+        from: "admin-email@gmail.com",
+        to: contactInfo.email,
+        subject: "Your Booking Update",
+        text: "Your booking has been successfully processed. Thank you for choosing our service!",
+      };
+
+      const adminMailOptions = {
+        from: "admin-email@gmail.com",
+        to: "admin-email@gmail.com",
+        subject: "New Booking Notification",
+        text: `A new booking has been processed. Customer Email: ${contactInfo.email}`,
+      };
+
+      await transporter.sendMail(customerMailOptions);
+      await transporter.sendMail(adminMailOptions);
+
+      setIsPopupVisible(false);
+      router.push("/mybookings");
+    } catch (error) {
+      console.error("Error sending email:", error);
+    }
+  };
+  */
   const closePopup1 = () => setIsPopupVisible1(false);
   const closePopup2 = () => setIsPopupVisible2(false);
 
   return (
     <div className="p-6 bg-white rounded-lg shadow-lg text-black">
-  <Toaster />
-  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-    {/* Left Column: Review Information */}
-    <div>
-      <h2 className="text-2xl font-bold mb-6 text-gray-800">
-        Review Your Information
-      </h2>
+      <Toaster />
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        {/* Left Column: Review Information */}
+        <div>
+          <h2 className="text-2xl font-bold mb-6 text-gray-800">
+            Review Your Information
+          </h2>
 
-      <h3 className="text-lg font-semibold text-gray-700 mb-2">
-        Contact Information:
-      </h3>
-      <div className="bg-white shadow-md p-4 rounded-lg mb-4">
-        <p className="text-gray-600">
-          Full Name:{" "}
-          <span className="font-semibold text-gray-800">
-            {contactInfo.fullName}
-          </span>
-        </p>
-        <p className="text-gray-600">
-          Email:{" "}
-          <span className="font-semibold text-gray-800">
-            {contactInfo.email}
-          </span>
-        </p>
-        <p className="text-gray-600">
-          Address:{" "}
-          <span className="font-semibold text-gray-800">
-            {contactInfo.address}
-          </span>
-        </p>
-        <p className="text-gray-600">
-          Phone Number:{" "}
-          <span className="font-semibold text-gray-800">
-            {contactInfo.phoneNumber}
-          </span>
-        </p>
-      </div>
+          <h3 className="text-lg font-semibold text-gray-700 mb-2">
+            Contact Information:
+          </h3>
+          <div className="bg-white shadow-md p-4 rounded-lg mb-4">
+            <p className="text-gray-600">
+              Full Name:{" "}
+              <span className="font-semibold text-gray-800">
+                {contactInfo.fullName}
+              </span>
+            </p>
+            <p className="text-gray-600">
+              Email:{" "}
+              <span className="font-semibold text-gray-800">
+                {contactInfo.email}
+              </span>
+            </p>
+            <p className="text-gray-600">
+              Address:{" "}
+              <span className="font-semibold text-gray-800">
+                {contactInfo.address}
+              </span>
+            </p>
+            <p className="text-gray-600">
+              Phone Number:{" "}
+              <span className="font-semibold text-gray-800">
+                {contactInfo.phoneNumber}
+              </span>
+            </p>
+          </div>
 
-      <h3 className="text-lg font-semibold text-gray-700 mb-2">
-        Appointment Information:
-      </h3>
-      <div className="bg-white shadow-md p-4 rounded-lg mb-6">
-        <p className="text-gray-600">
-          Date:{" "}
-          <span className="font-semibold text-gray-800">
-            {calendarAndSlot.date}
-          </span>
-        </p>
-        <p className="text-gray-600">
-          Time Slot:{" "}
-          <span className="font-semibold text-gray-800">
-            {calendarAndSlot.timeSlot}
-          </span>
-        </p>
-        <p className="text-gray-600">
-          Duration:{" "}
-          <span className="font-semibold text-gray-800">
-            {calendarAndSlot.duration}
-          </span>
-        </p>
+          <h3 className="text-lg font-semibold text-gray-700 mb-2">
+            Appointment Information:
+          </h3>
+          <div className="bg-white shadow-md p-4 rounded-lg mb-6">
+            <p className="text-gray-600">
+              Date:{" "}
+              <span className="font-semibold text-gray-800">
+                {calendarAndSlot.date}
+              </span>
+            </p>
+            <p className="text-gray-600">
+              Time Slot:{" "}
+              <span className="font-semibold text-gray-800">
+                {calendarAndSlot.timeSlot}
+              </span>
+            </p>
+            <p className="text-gray-600">
+              Duration:{" "}
+              <span className="font-semibold text-gray-800">
+                {calendarAndSlot.duration}
+              </span>
+            </p>
+          </div>
+        </div>
+
+        {/* Right Column: Coupons and Payment */}
+        <div>
+          <CouponSection
+            coupon={coupon}
+            setCoupon={setCoupon}
+            handleApplyCoupon={handleApplyCoupon}
+            showCouponModal={showCouponModal}
+            setShowCouponModal={setShowCouponModal}
+            validatingCoupon={validatingCoupon}
+            coupons={coupons}
+            error={error}
+          />
+
+          {!paymentCompleted && (
+            <PaymentOptions
+              total={total}
+              onSuccess={handlePaymentSuccess}
+              mode="service"
+            />
+          )}
+
+          {error && <p className="text-red-500 text-sm mt-4">{error}</p>}
+
+          {isPopupVisible && (
+            <Popup
+              imageSrc="/images/services/popup.png"
+              title="Your booking was successful!"
+              message=""
+              closePopup={closePopup}
+            />
+          )}
+
+          {isPopupVisible1 && (
+            <Popup
+              imageSrc="/images/services/cancel.png"
+              title="Invalid Coupon!"
+              message="The coupon code you entered is not valid."
+              closePopup={closePopup1}
+            />
+          )}
+
+          {isPopupVisible2 && (
+            <Popup
+              imageSrc="/images/services/cancel.png"
+              title="Minimum Subtotal Not Attained!"
+              message="To apply this coupon, your subtotal must be a bit higher."
+              closePopup={closePopup2}
+            />
+          )}
+        </div>
       </div>
     </div>
-
-    {/* Right Column: Coupons and Payment */}
-    <div>
-      <CouponSection
-        coupon={coupon}
-        setCoupon={setCoupon}
-        handleApplyCoupon={handleApplyCoupon}
-        showCouponModal={showCouponModal}
-        setShowCouponModal={setShowCouponModal}
-        validatingCoupon={validatingCoupon}
-        coupons={coupons}
-        error={error}
-      />
-
-      {!paymentCompleted && (
-        <PaymentOptions
-          total={total}
-          onSuccess={handlePaymentSuccess}
-          mode="service"
-        />
-      )}
-
-      {error && <p className="text-red-500 text-sm mt-4">{error}</p>}
-
-      {isPopupVisible && (
-        <Popup
-          imageSrc="/images/services/popup.png"
-          title="Your booking was successful!"
-          message=""
-          closePopup={closePopup}
-        />
-      )}
-
-      {isPopupVisible1 && (
-        <Popup
-          imageSrc="/images/services/cancel.png"
-          title="Invalid Coupon!"
-          message="The coupon code you entered is not valid."
-          closePopup={closePopup1}
-        />
-      )}
-
-      {isPopupVisible2 && (
-        <Popup
-          imageSrc="/images/services/cancel.png"
-          title="Minimum Subtotal Not Attained!"
-          message="To apply this coupon, your subtotal must be a bit higher."
-          closePopup={closePopup2}
-        />
-      )}
-    </div>
-  </div>
-</div>
-
   );
 };
 
