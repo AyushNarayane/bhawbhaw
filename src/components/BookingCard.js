@@ -105,6 +105,8 @@ const BookingCard = ({ booking }) => {
     }
   };
 
+  console.log(booking);
+
   return (
     <div className="flex flex-col bg-white shadow-md hover:shadow-lg transition-shadow rounded-lg p-6 mb-4 font-montserrat text-black mx-2">
       <Toaster />
@@ -117,7 +119,7 @@ const BookingCard = ({ booking }) => {
           <Image
             width={500}
             height={500}
-            src='/placeholder.webp'
+            src="/placeholder.webp"
             alt={booking.selectedService?.serviceType || "Service"}
             className="w-40 h-40 object-cover rounded-md"
           />
@@ -159,14 +161,13 @@ const BookingCard = ({ booking }) => {
               <p className="text-sm text-[#676767]">
                 BOOKED AT:
                 <span className="font-semibold text-black">
-                  {" "}
-                  {booking?.selectedService?.createdAt?.toDate
-                    ? booking.selectedService.createdAt
-                        .toDate()
-                        .toLocaleString()
-                    : new Date(
-                        booking.selectedService.createdAt
-                      ).toLocaleString() || "N/A"}
+                  {booking?.createdAt?.toDate
+                    ? booking.createdAt.toDate().toLocaleString()
+                    : booking?.createdAt?.seconds
+                    ? new Date(
+                        booking.createdAt.seconds * 1000
+                      ).toLocaleString()
+                    : "N/A"}
                 </span>
               </p>
               <p className="text-sm text-[#676767]">
