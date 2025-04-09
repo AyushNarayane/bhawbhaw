@@ -117,46 +117,45 @@ const ReviewInformation = ({ prevStep, formData = {}, handleSubmit }) => {
     }
   };
 
-  const closePopup = () => {
-    setIsPopupVisible(false);
-    router.push("/mybookings"); // Redirect to bookings page
-  };
+  // const closePopup = () => {
+  //   setIsPopupVisible(false);
+  //   router.push("/mybookings"); // Redirect to bookings page
+  // };
 
-  /* -----------CAN BE USED WHEN MAILS ARE AVAILABLE-----------
   const closePopup = async () => {
     try {
-      const transporter = nodemailer.createTransport({
-        service: "gmail",
-        auth: {
-          user: "admin-email@gmail.com",
-          pass: "admin-email-password",
-        },
-      });
-
-      const customerMailOptions = {
-        from: "admin-email@gmail.com",
-        to: contactInfo.email,
-        subject: "Your Booking Update",
-        text: "Your booking has been successfully processed. Thank you for choosing our service!",
+      // Function to send an email via the API route
+      const sendMail = async (to, subject, text) => {
+        const response = await fetch("/api/sendEmail", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ to, subject, text }),
+        });
+        const data = await response.json();
+        if (!data.success) {
+          throw new Error(data.error || "Email sending failed");
+        }
       };
-
-      const adminMailOptions = {
-        from: "admin-email@gmail.com",
-        to: "admin-email@gmail.com",
-        subject: "New Booking Notification",
-        text: `A new booking has been processed. Customer Email: ${contactInfo.email}`,
-      };
-
-      await transporter.sendMail(customerMailOptions);
-      await transporter.sendMail(adminMailOptions);
-
+  
+      const customerEmail = contactInfo.email;
+      const adminEmail = process.env.GMAIL_USER; // Replace with the actual admin email when available
+  
+      const customerMessage =
+        "Your booking has been successfully processed. Thank you for choosing our service!";
+      const adminMessage = `A new booking has been processed. Customer Email: ${contactInfo.email}`;
+  
+      await Promise.all([
+        sendMail(customerEmail, "Your Booking Update", customerMessage),
+        sendMail(adminEmail, "New Booking Notification", adminMessage),
+      ]);
+  
       setIsPopupVisible(false);
       router.push("/mybookings");
     } catch (error) {
       console.error("Error sending email:", error);
     }
   };
-  */
+  
   const closePopup1 = () => setIsPopupVisible1(false);
   const closePopup2 = () => setIsPopupVisible2(false);
 
