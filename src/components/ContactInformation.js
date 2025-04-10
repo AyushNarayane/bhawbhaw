@@ -10,7 +10,7 @@ import { db } from "firebaseConfig";
 import { useDispatch } from 'react-redux';
 import { setUser } from '@/redux/userSlice';
 
-const ContactInformation = ({ nextStep, handleFormDataChange, formData, savedAddresses }) => {
+const ContactInformation = ({ nextStep, handleFormDataChange, formData, savedAddresses = [] }) => {
   const [selectedAddress, setSelectedAddress] = useState('');
   const [userEmail, setUserEmail] = useState('');
   const [errors, setErrors] = useState({});
@@ -78,6 +78,8 @@ const ContactInformation = ({ nextStep, handleFormDataChange, formData, savedAdd
         id: crypto.randomUUID(),
         createdAt: Timestamp.now(),
       };
+      console.log(newAddress);
+      
 
       let updatedAddresses = [];
       if (userDoc.exists()) {
@@ -90,7 +92,8 @@ const ContactInformation = ({ nextStep, handleFormDataChange, formData, savedAdd
         ...userDoc.data(), // Preserve existing user data
         addresses: updatedAddresses,
       });
-
+      console.log(savedAddresses);
+      
       // Update the savedAddresses state
       savedAddresses.push(newAddress)
 
@@ -106,7 +109,7 @@ const ContactInformation = ({ nextStep, handleFormDataChange, formData, savedAdd
         postalCode: '',
       });
     } catch (error) {
-      console.error('Error adding address:', error);
+      console.error('Error adding address:', error.message);
     } finally {
       setIsLoading(false);
     }

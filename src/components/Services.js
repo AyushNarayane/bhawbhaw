@@ -85,6 +85,7 @@ function ServiceCard({ service }) {
   const handleBookNow = () => {
     if (!userId) {
       toast.error("Please log in to proceed with booking.");
+      router.push('/signin')
       return;
     }
     dispatch(setSelectedService(service));

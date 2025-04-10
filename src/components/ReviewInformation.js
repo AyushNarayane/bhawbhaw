@@ -138,7 +138,9 @@ const ReviewInformation = ({ prevStep, formData = {}, handleSubmit }) => {
       };
   
       const customerEmail = contactInfo.email;
-      const adminEmail = process.env.GMAIL_USER; // Replace with the actual admin email when available
+      console.log(customerEmail);
+      
+      const adminEmail = process.env.NEXT_PUBLIC_GMAIL_USER; // Replace with the actual admin email when available
   
       const customerMessage =
         "Your booking has been successfully processed. Thank you for choosing our service!";

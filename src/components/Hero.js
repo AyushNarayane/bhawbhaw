@@ -22,7 +22,7 @@ const PetPromoBanner = () => {
         
         // Set the images state to the array of URLs
         setImages(bannerUrls);
-        console.log(bannerUrls);
+        // console.log(bannerUrls);
         
       } else {
         console.log("No such document!");
