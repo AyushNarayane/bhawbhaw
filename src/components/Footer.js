@@ -5,7 +5,7 @@ import { FaTwitter, FaLinkedin, FaFacebook, FaInstagram, FaYoutube, FaWhatsapp }
 
 const Footer = () => {
   return (
-    <div className="bg-[#85716B] text-white py-16 px-5 md:px-10 font-poppins">
+    <div className="bg-[#39646e] text-white py-16 px-5 md:px-10 font-poppins">
       <div className="container mx-auto grid grid-cols-1 lg:grid-cols-4 gap-8 lg:px-16">
 
         <div className="flex justify-center lg:justify-start mb-8 lg:mb-0">
@@ -84,8 +84,8 @@ const Footer = () => {
           <ul className="flex justify-center sm:justify-start space-x-4">
             {/* <li><Link href="/"><FaTwitter size={20} /></Link></li> */}
             <li><Link href="https://www.instagram.com/bhaw_bhaww/"><FaInstagram size={20} /></Link></li>
-            <li><Link href="/"><FaYoutube size={20} /></Link></li>
-            <li><Link href="/"><FaFacebook size={20} /></Link></li>
+            <li><Link href="https://youtube.com/@bhawbhaw-com?si=c4ryrGze594Jf5xA"><FaYoutube size={20} /></Link></li>
+            <li><Link href="https://www.facebook.com/profile.php?id=61568752592399"><FaFacebook size={20} /></Link></li>
             <li><Link href="https://chat.whatsapp.com/LqGNKlnZjS149Fgz1eiRTA" target='_blank'><FaWhatsapp size={20} /></Link></li>
           </ul>
         </div>

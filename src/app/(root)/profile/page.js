@@ -11,10 +11,22 @@ const ProfilePage = () => {
 
   useEffect(() => {
     const fetchUserFromLocalStorage = () => {
+      // Try to get userId from currentUserId first (new format)
+      const currentUserId = localStorage.getItem("currentUserId");
+      if (currentUserId) {
+        setUserId(currentUserId);
+        return;
+      }
+      
+      // Fall back to user object (old format)
       const storedUser = localStorage.getItem("user");
       if (storedUser) {
-        const parsedUser = JSON.parse(storedUser);
-        setUserId(parsedUser.userId);
+        try {
+          const parsedUser = JSON.parse(storedUser);
+          setUserId(parsedUser.userId);
+        } catch (error) {
+          console.error("Error parsing user from localStorage:", error);
+        }
       }
     };
 
@@ -31,8 +43,6 @@ const ProfilePage = () => {
 
         if (userDoc.exists()) {
           setUserData(userDoc.data());
-          // console.log(userDoc.data());
-          
         } else {
           console.log("User document does not exist.");
         }
@@ -50,6 +60,10 @@ const ProfilePage = () => {
     return <p className="font-poppins text-xl">Loading...</p>
   }
 
+  if (!userData) {
+    return <p className="font-poppins text-xl">User data not found. Please sign in again.</p>
+  }
+
   return (
     <div className="bg-white shadow rounded-lg p-6 font-poppins">
       <h2 className="text-lg font-bold mb-4">Profile Information</h2>
@@ -58,7 +72,7 @@ const ProfilePage = () => {
           <span className="font-semibold">User ID:</span> {userData.userId}
         </p>
         <p>
-          <span className="font-semibold">Username:</span> {userData.username}
+          <span className="font-semibold">Username:</span> {userData.username || userData.displayName}
         </p>
         <p>
           <span className="font-semibold">Email:</span> {userData.email}

@@ -78,6 +78,15 @@ export default function ProductCarousel() {
           </SwiperSlide>
         ))}
       </Swiper>
+
+      <div className="flex justify-center mt-8">
+        <a
+          href="/products"
+          className="bg-red-500 text-white px-6 py-2 rounded-md hover:bg-red-600 transition-colors duration-300 font-semibold"
+        >
+          See All Products
+        </a>
+      </div>
     </div>
   );
 }

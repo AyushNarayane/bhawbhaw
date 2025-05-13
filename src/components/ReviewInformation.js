@@ -117,12 +117,9 @@ const ReviewInformation = ({ prevStep, formData = {}, handleSubmit }) => {
     }
   };
 
-  // const closePopup = () => {
-  //   setIsPopupVisible(false);
-  //   router.push("/mybookings"); // Redirect to bookings page
-  // };
-
   const closePopup = async () => {
+    setIsPopupVisible(false); // Close popup immediately
+    
     try {
       // Function to send an email via the API route
       const sendMail = async (to, subject, text) => {
@@ -151,10 +148,10 @@ const ReviewInformation = ({ prevStep, formData = {}, handleSubmit }) => {
         sendMail(adminEmail, "New Booking Notification", adminMessage),
       ]);
   
-      setIsPopupVisible(false);
       router.push("/mybookings");
     } catch (error) {
       console.error("Error sending email:", error);
+      router.push("/mybookings"); // Still redirect even if email fails
     }
   };
   

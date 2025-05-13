@@ -51,17 +51,22 @@ const SignInForm = () => {
 
       await signInWithEmailAndPassword(auth, userEmail, password);
 
+      // Get the actual user document
+      const userId = userDoc.id;
+      const userDocData = userDoc.data();
+
       const userData = {
-        name: userDoc.data().username,
+        name: userDocData.username || userDocData.displayName || "",
         email: email,
-        userId: userDoc.id,
+        userId: userId,
       };
 
       // Save user data to Redux
       dispatch(setUser({ userData }));
 
-      // Save user data to localStorage
+      // Save user data to localStorage (both formats for compatibility)
       localStorage.setItem("user", JSON.stringify(userData));
+      localStorage.setItem("currentUserId", userId);
 
       toast.success("Login successful");
       router.push("/");
@@ -76,22 +81,34 @@ const SignInForm = () => {
 
   // Check user state on app load
   useEffect(() => {
+    // Try to get currentUserId first (new format)
+    const currentUserId = localStorage.getItem("currentUserId");
+    if (currentUserId) {
+      // Simply redirect to home page, ProtectedHomeRoute will handle data fetching
+      router.push("/");
+      return;
+    }
+    
+    // Fall back to user object (old format)
     const storedUser = localStorage.getItem("user");
-
     if (storedUser) {
-      const userData = JSON.parse(storedUser);
+      try {
+        const userData = JSON.parse(storedUser);
 
-      dispatch(
-        setUser({
-          userData: {
-            name: userData.name,
-            email: userData.email,
-          },
-          userId: userData.userId,
-        })
-      );
+        dispatch(
+          setUser({
+            userData: {
+              name: userData.name,
+              email: userData.email,
+            },
+            userId: userData.userId,
+          })
+        );
 
-      router.push("/"); // Redirect to home if user is already signed in
+        router.push("/"); // Redirect to home if user is already signed in
+      } catch (error) {
+        console.error("Error parsing user data:", error);
+      }
     }
   }, [dispatch, router]);
 

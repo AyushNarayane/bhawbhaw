@@ -1,7 +1,8 @@
 "use client";
 import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import { FiMenu, FiSearch } from "react-icons/fi";
+import { FiMenu, FiSearch, FiChevronDown } from "react-icons/fi";
+import { FaInstagram, FaYoutube, FaFacebook, FaWhatsapp } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/navigation";
 import { clearUser, setUser } from "@/redux/userSlice";
@@ -10,25 +11,32 @@ import ProfileDropdown from "./ProfileDropdown";
 import SpeechRecognition, {
   useSpeechRecognition,
 } from "react-speech-recognition";
+import { doc, getDoc, onSnapshot } from "firebase/firestore";
+import { db } from "../../firebaseConfig";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const user = useSelector((state) => state.user.userId);
+  const cartItems = useSelector((state) => state.cart.items);
   const dispatch = useDispatch();
   const router = useRouter();
   const drawerRef = useRef(null);
+  const searchContainerRef = useRef(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [suggestions, setSuggestions] = useState([]); // For search suggestions
+  const [cartItemCount, setCartItemCount] = useState(0);
+  const [showSocials, setShowSocials] = useState(false);
+  const socialsRef = useRef(null);
+  const dropdownRef = useRef(null);
 
   const navLinks = [
-    { name: "DOGS AND CATS", href: "/" },
-    { name: "AQUARIUM", href: "/" },
     { name: "PRODUCTS", href: "/products" },
     { name: "SERVICES", href: "/service" },
     { name: "BLOG", href: "/blogs" },
-    { name: "CONTACT US", href: "/contact" },
     { name: "DEALS", href: "/contact" },
     { name: "KNOW YOUR PET", href: "/" },
+    { name: "SOCIALS", href: "#", dropdown: true },
+    { name: "CONTACT US", href: "/contact" },
   ];
 
   const { transcript, listening, resetTranscript } = useSpeechRecognition();
@@ -52,17 +60,79 @@ const Navbar = () => {
       }
     }
 
-    // Filter products based on search term
-    const activeProducts = products.products.filter(
-      (product) =>
-        product.status === "active" &&
-        (product.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          product.description
-            .toLowerCase()
-            .includes(searchTerm.toLowerCase()))
-    );
+    if (!searchTerm || searchTerm.trim() === '') {
+      return [];
+    }
 
-    return activeProducts;
+    const normalizedSearchTerm = searchTerm.toLowerCase().trim();
+    
+    // Filter active products and add relevance score
+    const scoredProducts = products.products
+      .filter(product => product.status === "active")
+      .map(product => {
+        const title = product.title.toLowerCase();
+        const description = product.description.toLowerCase();
+        
+        // Calculate relevance score
+        let score = 0;
+        
+        // Exact match in title (highest priority)
+        if (title === normalizedSearchTerm) {
+          score += 100;
+        }
+        // Title starts with search term
+        else if (title.startsWith(normalizedSearchTerm)) {
+          score += 80;
+        }
+        // Title contains search term
+        else if (title.includes(normalizedSearchTerm)) {
+          score += 60;
+        }
+        // Description contains search term
+        else if (description.includes(normalizedSearchTerm)) {
+          score += 20;
+        }
+        // No exact match, check for word parts in title (partial match)
+        else {
+          const words = title.split(' ');
+          for (const word of words) {
+            if (word.includes(normalizedSearchTerm) || normalizedSearchTerm.includes(word)) {
+              score += 30;
+              break;
+            }
+          }
+        }
+        
+        // If no match found through normal means, try checking for common typos
+        // or close matches (simple approximation)
+        if (score === 0) {
+          const titleWords = title.split(' ');
+          for (const word of titleWords) {
+            // Check if word is similar (at least 70% similar)
+            if (word.length > 3 && normalizedSearchTerm.length > 3) {
+              // Simple character overlap check
+              const overlap = [...word].filter(char => normalizedSearchTerm.includes(char)).length;
+              const similarity = overlap / Math.max(word.length, normalizedSearchTerm.length);
+              
+              if (similarity > 0.7) {
+                score += 10;
+                break;
+              }
+            }
+          }
+        }
+        
+        // Only return products with a score > 0
+        return {
+          ...product,
+          score
+        };
+      })
+      .filter(product => product.score > 0)
+      .sort((a, b) => b.score - a.score) // Sort by score in descending order
+      .slice(0, 8); // Limit to top 8 results
+      
+    return scoredProducts;
   };
 
   const handleSearchChange = async (event) => {
@@ -87,6 +157,29 @@ const Navbar = () => {
       fetchProducts(transcript); // Fetch products on speech recognition
     }
   }, [transcript]);
+
+  useEffect(() => {
+    if (!user) {
+      setCartItemCount(0);
+      return;
+    }
+    
+    // Set up a real-time listener for cart changes
+    const cartRef = doc(db, 'cart', user);
+    const unsubscribe = onSnapshot(cartRef, (snapshot) => {
+      if (snapshot.exists()) {
+        const items = snapshot.data().items || [];
+        setCartItemCount(items.length);
+      } else {
+        setCartItemCount(0);
+      }
+    }, (error) => {
+      console.error("Error listening to cart updates:", error);
+    });
+    
+    // Clean up listener on unmount
+    return () => unsubscribe();
+  }, [user]);
 
   const toggleDrawer = () => {
     setIsOpen(!isOpen);
@@ -136,6 +229,43 @@ const Navbar = () => {
     }
   };
 
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (searchContainerRef.current && !searchContainerRef.current.contains(event.target)) {
+        setSuggestions([]);
+      }
+    };
+
+    if (suggestions.length > 0) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [suggestions]);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        socialsRef.current && 
+        dropdownRef.current &&
+        !socialsRef.current.contains(event.target) && 
+        !dropdownRef.current.contains(event.target)
+      ) {
+        setShowSocials(false);
+      }
+    };
+
+    if (showSocials) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showSocials]);
+
   return (
     <nav className="bg-[#39646e] text-white py-5 lg:px-12 sm:px-6 px-2 relative whitespace-nowrap">
       <div className="flex justify-between items-center">
@@ -146,7 +276,7 @@ const Navbar = () => {
               alt="BHAW Logo"
               width={100}
               height={100}
-              className="max-sm:h-14 h-16 w-auto mx-2 cursor-pointer"
+              className="max-sm:h-14 h-16 w-auto mx-4 cursor-pointer"
             />
           </Link>
         </div>
@@ -154,14 +284,92 @@ const Navbar = () => {
         {/* Navigation Links */}
         <ul className="hidden lg:flex flex-grow justify-center lg:space-x-8 text-gray-600">
           {navLinks.map((link, index) => (
-            <li key={index}>
-              <Link
-                href={link.href}
-                onClick={() => setIsOpen(false)}
-                className="hover:text-black text-white cursor-pointer"
-              >
-                {link.name}
-              </Link>
+            <li key={index} className="relative">
+              {link.dropdown ? (
+                <div className="relative">
+                  <button
+                    ref={socialsRef}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setShowSocials(!showSocials);
+                    }}
+                    className="hover:text-black text-white cursor-pointer flex items-center"
+                  >
+                    {link.name}
+                    <FiChevronDown 
+                      className={`ml-1 transform transition-transform duration-200 ${
+                        showSocials ? 'rotate-180' : ''
+                      }`} 
+                    />
+                  </button>
+                  
+                  {showSocials && (
+                    <div 
+                      ref={dropdownRef}
+                      className="absolute top-full left-1/2 transform -translate-x-1/2 bg-white rounded-md shadow-lg z-50 mt-2 min-w-[160px]"
+                    >
+                      <ul className="py-1">
+                        <li>
+                          <Link 
+                            href="https://www.instagram.com/bhaw_bhaww/" 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="flex items-center px-4 py-2 hover:bg-gray-100 text-sm text-gray-700"
+                            onClick={() => setShowSocials(false)}
+                          >
+                            <FaInstagram className="text-pink-600 mr-2" size={16} />
+                            Instagram
+                          </Link>
+                        </li>
+                        <li>
+                          <Link 
+                            href="https://youtube.com/@bhawbhaw-com?si=c4ryrGze594Jf5xA" 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="flex items-center px-4 py-2 hover:bg-gray-100 text-sm text-gray-700"
+                            onClick={() => setShowSocials(false)}
+                          >
+                            <FaYoutube className="text-pink-600 mr-2" size={16} />
+                            Youtube
+                          </Link>
+                        </li>
+                        <li>
+                          <Link 
+                            href="https://www.facebook.com/profile.php?id=61568752592399" 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="flex items-center px-4 py-2 hover:bg-gray-100 text-sm text-gray-700"
+                            onClick={() => setShowSocials(false)}
+                          >
+                            <FaFacebook className="text-blue-600 mr-2" size={16} />
+                            Facebook
+                          </Link>
+                        </li>
+                        <li>
+                          <Link 
+                            href="https://chat.whatsapp.com/LqGNKlnZjS149Fgz1eiRTA" 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="flex items-center px-4 py-2 hover:bg-gray-100 text-sm text-gray-700"
+                            onClick={() => setShowSocials(false)}
+                          >
+                            <FaWhatsapp className="text-green-600 mr-2" size={16} />
+                            WhatsApp
+                          </Link>
+                        </li>
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <Link
+                  href={link.href}
+                  onClick={() => setIsOpen(false)}
+                  className="hover:text-black text-white cursor-pointer"
+                >
+                  {link.name}
+                </Link>
+              )}
             </li>
           ))}
         </ul>
@@ -180,12 +388,17 @@ const Navbar = () => {
                 </button>
               </Link>
               <Link href="/cart" onClick={() => setIsOpen(false)}>
-                <button>
+                <button className="relative">
                   <img
                     src="/images/navbar/cart.png"
                     alt="Cart"
                     className="w-6 h-6"
                   />
+                  {cartItemCount > 0 && (
+                    <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                      {cartItemCount}
+                    </span>
+                  )}
                 </button>
               </Link>
               <ProfileDropdown onLogout={onLogout} />
@@ -223,7 +436,7 @@ const Navbar = () => {
 
       {/* Top Section: Search Bar */}
       <div className="flex flex-col items-center mb-3">
-        <div className="flex items-center border-2 border-gray-300 rounded-full px-4 py-1 max-w-2xl w-full relative">
+        <div ref={searchContainerRef} className="flex items-center border-2 border-gray-300 rounded-full px-4 py-1 max-w-2xl w-full relative">
           <input
             type="text"
             value={searchTerm || transcript}
@@ -256,6 +469,7 @@ const Navbar = () => {
                   key={product.productId}
                   href={`/productdetails/${product.productId}`}
                   className="block px-4 py-2 text-black hover:bg-gray-100"
+                  onClick={() => setSuggestions([])}
                 >
                   {product.title}
                 </Link>
@@ -283,16 +497,84 @@ const Navbar = () => {
               { name: "PRODUCTS", path: "/products" }, 
               { name: "SERVICES", path: "/service" },
               { name: "BLOG", path: "/blogs" },
-              { name: "CONTACT US", path: "/contact" }
+              { name: "CONTACT US", path: "/contact" },
+              { name: "SOCIALS", path: "#", dropdown: true }
             ].map((item) => (
               <li key={item.path}>
-                <Link
-                  href={item.path}
-                  onClick={() => setIsOpen(false)}
-                  className="hover:text-black text-[#C4B0A9] cursor-pointer py-2 text-lg font-medium"
-                >
-                  {item.name}
-                </Link>
+                {item.dropdown ? (
+                  <div className="py-2">
+                    <button
+                      ref={socialsRef}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setShowSocials(!showSocials);
+                      }}
+                      className="flex items-center justify-center hover:text-black text-[#C4B0A9] cursor-pointer text-lg font-medium mb-2 w-full"
+                    >
+                      {item.name}
+                      <FiChevronDown 
+                        className={`ml-1 transform transition-transform duration-200 ${
+                          showSocials ? 'rotate-180' : ''
+                        }`} 
+                      />
+                    </button>
+                    {showSocials && (
+                      <div 
+                        ref={dropdownRef}
+                        className="flex flex-col"
+                      >
+                        <Link 
+                          href="https://www.instagram.com/bhaw_bhaww/" 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="flex items-center px-4 py-2 hover:bg-gray-100 text-sm text-gray-700"
+                          onClick={() => setShowSocials(false)}
+                        >
+                          <FaInstagram className="text-pink-600 mr-2" size={16} />
+                          Instagram
+                        </Link>
+                        <Link 
+                          href="https://youtube.com/@bhawbhaw-com?si=c4ryrGze594Jf5xA" 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="flex items-center px-4 py-2 hover:bg-gray-100 text-sm text-gray-700"
+                          onClick={() => setShowSocials(false)}
+                        >
+                          <FaYoutube className="text-pink-600 mr-2" size={16} />
+                          Youtube
+                        </Link>
+                        <Link 
+                          href="https://www.facebook.com/profile.php?id=61568752592399" 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="flex items-center px-4 py-2 hover:bg-gray-100 text-sm text-gray-700"
+                          onClick={() => setShowSocials(false)}
+                        >
+                          <FaFacebook className="text-blue-600 mr-2" size={16} />
+                          Facebook
+                        </Link>
+                        <Link 
+                          href="https://chat.whatsapp.com/LqGNKlnZjS149Fgz1eiRTA" 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="flex items-center px-4 py-2 hover:bg-gray-100 text-sm text-gray-700"
+                          onClick={() => setShowSocials(false)}
+                        >
+                          <FaWhatsapp className="text-green-600 mr-2" size={16} />
+                          WhatsApp
+                        </Link>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <Link
+                    href={item.path}
+                    onClick={() => setIsOpen(false)}
+                    className="hover:text-black text-[#C4B0A9] cursor-pointer py-2 text-lg font-medium"
+                  >
+                    {item.name}
+                  </Link>
+                )}
               </li>
             ))}
             <li className="py-4">

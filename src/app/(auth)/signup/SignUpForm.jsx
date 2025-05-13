@@ -4,16 +4,17 @@ import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import toast, { Toaster } from "react-hot-toast";
-import { getDocs, collection, query, where } from "firebase/firestore";
+import { getDocs, collection, query, where, doc, setDoc, getDoc } from "firebase/firestore";
 import { useDispatch, useSelector } from "react-redux";
 import { setUser } from "@/redux/userSlice";
-import { signInWithEmailAndPassword } from "firebase/auth";
+import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
 import { auth, db } from "../../../../firebaseConfig";
 import Link from "next/link";
 
 const SignUpForm = () => {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -54,6 +55,41 @@ const SignUpForm = () => {
       alert('An error occurred. Please try again.');
     } finally {
       setLoading(false)
+    }
+  };
+
+  const handleGoogleSignUp = async () => {
+    try {
+      setGoogleLoading(true);
+      const provider = new GoogleAuthProvider();
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
+
+      // Check if this user already exists in Firestore
+      const userRef = doc(db, "users", user.uid);
+      const userSnap = await getDoc(userRef);
+
+      // If user doesn't exist, create a new document
+      if (!userSnap.exists()) {
+        await setDoc(userRef, {
+          uid: user.uid,
+          email: user.email,
+          displayName: user.displayName || "",
+          photoURL: user.photoURL || "",
+          createdAt: new Date().toISOString(),
+        });
+        toast.success("Account created successfully!");
+      } else {
+        toast.success("Signed in successfully!");
+      }
+
+      // Redirect to home page or dashboard
+      router.push("/");
+    } catch (error) {
+      console.error("Error during Google sign up:", error);
+      toast.error(error.message || "An error occurred during sign up");
+    } finally {
+      setGoogleLoading(false);
     }
   };
 
@@ -142,6 +178,34 @@ const SignUpForm = () => {
         <span className="ml-2">➔</span>
       </button>
     </div>
+    {/* <div className="flex items-center my-2">
+      <div className="flex-grow h-px bg-gray-300"></div>
+      <span className="px-2 text-gray-500">OR</span>
+      <div className="flex-grow h-px bg-gray-300"></div>
+    </div>
+    <div className="w-full flex justify-center">
+      <button
+        type="button"
+        onClick={handleGoogleSignUp}
+        disabled={googleLoading}
+        className="flex items-center justify-center bg-white border border-gray-300 text-gray-700 font-semibold py-2 px-4 rounded-full shadow-sm hover:bg-gray-50 transition-colors duration-300 w-full"
+      >
+        {googleLoading ? (
+          <span>Signing up with Google...</span>
+        ) : (
+          <>
+            <Image
+              src="/images/common/google.png"
+              alt="Google Logo"
+              width={20}
+              height={20}
+              className="mr-2"
+            />
+            Sign up with Google
+          </>
+        )}
+      </button>
+    </div> */}
     <div>
       <p className="text-center text-gray-500">
         <span>Already have an account? </span>

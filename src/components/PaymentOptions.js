@@ -1,21 +1,34 @@
 'use client'
 
 import React, { useState } from "react";
+import { FaSpinner } from 'react-icons/fa';
 
 const PaymentOptions = ({ total, deliveryFee, onSuccess, mode = 'checkout' }) => {
   const [selectedMethod, setSelectedMethod] = useState("COD");
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handlePaymentSubmit = (e) => {
+  const handlePaymentSubmit = async (e) => {
     e.preventDefault();
+    setIsLoading(true);
 
-    // Simulate payment processing
-    const paymentSuccessful = true;
+    // Simulate payment processing with a delay
+    try {
+      await new Promise(resolve => setTimeout(resolve, 2000)); // 2 second delay to show loading state
+      
+      // Your payment logic here
+      const paymentSuccessful = true;
 
-    if (paymentSuccessful) {
-      onSuccess(true); // Trigger success in the parent component
-    } else {
-      alert("Payment failed!");
+      if (paymentSuccessful) {
+        onSuccess(true);
+      } else {
+        alert("Payment failed!");
+        onSuccess(false);
+      }
+    } catch (error) {
+      console.error('Payment failed:', error);
       onSuccess(false);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -108,9 +121,19 @@ const PaymentOptions = ({ total, deliveryFee, onSuccess, mode = 'checkout' }) =>
             {/* Submit Button */}
             <button
               type="submit"
-              className="w-full bg-red-500 text-white py-3 rounded-lg mt-6 hover:bg-red-600 transition"
+              disabled={isLoading}
+              className={`w-full bg-red-500 text-white py-3 rounded-lg mt-6 hover:bg-red-600 transition-all duration-200 flex items-center justify-center space-x-2 ${
+                isLoading ? 'opacity-75 cursor-not-allowed' : ''
+              }`}
             >
-              Complete Payment
+              {isLoading ? (
+                <>
+                  <FaSpinner className="animate-spin h-5 w-5" />
+                  <span>Processing...</span>
+                </>
+              ) : (
+                <span>Complete Payment</span>
+              )}
             </button>
           </div>
         </form>

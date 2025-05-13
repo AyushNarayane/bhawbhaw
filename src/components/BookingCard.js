@@ -4,6 +4,7 @@ import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { db, storage } from "firebaseConfig";
 import { useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
+import { FaStar } from "react-icons/fa";
 
 const BookingCard = ({ booking }) => {
   const [bookingStatus, setBookingStatus] = useState(booking.status);
@@ -203,23 +204,20 @@ const BookingCard = ({ booking }) => {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
           <div className="bg-white rounded-lg p-6 max-md:w-11/12">
             <h2 className="text-lg font-bold mb-4">Submit Your Review</h2>
-            <label className="block mb-2">
-              Stars:
-              <input
-                type="number"
-                min="1"
-                max="5"
-                value={reviewData.stars}
-                onChange={(e) =>
-                  setReviewData({
-                    ...reviewData,
-                    stars: parseInt(e.target.value, 10),
-                  })
-                }
-                className="border border-gray-300 rounded px-2 py-1 w-full"
-                onKeyDown={(e) => e.preventDefault()}
-              />
-            </label>
+            <div className="block mb-4">
+              <p className="mb-2">Rating:</p>
+              <div className="flex gap-2">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <FaStar
+                    key={star}
+                    className={`text-2xl cursor-pointer ${
+                      star <= reviewData.stars ? 'text-yellow-400' : 'text-gray-300'
+                    }`}
+                    onClick={() => setReviewData({ ...reviewData, stars: star })}
+                  />
+                ))}
+              </div>
+            </div>
             <label className="block mb-2">
               Title:
               <input

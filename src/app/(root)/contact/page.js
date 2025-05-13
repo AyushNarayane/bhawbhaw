@@ -185,33 +185,7 @@ const ContactUs = () => {
           </form>
         </div>
 
-        <div className="grid grid-cols-1 mt-8 md:grid-cols-3 gap-6 bg-[#F3EAE7] rounded-xl text-gray-600">
-          <div className="flex items-center space-x-6 p-6">
-            <img src="/images/contact/clock.png" alt="Clock" className="w-16 h-16" />
-            <div className='whitespace-nowrap'>
-              <h4 className="font-staatliches text-[#4D413E] text-2xl">Open Hours</h4>
-              <p className="text-sm">Mon - Fri: 9:00 AM to 6:00 PM</p>
-              <p className="text-sm">Saturday: 9:00 AM to 2:00 PM</p>
-              <p className="text-sm">Sunday: 9:00 AM to 2:00 PM</p>
-            </div>
-          </div>
-          <div className="flex items-center space-x-6 p-6">
-            <img src="/images/contact/location.png" alt="Location" className="w-16 h-16" />
-            <div>
-              <h4 className="font-staatliches text-[#4D413E] text-2xl">Location</h4>
-              <p className="text-sm">Bandra, Mumbai - India</p>
-              <a href="#" className="text-[#ac9d16] hover:text-[#6d6224]">See on map</a>
-            </div>
-          </div>
-          <div className="flex items-center space-x-6 p-6">
-            <img src="/images/contact/phone.png" alt="Phone" className="w-16 h-16" />
-            <div>
-              <h4 className="font-staatliches text-[#4D413E] text-2xl">Contact</h4>
-              <p className="text-sm">8390637497/ 8318571489</p>
-              <p className="text-sm">INFO@BHAWBHAW.COM</p>
-            </div>
-          </div>
-        </div>
+       
       </div>
     </div>
   );

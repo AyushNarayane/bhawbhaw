@@ -1,9 +1,25 @@
 import Image from "next/image";
+import { useEffect, useRef } from "react";
 
 const Popup = ({ imageSrc, title, message, closePopup }) => {
+  const modalRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (modalRef.current && !modalRef.current.contains(event.target)) {
+        closePopup();
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [closePopup]);
+
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-gray-500 bg-opacity-50 z-50">
-      <div className="bg-white p-8 rounded-lg shadow-lg relative">
+    <div className="fixed inset-0 flex items-center justify-center bg-gray-500 bg-opacity-50 z-50" onClick={closePopup}>
+      <div ref={modalRef} className="bg-white p-8 rounded-lg shadow-lg relative" onClick={(e) => e.stopPropagation()}>
         <button
           className="absolute top-2 right-2"
           onClick={closePopup}
