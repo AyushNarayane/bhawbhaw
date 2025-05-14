@@ -1,5 +1,6 @@
 'use client'
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import toast from "react-hot-toast";
 
 const FilterComponent = ({ onFilter, products }) => {
   const [selectedSubcategories, setSelectedSubcategories] = useState({});
@@ -8,6 +9,73 @@ const FilterComponent = ({ onFilter, products }) => {
   const [maxPrice, setMaxPrice] = useState('');
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [sortDirection, setSortDirection] = useState(''); // 'asc' or 'desc' or ''
+  const [isNearbyActive, setIsNearbyActive] = useState(false);
+  const [userCity, setUserCity] = useState('');
+  const [isLocationLoading, setIsLocationLoading] = useState(false);
+
+  // Handle detecting user's location
+  const getUserLocation = async () => {
+    setIsLocationLoading(true);
+    try {
+      if (!navigator.geolocation) {
+        toast.error("Geolocation is not supported by your browser");
+        return;
+      }
+
+      // Get current position
+      const position = await new Promise((resolve, reject) => {
+        navigator.geolocation.getCurrentPosition(resolve, reject);
+      });
+
+      const { latitude, longitude } = position.coords;
+      
+      // Use reverse geocoding to get the city
+      const response = await fetch(
+        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=10&accept-language=en`
+      );
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch location data');
+      }
+      
+      const data = await response.json();
+      
+      // Extract city from response
+      const city = data.address.city || 
+                  data.address.town || 
+                  data.address.village || 
+                  data.address.county || 
+                  '';
+                  
+      setUserCity(city);
+      
+      // Toggle nearby filter
+      const newNearbyState = !isNearbyActive;
+      setIsNearbyActive(newNearbyState);
+      
+      // Apply the filter
+      applyFilters(newNearbyState, city);
+    } catch (error) {
+      console.error("Error getting location:", error);
+      toast.error("Could not detect your location. Please try again.");
+    } finally {
+      setIsLocationLoading(false);
+    }
+  };
+  
+  // Apply all filters including nearby if active
+  const applyFilters = (nearbyActive = isNearbyActive, city = userCity) => {
+    const filters = {
+      subcategories: Object.keys(selectedSubcategories).filter((key) => selectedSubcategories[key]),
+      brands: Object.keys(selectedBrands).filter((key) => selectedBrands[key]),
+      min: minPrice,
+      max: maxPrice,
+      sortDirection,
+      isNearby: nearbyActive,
+      userCity: city
+    };
+    onFilter(filters);
+  };
 
   const handleSubcategoryChange = (option) => {
     setSelectedSubcategories((prev) => ({
@@ -34,19 +102,14 @@ const FilterComponent = ({ onFilter, products }) => {
       min: minPrice,
       max: maxPrice,
       sortDirection: newDirection,
+      isNearby: isNearbyActive,
+      userCity: userCity
     };
     onFilter(filters);
   };
 
   const handleFilter = () => {
-    const filters = {
-      subcategories: Object.keys(selectedSubcategories).filter((key) => selectedSubcategories[key]),
-      brands: Object.keys(selectedBrands).filter((key) => selectedBrands[key]),
-      min: minPrice,
-      max: maxPrice,
-      sortDirection: sortDirection,
-    };
-    onFilter(filters); // Pass all filters to the parent
+    applyFilters();
     setIsFilterOpen(false); // Close the filter panel
   };
 
@@ -56,7 +119,9 @@ const FilterComponent = ({ onFilter, products }) => {
     setMinPrice('');
     setMaxPrice('');
     setSortDirection('');
-    onFilter({ subcategories: [], brands: [], min: '', max: '', sortDirection: '' });
+    setIsNearbyActive(false);
+    setUserCity('');
+    onFilter({ subcategories: [], brands: [], min: '', max: '', sortDirection: '', isNearby: false, userCity: '' });
     setIsFilterOpen(false); // Close the filter panel
   };
 
@@ -82,6 +147,21 @@ const FilterComponent = ({ onFilter, products }) => {
       <div className={`fixed lg:static top-0 left-0 w-fit h-fit rounded-xl bg-white shadow-xl max-w-xs transform lg:translate-x-0 ${isFilterOpen ? 'translate-x-0' : '-translate-x-full'} transition-transform duration-300 z-50 lg:z-auto`}>
         <div className="p-6 font-poppins text-[#4D413E]">
           <h2 className="text-2xl mb-4">Filters</h2>
+          
+          {/* Nearby Button */}
+          <div className="mb-6">
+            <h3 className="text-lg mb-2">Location</h3>
+            <button 
+              onClick={getUserLocation} 
+              disabled={isLocationLoading}
+              className={`w-full rounded-lg px-3 py-2 border ${isNearbyActive ? 'bg-[#4D413E] text-white' : 'border-[#C49A8C]'}`}
+            >
+              {isLocationLoading ? 'Detecting Location...' : isNearbyActive ? 'Show All Products' : 'Show Nearby Products'}
+            </button>
+            {userCity && isNearbyActive && (
+              <p className="text-sm mt-2">Showing products near: {userCity}</p>
+            )}
+          </div>
           
           {/* Sorting Section */}
           <div className="mb-6">
