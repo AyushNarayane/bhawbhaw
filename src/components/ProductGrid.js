@@ -81,7 +81,7 @@ const ProductGrid = () => {
     currentPage * productsPerPage
   );
 
-  const handleFilter = ({ subcategories, brands, min, max }) => {
+  const handleFilter = ({ subcategories, brands, min, max, sortDirection }) => {
     const minPrice = parseFloat(min);
     const maxPrice = parseFloat(max);
 
@@ -98,7 +98,15 @@ const ProductGrid = () => {
       return matchesSubcategories && matchesBrands && matchesPrice;
     });
 
-    setFilteredProducts(filtered);
+    // Apply sorting if specified
+    let sortedProducts = [...filtered];
+    if (sortDirection === 'asc') {
+      sortedProducts.sort((a, b) => parseFloat(a.sellingPrice) - parseFloat(b.sellingPrice));
+    } else if (sortDirection === 'desc') {
+      sortedProducts.sort((a, b) => parseFloat(b.sellingPrice) - parseFloat(a.sellingPrice));
+    }
+
+    setFilteredProducts(sortedProducts);
     setCurrentPage(1);
   };
 

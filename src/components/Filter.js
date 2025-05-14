@@ -7,6 +7,7 @@ const FilterComponent = ({ onFilter, products }) => {
   const [minPrice, setMinPrice] = useState('');
   const [maxPrice, setMaxPrice] = useState('');
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [sortDirection, setSortDirection] = useState(''); // 'asc' or 'desc' or ''
 
   const handleSubcategoryChange = (option) => {
     setSelectedSubcategories((prev) => ({
@@ -22,12 +23,28 @@ const FilterComponent = ({ onFilter, products }) => {
     }));
   };
 
+  const handleSortChange = (direction) => {
+    const newDirection = sortDirection === direction ? '' : direction;
+    setSortDirection(newDirection);
+    
+    // Apply filter immediately
+    const filters = {
+      subcategories: Object.keys(selectedSubcategories).filter((key) => selectedSubcategories[key]),
+      brands: Object.keys(selectedBrands).filter((key) => selectedBrands[key]),
+      min: minPrice,
+      max: maxPrice,
+      sortDirection: newDirection,
+    };
+    onFilter(filters);
+  };
+
   const handleFilter = () => {
     const filters = {
       subcategories: Object.keys(selectedSubcategories).filter((key) => selectedSubcategories[key]),
       brands: Object.keys(selectedBrands).filter((key) => selectedBrands[key]),
       min: minPrice,
       max: maxPrice,
+      sortDirection: sortDirection,
     };
     onFilter(filters); // Pass all filters to the parent
     setIsFilterOpen(false); // Close the filter panel
@@ -38,7 +55,8 @@ const FilterComponent = ({ onFilter, products }) => {
     setSelectedBrands({});
     setMinPrice('');
     setMaxPrice('');
-    onFilter({ subcategories: [], brands: [], min: '', max: '' });
+    setSortDirection('');
+    onFilter({ subcategories: [], brands: [], min: '', max: '', sortDirection: '' });
     setIsFilterOpen(false); // Close the filter panel
   };
 
@@ -64,6 +82,26 @@ const FilterComponent = ({ onFilter, products }) => {
       <div className={`fixed lg:static top-0 left-0 w-fit h-fit rounded-xl bg-white shadow-xl max-w-xs transform lg:translate-x-0 ${isFilterOpen ? 'translate-x-0' : '-translate-x-full'} transition-transform duration-300 z-50 lg:z-auto`}>
         <div className="p-6 font-poppins text-[#4D413E]">
           <h2 className="text-2xl mb-4">Filters</h2>
+          
+          {/* Sorting Section */}
+          <div className="mb-6">
+            <h3 className="text-lg mb-2">Sort by Price</h3>
+            <div className="flex flex-col space-y-2">
+              <button 
+                onClick={() => handleSortChange('desc')} 
+                className={`rounded-lg px-3 py-1.5 border ${sortDirection === 'desc' ? 'bg-[#4D413E] text-white' : 'border-[#C49A8C]'}`}
+              >
+                High to Low
+              </button>
+              <button 
+                onClick={() => handleSortChange('asc')} 
+                className={`rounded-lg px-3 py-1.5 border ${sortDirection === 'asc' ? 'bg-[#4D413E] text-white' : 'border-[#C49A8C]'}`}
+              >
+                Low to High
+              </button>
+            </div>
+          </div>
+          
           {/* Subcategory Section */}
           <div className="mb-6">
             <h3 className="text-lg mb-2">Subcategory</h3>
