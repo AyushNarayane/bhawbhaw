@@ -12,7 +12,8 @@ import SpeechRecognition, {
   useSpeechRecognition,
 } from "react-speech-recognition";
 import { doc, getDoc, onSnapshot } from "firebase/firestore";
-import { db } from "../../firebaseConfig";
+import { db, auth } from "../../firebaseConfig";
+import { signOut } from "firebase/auth";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -203,12 +204,21 @@ const Navbar = () => {
     };
   }, [isOpen]);
 
-  const onLogout = () => {
-    dispatch(clearUser());
-    localStorage.removeItem("user");
-    localStorage.removeItem("persist:root");
-    setIsOpen(false);
-    router.push("/signin");
+  const onLogout = async () => {
+    try {
+      await signOut(auth);
+      dispatch(clearUser());
+      localStorage.removeItem("user");
+      localStorage.removeItem("persist:root");
+      localStorage.removeItem("currentUserId");
+      setIsOpen(false);
+
+      if (typeof window !== 'undefined') {
+        window.location.href = "/signin";
+      }
+    } catch (error) {
+      console.error("Error signing out: ", error);
+    }
   };
 
   const handleSearch = async () => {
