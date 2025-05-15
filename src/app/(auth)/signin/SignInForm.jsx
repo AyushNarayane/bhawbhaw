@@ -73,7 +73,20 @@ const SignInForm = () => {
 
     } catch (error) {
       console.error("Error signing in:", error);
-      toast.error("An error occurred during login");
+      // Handle specific Firebase auth errors
+      switch (error.code) {
+        case 'auth/wrong-password':
+          toast.error("Incorrect password. Please try again.");
+          break;
+        case 'auth/invalid-credential':
+          toast.error("Invalid email or password. Please try again.");
+          break;
+        case 'auth/too-many-requests':
+          toast.error("Too many failed attempts. Please try again later.");
+          break;
+        default:
+          toast.error("An error occurred during login");
+      }
     } finally {
       setLoading(false);
     }
