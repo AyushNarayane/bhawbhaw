@@ -55,7 +55,10 @@ const CouponSection = ({ coupon, setCoupon, handleApplyCoupon, showCouponModal, 
                       }}
                     >
                       <div className="flex items-center justify-between">
-                        <p className="font-medium">{c.couponTitle}</p>
+                        <div>
+                          <p className="font-medium">{c.couponTitle}</p>
+                          <p className="text-xs text-gray-500 mt-0.5">Min. ₹{c.minPrice || '0'} required</p>
+                        </div>
                         <span className="text-xs bg-red-100 text-red-600 px-2 py-1 rounded-full">
                           {c.discount}% OFF
                         </span>
