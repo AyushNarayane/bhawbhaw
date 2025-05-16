@@ -144,20 +144,30 @@ const ProductCard = ({ product, isRecommendation = false }) => {
 
   const handleShare = async () => {
     try {
-      if (navigator.share) {
-        await navigator.share({
-          title: product.title,
-          text: product.description,
-          url: window.location.href,
-        });
+      const shareData = {
+        title: product.title,
+        text: `Check out ${product.title} - ${product.description}`,
+        url: `${window.location.origin}/productdetails/${product.productId}`
+      };
+
+      if (navigator.share && navigator.canShare && navigator.canShare(shareData)) {
+        // Use native sharing on mobile devices and supported browsers
+        await navigator.share(shareData);
+        toast.success("Shared successfully!");
       } else {
-        const url = window.location.href;
-        await navigator.clipboard.writeText(url);
+        // Fallback for desktop browsers - copy to clipboard
+        await navigator.clipboard.writeText(
+          `${shareData.title}\n${shareData.text}\n${shareData.url}`
+        );
         toast.success("Link copied to clipboard!");
       }
     } catch (error) {
-      toast.error("Error sharing: " + error.message);
+      if (error.name === 'AbortError') {
+        // User cancelled the share operation
+        return;
+      }
       console.error("Error sharing:", error);
+      toast.error("Failed to share. Please try copying the link instead.");
     }
   };
 
