@@ -97,7 +97,7 @@ const ContactUs = () => {
   return (
     <div className="bg-white  font-poppins">
       <div className="flex flex-col items-center text-black p-8 font-poppins bg-white lg:px-16">
-        <h1 className="lg:text-8xl text-4xl font-extrabold text-[#85716B]">Contact Us</h1>
+        <h1 className="lg:text-8xl text-4xl font-extrabold text-[#85716B] font-serif">Contact Us</h1>
         <p className="text-center lg:mx-32 text-gray-600 mt-4 mb-8 text-lg lg:text-xl">
           We know your pets are cherished members of your family. That's why we provide loving, personalized pet sitting services tailored to their needs.
         </p>
@@ -172,7 +172,7 @@ const ContactUs = () => {
             <div className="md:col-span-2">
               <button
                 type="submit"
-                className={`w-full bg-[#FFEB3B] text-[#4D413E] py-3 px-6 rounded-md text-2xl transition-all duration-300 ease-in-out ${isLoading ? 'cursor-not-allowed opacity-50' : 'hover:bg-[#FFD700]'}`}
+                className={`w-full bg-[#85716B] text-white py-3 px-6 rounded-md text-2xl transition-all duration-300 ease-in-out ${isLoading ? 'cursor-not-allowed opacity-50' : 'hover:bg-[#6F5E59]'}`}
                 disabled={isLoading}
               >
                 {isLoading ? (
