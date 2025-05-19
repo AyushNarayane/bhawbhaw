@@ -112,23 +112,25 @@ const MyOrders = () => {
 
                 {/* Items */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {order.items.map((item) => (
+                  {order.cartItems && order.cartItems.map((item) => (
                     <div
-                      key={item.id}
+                      key={item.id || Math.random().toString()}
                       className="border border-gray-200 bg-white p-4 rounded-lg shadow-sm flex flex-col items-center hover:shadow-lg transition-shadow"
                     >
                       {/* Item Image */}
-                      <Image
-                        src={item.images[0] || "/images/common/dummy.png"}
-                        alt={item.title}
-                        width={96}
-                        height={96}
-                        className="object-contain rounded-lg bg-gray-100 mb-4"
-                      />
+                      {item.images && item.images.length > 0 && (
+                        <Image
+                          src={item.images[0]}
+                          alt={item.title}
+                          width={96}
+                          height={96}
+                          className="object-contain rounded-lg bg-gray-100 mb-4"
+                        />
+                      )}
                       {/* Item Details */}
                       <div className="text-center">
                         <h4 className="font-bold text-sm md:text-base text-gray-800">{item.title}</h4>
-                        <p className="text-xs text-gray-500 mt-1">Size: {item.size}</p>
+                        {item.size && <p className="text-xs text-gray-500 mt-1">Size: {item.size}</p>}
                         <p className="font-bold text-lg text-gray-900 mt-2">INR {item.sellingPrice}</p>
                       </div>
                       {/* Quantity */}

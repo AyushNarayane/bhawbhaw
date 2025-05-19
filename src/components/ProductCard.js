@@ -69,6 +69,12 @@ const ProductCard = ({ product, isRecommendation = false }) => {
       const cartRef = doc(db, 'cart', user);
       const cartDoc = await getDoc(cartRef);
 
+      // Ensure vendorID is included in the product data
+      const productWithVendor = {
+        ...product,
+        vendorID: product.vendorId || product.vendorID // Handle both possible property names
+      };
+
       if (cartDoc.exists()) {
         const cartData = cartDoc.data();
         const existingProduct = cartData.items.find(item => item.productId === product.productId);
@@ -81,17 +87,17 @@ const ProductCard = ({ product, isRecommendation = false }) => {
           await setDoc(cartRef, { items: updatedItems }, { merge: true });
           toast.success("Product quantity updated in cart");
         } else {
-          // Add new product
+          // Add new product with vendor ID
           await setDoc(
             cartRef,
-            { items: [...cartData.items, { ...product, quantity: 1 }] },
+            { items: [...cartData.items, { ...productWithVendor, quantity: 1 }] },
             { merge: true }
           );
           toast.success("Product added to cart");
         }
       } else {
         // First item in cart
-        await setDoc(cartRef, { items: [{ ...product, quantity: 1 }] });
+        await setDoc(cartRef, { items: [{ ...productWithVendor, quantity: 1 }] });
         toast.success("Product added to cart");
       }
     } catch (error) {

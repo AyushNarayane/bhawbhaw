@@ -9,6 +9,7 @@ import { doc, getDoc, setDoc, Timestamp } from "firebase/firestore";
 import { db } from "firebaseConfig";
 import Image from "next/image";
 import PaymentOptions from "@/components/PaymentOptions";
+import DeliveryOptions from "@/components/DeliveryOptions";
 
 const CheckoutPage = () => {
   const router = useRouter();
@@ -17,7 +18,13 @@ const CheckoutPage = () => {
   const [cartItems, setCartItems] = useState([]);
   const [total, setTotal] = useState(0);
   const [subtotal, setSubtotal] = useState(0);
-  const [deliveryFee] = useState(15);
+  const [deliveryFee, setDeliveryFeeState] = useState(15);
+  const [selectedDeliveryOption, setSelectedDeliveryOption] = useState({
+    type: 'standard',
+    price: 15,
+    borzoDetails: null
+  });
+  const [vendorInfo, setVendorInfo] = useState(null);
 
   const [savedAddresses, setSavedAddresses] = useState([]);
   const [selectedAddressIndex, setSelectedAddressIndex] = useState(null);
@@ -41,6 +48,8 @@ const CheckoutPage = () => {
     postalCode: "",
     checked: false,
     id:"",
+    latitude: null,
+    longitude: null,
   });
 
   useEffect(() => {
@@ -97,6 +106,86 @@ const CheckoutPage = () => {
     fetchSavedAddresses();
   }, [router]);
 
+  // Fetch vendor information when cart items are loaded
+  useEffect(() => {
+    const fetchVendorInfo = async () => {
+      if (cartItems.length === 0) return;
+      
+      try {
+        // Get unique vendor IDs from cart items
+        const vendorIds = [...new Set(cartItems.map(item => item.vendorID || item.vendorId))].filter(Boolean);
+        
+        console.log('Vendor IDs found in cart:', vendorIds);
+        
+        if (vendorIds.length === 0) {
+          console.log('No vendor IDs found, using default vendor info');
+          // Set default vendor info if no vendor ID is found
+          setVendorInfo({
+            address: "BhawBhaw Store, Delhi",
+            contactName: "BhawBhaw Store",
+            contactPhone: "9999999999",
+            latitude: 28.6139,
+            longitude: 77.2090,
+            postalCode: "110001"
+          });
+          return;
+        }
+        
+        // For now, we'll use the first vendor ID (in the future, you might want to handle multiple vendors)
+        const vendorId = vendorIds[0];
+        console.log('Using vendor ID:', vendorId);
+        
+        // Fetch vendor details from Firestore
+        const vendorRef = doc(db, "vendors", vendorId);
+        const vendorDoc = await getDoc(vendorRef);
+        
+        if (vendorDoc.exists()) {
+          const vendorData = vendorDoc.data();
+          const businessDetails = vendorData.businessDetails || {};
+          
+          console.log('Vendor data fetched:', {
+            vendorId,
+            businessDetails,
+            fullVendorData: vendorData
+          });
+          
+          setVendorInfo({
+            address: businessDetails.pickupAddress || "Default Address",
+            contactName: businessDetails.brandName || "Default Store",
+            contactPhone: businessDetails.contactPhone || "9999999999",
+            latitude: businessDetails.latitude || 28.6139,
+            longitude: businessDetails.longitude || 77.2090,
+            postalCode: businessDetails.pincode || "110070"
+          });
+        } else {
+          console.log('Vendor not found in database:', vendorId);
+          // Set default vendor info if vendor is not found
+          setVendorInfo({
+            address: "BhawBhaw Store, Delhi",
+            contactName: "BhawBhaw Store",
+            contactPhone: "9999999999",
+            latitude: 28.6139,
+            longitude: 77.2090,
+            postalCode: "110001"
+          });
+        }
+      } catch (error) {
+        console.error("Error fetching vendor info:", error);
+        // Set default vendor info on error
+        setVendorInfo({
+          address: "BhawBhaw Store, Delhi",
+          contactName: "BhawBhaw Store",
+          contactPhone: "9999999999",
+          latitude: 28.6139,
+          longitude: 77.2090,
+          postalCode: "110001"
+        });
+      }
+    };
+
+    fetchVendorInfo();
+  }, [cartItems]);
+
   useEffect(() => {
     if (cartItems.length !== 0) {
       let subTotal = 0;
@@ -104,9 +193,9 @@ const CheckoutPage = () => {
         subTotal += item.sellingPrice * item.quantity;
       }
       setSubtotal(subTotal);
-      setTotal(subTotal + deliveryFee); // Add delivery fee to total amount
+      setTotal(subTotal + selectedDeliveryOption.price); // Add delivery fee to total amount
     }
-  }, [cartItems, deliveryFee]);
+  }, [cartItems, selectedDeliveryOption.price]);
 
   const handleProceedToPayment = async () => {
     setLoading(true);
@@ -121,6 +210,16 @@ const CheckoutPage = () => {
     }
 
     const userDetails = userDoc.data();
+
+    // Use the fetched vendor info or fall back to default store info
+    const storeInfo = vendorInfo || {
+      address: "BhawBhaw Store, Delhi",
+      contactName: "BhawBhaw Store",
+      contactPhone: "9999999999",
+      latitude: 28.6139,
+      longitude: 77.2090,
+      postalCode: "110001"
+    };
 
     const orderData = {
       userId,
@@ -140,9 +239,16 @@ const CheckoutPage = () => {
       email,
       notification: formData.checked,
       totalAmount: total,
+      deliveryMethod: selectedDeliveryOption.type,
+      deliveryFee: selectedDeliveryOption.price,
+      borzoDetails: selectedDeliveryOption.borzoDetails,
+      // Add delivery coordinates for Borzo
+      storeInfo: storeInfo,
+      deliveryCoordinates: {
+        latitude: formData.latitude || null,
+        longitude: formData.longitude || null
+      }
     };
-    // console.log(orderData);
-    
 
     try {
       const response = await fetch(`/api/checkout/checkout`, {
@@ -170,6 +276,7 @@ const CheckoutPage = () => {
   const handleAddressClick = (address, index) => {
     setSelectedAddressIndex(index);
     setFormData({ ...address, email });
+    console.log('Selected address data:', { address, index, email });
   };
 
   const resetForm = () => {
@@ -183,6 +290,8 @@ const CheckoutPage = () => {
       postalCode: "",
       checked: false,
       id:"",
+      latitude: null,
+      longitude: null,
     });
     setIsPopupVisible(true);
   };
@@ -195,6 +304,7 @@ const CheckoutPage = () => {
   const handleSaveAddress = async () => {
     try {
       setIsloading(true);
+      console.log('Saving address with form data:', formData);
 
       if (!userId) {
         console.error("User ID is undefined.");
@@ -208,8 +318,10 @@ const CheckoutPage = () => {
       const newAddress = {
         ...formData,
         id: crypto.randomUUID(),
-        createdAt: Timestamp.now() // ISO string format for consistency
+        createdAt: Timestamp.now()
       };
+
+      console.log('New address to be saved:', newAddress);
 
       let updatedAddresses = [];
 
@@ -219,6 +331,8 @@ const CheckoutPage = () => {
         updatedAddresses = [newAddress];
       }
 
+      console.log('Updated addresses list:', updatedAddresses);
+
       // Update the Firestore document
       await setDoc(userRef, {
         ...userDoc.data(),
@@ -226,10 +340,9 @@ const CheckoutPage = () => {
       });
 
       setSavedAddresses(updatedAddresses);
-      // console.log(savedAddresses);
+      console.log('Address saved successfully');
 
       resetForm();
-      console.log("Address added successfully.");
     } catch (error) {
       console.error("Error adding address:", error);
     } finally {
@@ -240,6 +353,27 @@ const CheckoutPage = () => {
 
   const closePopup = () => {
     setIsPopupVisible(false);
+  };
+
+  const getUserLocation = () => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setFormData({
+            ...formData,
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude
+          });
+          console.log("Location obtained:", position.coords.latitude, position.coords.longitude);
+        },
+        (error) => {
+          console.error("Error getting location:", error);
+          alert("Unable to get your location. Please check your browser permissions.");
+        }
+      );
+    } else {
+      alert("Geolocation is not supported by this browser.");
+    }
   };
 
   return (
@@ -326,9 +460,27 @@ const CheckoutPage = () => {
               <p className="text-[#757575]">Subtotal:</p>
               <p>₹ {subtotal}</p>
             </div>
+            <div className="mx-5">
+              <DeliveryOptions 
+                shippingAddress={formData}
+                storeInfo={vendorInfo || {
+                  address: "BhawBhaw Store, Delhi",
+                  contactName: "BhawBhaw Store",
+                  contactPhone: "9999999999",
+                  latitude: 28.6139, // Default coordinates for Delhi
+                  longitude: 77.2090,
+                  postalCode: formData.postalCode,
+                }}
+                onSelectDeliveryOption={(option) => {
+                  setSelectedDeliveryOption(option);
+                  setDeliveryFeeState(option.price);
+                }}
+                initialDeliveryFee={deliveryFee}
+              />
+            </div>
             <div className="flex justify-between items-center my-4 mx-5">
               <p className="text-[#757575]">Shipping Fee:</p>
-              <p>₹ {deliveryFee}</p>
+              <p>₹ {selectedDeliveryOption.price}</p>
             </div>
             <div className="flex justify-between items-center my-4 mx-5">
               <p className="text-[#757575]">Total:</p>
@@ -372,6 +524,37 @@ const CheckoutPage = () => {
                     className="w-full px-4 py-3 border rounded-md outline-none text-black"
                   />
                 )
+              )}
+              
+              <div className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  id="useCoordinates"
+                  checked={formData.useCoordinates}
+                  onChange={(e) => {
+                    setFormData({ ...formData, useCoordinates: e.target.checked });
+                    if (e.target.checked) {
+                      getUserLocation();
+                    } else {
+                      setFormData({
+                        ...formData,
+                        useCoordinates: false,
+                        latitude: null,
+                        longitude: null
+                      });
+                    }
+                  }}
+                  className="w-4 h-4"
+                />
+                <label htmlFor="useCoordinates" className="text-sm text-gray-700">
+                  For fast delivery, use my current coordinates
+                </label>
+              </div>
+              
+              {formData.latitude && formData.longitude && (
+                <div className="text-xs text-green-600">
+                  Coordinates obtained: {formData.latitude.toFixed(6)}, {formData.longitude.toFixed(6)}
+                </div>
               )}
 
               <div className="flex justify-end space-x-2">
