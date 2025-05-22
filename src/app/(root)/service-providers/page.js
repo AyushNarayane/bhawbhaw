@@ -59,6 +59,7 @@ const ServiceProviders = () => {
         }));
 
         setVendors(fetchedVendors);
+        console.log(fetchedVendors);
       } catch (error) {
         console.error("Error fetching vendors:", error);
       } finally {
@@ -70,16 +71,24 @@ const ServiceProviders = () => {
     
   }, [selectedService.id]);
 
-  const handleBookService = () => {
-    if (!userId) {
-      toast.error("Please log in to proceed with booking.");
-      return;
-    }
-    dispatch(setSelectedService(selectedService));
-    // console.log(selectedService);
-
-    router.push("/book-service");
-  };
+    const handleBookService = (vendor) => {
+      if (!userId) {
+        toast.error("Please log in to proceed with booking.");
+        return;
+      }
+      
+      // Add vendor city and location info to the selectedService before dispatching
+      const serviceWithVendorInfo = {
+        ...selectedService,
+        vendorCity: vendor.businessDetails.city,
+        vendorState: vendor.businessDetails.state,
+        vendorId: vendor.id,
+        vendorName: vendor.personalDetails.fullName
+      };
+      
+      dispatch(setSelectedService(serviceWithVendorInfo));
+      router.push("/book-service");
+    };
 
   if (loading) return <p className="text-black">Loading vendors...</p>;
 
@@ -119,16 +128,7 @@ const ServiceProviders = () => {
                 <span className="font-semibold">Location: </span>
                 {vendor.businessDetails.pickupAddress}
               </p>
-              <p className="text-gray-500 mb-4">
-                <span className="font-semibold">Phone: </span>
-                {vendor.personalDetails.phoneNumber}
-              </p>
-              <button
-                onClick={handleBookService}
-                className="w-full bg-red-500 text-white py-2 rounded-lg hover:bg-red-600 transition"
-              >
-                Book Service
-              </button>
+                              <p className="text-gray-500 mb-4">                  <span className="font-semibold">Phone: </span>                  {vendor.personalDetails.phoneNumber}                </p>                <button                  onClick={() => handleBookService(vendor)}                  className="w-full bg-red-500 text-white py-2 rounded-lg hover:bg-red-600 transition"                >                  Book Service                </button>
             </div>
           ))}
         </div>

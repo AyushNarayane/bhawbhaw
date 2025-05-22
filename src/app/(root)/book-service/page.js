@@ -8,7 +8,7 @@ import { db } from 'firebaseConfig';
 import { doc, setDoc, getDoc } from "firebase/firestore";
 import { useRouter } from 'next/navigation';
 import { useDispatch, useSelector } from 'react-redux';
-import toast from 'react-hot-toast';
+import toast, { Toaster } from 'react-hot-toast';
 import { clearBookingData, setCalendarAndSlot, setContactInfo, setSelectedService } from '@/redux/serviceSlice';
 import { clearUser, setUser } from '@/redux/userSlice';
 
@@ -131,8 +131,9 @@ const MultiStepForm = () => {
   return (
     <div className="flex px-10 flex-col bg-white items-center justify-center font-poppins">
       <div className="w-full bg-white p-8 rounded-lg">
+        <Toaster position="top-center" />
         <h2 className="text-2xl font-semibold mb-6 text-black">
-          {selectedService ? `Book Your Service for ${selectedService.specialization}` : 'Book Your Service'}
+          {selectedService ? `Book Your Service for ${selectedService.specialization} in ${selectedService.vendorCity || ''}` : 'Book Your Service'}
         </h2>
 
         <div className="flex items-center mb-8">

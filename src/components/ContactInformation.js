@@ -7,8 +7,9 @@ import {
   Timestamp,
 } from "firebase/firestore";
 import { db } from "firebaseConfig";
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { setUser } from '@/redux/userSlice';
+import toast from 'react-hot-toast';
 
 const ContactInformation = ({ nextStep, handleFormDataChange, formData, savedAddresses = [] }) => {
   const [selectedAddress, setSelectedAddress] = useState('');
@@ -28,6 +29,7 @@ const ContactInformation = ({ nextStep, handleFormDataChange, formData, savedAdd
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
   const dispatch = useDispatch();
+  const selectedService = useSelector((state) => state.service.selectedService);
 
   useEffect(() => {
     const storedUser = JSON.parse(localStorage.getItem('user'));
@@ -50,6 +52,18 @@ const ContactInformation = ({ nextStep, handleFormDataChange, formData, savedAdd
     const selected = savedAddresses.find((address) => address.id === addressId);
     if (selected) {
       setSelectedAddress(addressId);
+      
+      // Check if selected address city matches vendor city
+      if (selectedService?.vendorCity && selected.city.toLowerCase() !== selectedService.vendorCity.toLowerCase()) {
+        setErrors({
+          ...errors,
+          city: `This service is only available in ${selectedService.vendorCity}. Your address is in ${selected.city}`
+        });
+        toast.error(`This service is only available in ${selectedService.vendorCity}`);
+      } else {
+        setErrors({...errors, city: ''});
+      }
+      
       handleFormDataChange({
         fullName: `${selected.firstName} ${selected.lastName}`,
         address: selected.address,
@@ -124,6 +138,13 @@ const ContactInformation = ({ nextStep, handleFormDataChange, formData, savedAdd
     } else if (name === 'phoneNumber') {
       const phoneRegex = /^[0-9]{10}$/;
       newErrors.phoneNumber = phoneRegex.test(value) ? '' : 'Phone number must be 10 digits.';
+    } else if (name === 'city') {
+      // Check if user city matches vendor city
+      if (selectedService?.vendorCity && value.toLowerCase() !== selectedService.vendorCity.toLowerCase()) {
+        newErrors.city = `This service is only available in ${selectedService.vendorCity}`;
+      } else {
+        newErrors.city = '';
+      }
     }
     setErrors(newErrors);
   };
@@ -131,6 +152,27 @@ const ContactInformation = ({ nextStep, handleFormDataChange, formData, savedAdd
   const handleInputChange = (name, value) => {
     handleFormDataChange({ ...formData, [name]: value });
     validateField(name, value);
+  };
+
+  const handleContinue = () => {
+    // Check if there are any validation errors
+    if (errors.email || errors.phoneNumber || errors.city) {
+      toast.error("Please resolve all errors before continuing");
+      return;
+    }
+    
+    // Verify the city matches the vendor's city
+    if (selectedService?.vendorCity && formData.city && 
+        formData.city.toLowerCase() !== selectedService.vendorCity.toLowerCase()) {
+      setErrors({
+        ...errors,
+        city: `This service is only available in ${selectedService.vendorCity}`
+      });
+      toast.error(`You can only book this service if you're in ${selectedService.vendorCity}`);
+      return;
+    }
+    
+    nextStep();
   };
 
   return (
@@ -186,6 +228,18 @@ const ContactInformation = ({ nextStep, handleFormDataChange, formData, savedAdd
             className="mt-1 block text-black w-full rounded-md outline-none p-2 h-12 bg-[#F6F7FB]"
             placeholder="Enter your address"
           />
+        </div>
+
+        <div>
+          <label className="text-sm text-gray-700">City</label>
+          <input
+            type="text"
+            value={formData.city}
+            onChange={(e) => handleInputChange('city', e.target.value)}
+            className={`mt-1 block text-black w-full rounded-md outline-none p-2 h-12 bg-[#F6F7FB] ${errors.city ? 'border-red-500' : ''}`}
+            placeholder="Enter your city"
+          />
+          {errors.city && <p className="text-sm text-red-500">{errors.city}</p>}
         </div>
 
         <div>
@@ -249,11 +303,10 @@ const ContactInformation = ({ nextStep, handleFormDataChange, formData, savedAdd
 
         <div className="col-span-2 flex justify-between items-center">
           <button
-            onClick={nextStep}
-            className={`bg-pink-500 text-white rounded-md px-6 py-2 mt-6 md:mt-0 ${errors.email || errors.phoneNumber ? 'cursor-not-allowed bg-pink-400' : 'cursor-pointer'}`}
-            disabled={errors.email || errors.phoneNumber}
+            onClick={handleContinue}
+            className="bg-black text-white px-8 py-3 rounded-md"
           >
-            Next
+            Continue
           </button>
         </div>
       </div>
