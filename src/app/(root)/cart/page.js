@@ -318,7 +318,7 @@ const Cart = () => {
             {couponData && (
               <div className="flex justify-between text-[#E57A7A]">
                 <span className="text-[#676767] text-sm md:text-lg mb-2">
-                  {!couponData.global ? `Discount on ${couponData.vendorId} items (-${discountAmount}%)` : `Discount (-${discountAmount}%)`}
+                  {!couponData.global ? `Discount on items (-${discountAmount}%)` : `Discount (-${discountAmount}%)`}
                 </span>
                 <span className="font-bold">
                   -INR {!couponData.global ? 
