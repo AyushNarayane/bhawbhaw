@@ -1,7 +1,18 @@
 import React from 'react';
 import { ClipLoader } from 'react-spinners';
 
-const CouponSection = ({ coupon, setCoupon, handleApplyCoupon, showCouponModal, setShowCouponModal, validatingCoupon, coupons, error }) => {
+const CouponSection = ({ 
+  coupon, 
+  setCoupon, 
+  handleApplyCoupon, 
+  showCouponModal, 
+  setShowCouponModal, 
+  validatingCoupon, 
+  coupons, 
+  error,
+  isCouponApplied,
+  onRemoveCoupon
+}) => {
   return (
     <div className="mt-4 flex flex-col md:flex-row items-center">
       <div className="w-full flex items-center space-x-2">
@@ -12,28 +23,42 @@ const CouponSection = ({ coupon, setCoupon, handleApplyCoupon, showCouponModal, 
             placeholder="Coupon Code"
             value={coupon}
             onChange={(e) => setCoupon(e.target.value)}
+            disabled={isCouponApplied}
           />
-          <button className="text-red-500 text-sm" onClick={() => setShowCouponModal(true)}>
+          <button 
+            className="text-red-500 text-sm" 
+            onClick={() => setShowCouponModal(true)}
+            disabled={isCouponApplied}
+          >
             Browse Coupons
           </button>
-          <button
-            className="bg-[#E57A7A] text-white px-4 py-2 whitespace-nowrap text-[11px] rounded-full ml-2"
-            onClick={handleApplyCoupon}
-            disabled={validatingCoupon}
-          >
-            {validatingCoupon ? (
-              <ClipLoader size={20} color="#fff" className="mx-10" />
-            ) : (
-              'Apply Coupon'
-            )}
-          </button>
+          {isCouponApplied ? (
+            <button
+              className="bg-gray-500 text-white px-4 py-2 whitespace-nowrap text-[11px] rounded-full ml-2"
+              onClick={onRemoveCoupon}
+            >
+              Remove Coupon
+            </button>
+          ) : (
+            <button
+              className="bg-[#E57A7A] text-white px-4 py-2 whitespace-nowrap text-[11px] rounded-full ml-2"
+              onClick={handleApplyCoupon}
+              disabled={validatingCoupon || !coupon}
+            >
+              {validatingCoupon ? (
+                <ClipLoader size={20} color="#fff" className="mx-10" />
+              ) : (
+                'Apply Coupon'
+              )}
+            </button>
+          )}
         </div>
       </div>
       {/* Error Message */}
       {error && <span className='block ml-2 text-sm whitespace-nowrap'>{error}</span>}
 
       {/* Coupon Modal */}
-      {showCouponModal && (
+      {showCouponModal && !isCouponApplied && (
         <div className="fixed inset-0 flex justify-center items-center bg-black bg-opacity-50">
           <div className="bg-white rounded-lg w-11/12 md:w-1/3 max-w-md p-4">
             <div className="flex justify-between items-center mb-4">

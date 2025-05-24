@@ -70,6 +70,14 @@ const ReviewInformation = ({ prevStep, formData = {}, handleSubmit }) => {
       const { coupons } = await response.json();
       const couponData = coupons[0];
 
+      // Check if coupon is valid for the vendor
+      const serviceVendorId = formData?.calendarAndSlot?.vendorId;
+      if (!couponData.global && (!couponData.vendorId || couponData.vendorId !== serviceVendorId)) {
+        setError("This coupon is not valid for this service");
+        toast.error("This coupon is not valid for this service");
+        return;
+      }
+
       if (total < couponData.minPrice) {
         setIsPopupVisible2(true);
         return;

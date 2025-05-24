@@ -24,8 +24,10 @@ const Cart = () => {
   // const discountAmount = useSelector((state) => state.cart.discountAmount);
   const [discountAmount, setDiscountAmount] = useState(0)
   const [deliveryFee] = useState(15);
+  const [isCouponApplied, setIsCouponApplied] = useState(false);
 
   const [coupon, setCoupon] = useState('');
+  const [couponData, setCouponData] = useState(null);
   const [coupons, setCoupons] = useState([]);
   const [showCouponModal, setShowCouponModal] = useState(false);
   const [validatingCoupon, setValidatingCoupon] = useState(false);
@@ -89,9 +91,26 @@ const Cart = () => {
       }
 
       setSubtotal(subTotal);
-      setTotal(subTotal + deliveryFee - (subtotal * discountAmount / 100));
+
+      // Recalculate discount if a coupon is applied
+      if (couponData) {
+        let discountedAmount = 0;
+        if (!couponData.global) {
+          // For vendor-specific coupons
+          const vendorSubtotal = itemsToCalculate
+            .filter(item => (item.vendorID || item.vendorId) === couponData.vendorId)
+            .reduce((sum, item) => sum + (item.sellingPrice * item.quantity), 0);
+          discountedAmount = (vendorSubtotal * couponData.discount) / 100;
+        } else {
+          // For global coupons
+          discountedAmount = (subTotal * couponData.discount) / 100;
+        }
+        setTotal(subTotal + deliveryFee - discountedAmount);
+      } else {
+        setTotal(subTotal + deliveryFee);
+      }
     }
-  }, [cartItems, selectedItems, discountAmount, deliveryFee]);
+  }, [cartItems, selectedItems, couponData, deliveryFee]);
 
   const handleProceedToCheckout = () => {
     if (cartItems.length === 0) {
@@ -188,7 +207,7 @@ const Cart = () => {
   }
 
   const handleApplyCoupon = async () => {
-    if (!coupon) return;
+    if (!coupon || isCouponApplied) return;
 
     try {
       setValidatingCoupon(true);
@@ -197,8 +216,9 @@ const Cart = () => {
       if (!response.ok) {
         if (response.status === 404) {
           setIsPopupVisible1(true);
-          // dispatch(setDiscount(0)); // Reset discount if coupon not found
-          setDiscount(0)
+          setDiscountAmount(0);
+          setCouponData(null);
+          setIsCouponApplied(false);
         } else {
           setError("Error applying coupon");
           toast.error("Error applying coupon");
@@ -207,23 +227,56 @@ const Cart = () => {
       }
 
       const { coupons } = await response.json();
-      const couponData = coupons[0];
+      const newCouponData = coupons[0];
 
-      if (subtotal < couponData.minPrice) {
-        setIsPopupVisible2(true);
-        return;
+      // For vendor-specific coupons, check if there are eligible products
+      if (!newCouponData.global) {
+        const vendorProducts = cartItems.filter(item => 
+          (item.vendorID || item.vendorId) === newCouponData.vendorId && 
+          selectedItems.includes(item.productId)
+        );
+
+        if (vendorProducts.length === 0) {
+          setError("This coupon is not valid for any of the selected items");
+          toast.error("This coupon is not valid for any of the selected items");
+          return;
+        }
+
+        const vendorSubtotal = vendorProducts.reduce((sum, item) => 
+          sum + (item.sellingPrice * item.quantity), 0
+        );
+
+        if (vendorSubtotal < newCouponData.minPrice) {
+          setIsPopupVisible2(true);
+          return;
+        }
+      } else {
+        // For global coupons
+        if (subtotal < newCouponData.minPrice) {
+          setIsPopupVisible2(true);
+          return;
+        }
       }
 
-      setDiscountAmount(couponData.discount)
-      setTotal(total - ((subtotal * discountAmount / 100).toFixed(2)))
-      // dispatch(setDiscount(couponData.discount));
-      setError("Coupon Applied");
+      setDiscountAmount(newCouponData.discount);
+      setCouponData(newCouponData);
+      setIsCouponApplied(true);
+      setError(`Coupon Applied (${newCouponData.discount}% off ${!newCouponData.global ? 'on selected vendor items' : ''})`);
+      toast.success("Coupon Applied Successfully!");
     } catch (error) {
       console.error("Error applying coupon:", error);
       setError("An error occurred while applying the coupon.");
     } finally {
       setValidatingCoupon(false);
     }
+  };
+
+  const removeCoupon = () => {
+    setCoupon('');
+    setCouponData(null);
+    setDiscountAmount(0);
+    setIsCouponApplied(false);
+    setError('');
   };
 
   const closePopup = () => setIsPopupVisible(false);
@@ -260,21 +313,31 @@ const Cart = () => {
           <div className="mb-4">
             <div className="flex justify-between">
               <span className="text-[#676767] text-sm md:text-lg mb-2">Subtotal</span>
-              <span className="font-bold">INR {subtotal}</span>
+              <span className="font-bold">INR {subtotal.toFixed(2)}</span>
             </div>
-            <div className="flex justify-between text-[#E57A7A]">
-              <span className="text-[#676767] text-sm md:text-lg mb-2">Discount (-{discountAmount}%)</span>
-              <span className="font-bold">-INR {(subtotal * discountAmount / 100).toFixed(2) || `0`}</span>
-            </div>
+            {couponData && (
+              <div className="flex justify-between text-[#E57A7A]">
+                <span className="text-[#676767] text-sm md:text-lg mb-2">
+                  {!couponData.global ? `Discount on ${couponData.vendorId} items (-${discountAmount}%)` : `Discount (-${discountAmount}%)`}
+                </span>
+                <span className="font-bold">
+                  -INR {!couponData.global ? 
+                    ((cartItems
+                      .filter(item => (item.vendorID || item.vendorId) === couponData.vendorId && selectedItems.includes(item.productId))
+                      .reduce((sum, item) => sum + (item.sellingPrice * item.quantity), 0) * discountAmount) / 100).toFixed(2)
+                    : ((subtotal * discountAmount) / 100).toFixed(2)}
+                </span>
+              </div>
+            )}
             <div className="flex justify-between">
               <span className="text-[#676767] text-sm md:text-lg mb-1">Delivery Fee</span>
-              <span className="font-bold">INR 15</span>
+              <span className="font-bold">INR {deliveryFee}</span>
             </div>
           </div>
           <hr className="border-t border-gray-300 my-4" />
           <div className="flex justify-between mb-3">
             <span className="text-lg md:text-xl font-semibold">Total</span>
-            <span className="font-bold">INR {total}</span>
+            <span className="font-bold">INR {total.toFixed(2)}</span>
           </div>
 
           {/* COUPONS SECTION */}
@@ -287,6 +350,8 @@ const Cart = () => {
             validatingCoupon={validatingCoupon}
             coupons={coupons}
             error={error}
+            isCouponApplied={isCouponApplied}
+            onRemoveCoupon={removeCoupon}
           />
 
           <button

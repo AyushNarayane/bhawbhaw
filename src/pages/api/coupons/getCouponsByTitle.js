@@ -16,7 +16,13 @@ export default async function getCoupons(req, res) {
         return res.status(404).json({ success: false, message: "No coupons found with the provided title" });
       }
 
-      const coupons = snapshot.docs.map(doc => doc.data());
+      const coupons = snapshot.docs.map(doc => ({
+        ...doc.data(),
+        id: doc.id,
+        global: doc.data().global || false, // Default to false if not set
+        vendorId: doc.data().vendorId || null // Default to null if not set
+      }));
+      
       return res.status(200).json({ success: true, coupons });
     } catch (error) {
       console.error("Error fetching coupons:", error);
