@@ -131,7 +131,71 @@ const CheckoutPage = () => {
           return;
         }
         
-        // For now, we'll use the first vendor ID (in the future, you might want to handle multiple vendors)
+        // Handle multiple vendors
+        if (vendorIds.length > 1) {
+          console.log('Multiple vendors found:', vendorIds);
+          
+          // Fetch vendor details for all vendors
+          const vendorInfoPromises = vendorIds.map(async (vendorId) => {
+            try {
+              const vendorRef = doc(db, "vendors", vendorId);
+              const vendorDoc = await getDoc(vendorRef);
+              
+              if (vendorDoc.exists()) {
+                const vendorData = vendorDoc.data();
+                const businessDetails = vendorData.businessDetails || {};
+                
+                return {
+                  id: vendorId,
+                  address: businessDetails.pickupAddress || "Default Address",
+                  contactName: businessDetails.brandName || "Default Store",
+                  contactPhone: businessDetails.contactPhone || "9999999999",
+                  latitude: businessDetails.latitude, // Keep as is, ensure this path is correct in Firestore
+                  longitude: businessDetails.longitude, // Keep as is, ensure this path is correct in Firestore
+                  postalCode: businessDetails.pincode || "110070"
+                };
+              } else {
+                console.log('Vendor not found in database:', vendorId);
+                return {
+                  id: vendorId,
+                  address: "BhawBhaw Store, Delhi",
+                  contactName: "BhawBhaw Store",
+                  contactPhone: "9999999999",
+                  latitude: 28.6139, // Default fallback
+                  longitude: 77.2090, // Default fallback
+                  postalCode: "110001"
+                };
+              }
+            } catch (error) {
+              console.error("Error fetching vendor info for:", vendorId, error);
+              return {
+                id: vendorId,
+                address: "BhawBhaw Store, Delhi", // Default fallback on error
+                contactName: "BhawBhaw Store",
+                contactPhone: "9999999999",
+                latitude: 28.6139,
+                longitude: 77.2090,
+                postalCode: "110001"
+              };
+            }
+          });
+          
+          const vendorInfoArray = await Promise.all(vendorInfoPromises);
+          
+          // Store vendorInfo as an object keyed by vendor ID
+          const vendorInfoObject = vendorInfoArray.reduce((acc, currentVendor) => {
+            if (currentVendor && currentVendor.id) {
+              acc[currentVendor.id] = currentVendor;
+            }
+            return acc;
+          }, {});
+          
+          setVendorInfo(vendorInfoObject);
+          console.log("Updated vendorInfo (object for multiple vendors):", vendorInfoObject);
+          return;
+        }
+        
+        // Single vendor case - keep existing behavior
         const vendorId = vendorIds[0];
         console.log('Using vendor ID:', vendorId);
         
@@ -150,6 +214,7 @@ const CheckoutPage = () => {
           });
           
           setVendorInfo({
+            id: vendorId,
             address: businessDetails.pickupAddress || "Default Address",
             contactName: businessDetails.brandName || "Default Store",
             contactPhone: businessDetails.contactPhone || "9999999999",
@@ -161,6 +226,7 @@ const CheckoutPage = () => {
           console.log('Vendor not found in database:', vendorId);
           // Set default vendor info if vendor is not found
           setVendorInfo({
+            id: vendorId,
             address: "BhawBhaw Store, Delhi",
             contactName: "BhawBhaw Store",
             contactPhone: "9999999999",
@@ -211,7 +277,84 @@ const CheckoutPage = () => {
 
     const userDetails = userDoc.data();
 
-    // Use the fetched vendor info or fall back to default store info
+    // Group cart items by vendor
+    const itemsByVendor = {};
+    
+    cartItems.forEach(item => {
+      const vendorId = item.vendorID || item.vendorId;
+      if (!vendorId) return;
+      
+      if (!itemsByVendor[vendorId]) {
+        itemsByVendor[vendorId] = [];
+      }
+      
+      itemsByVendor[vendorId].push(item);
+    });
+    
+    // Generate a shared transaction ID for all orders
+    const transactionId = `TRX-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+    
+    // Create an order for each vendor
+    const orderDataArray = [];
+    
+    // Check if we have multiple vendors
+    const isMultiVendor = Array.isArray(vendorInfo);
+    
+    if (isMultiVendor) {
+      // Multiple vendors case
+      Object.keys(itemsByVendor).forEach(vendorId => {
+        const vendorItems = itemsByVendor[vendorId];
+        const vendorData = vendorInfo.find(v => v.id === vendorId) || {
+          id: vendorId,
+          address: "BhawBhaw Store, Delhi",
+          contactName: "BhawBhaw Store", 
+          contactPhone: "9999999999",
+          latitude: 28.6139,
+          longitude: 77.2090,
+          postalCode: "110001"
+        };
+        
+        // Calculate subtotal for this vendor
+        let vendorSubtotal = 0;
+        vendorItems.forEach(item => {
+          vendorSubtotal += item.sellingPrice * item.quantity;
+        });
+        
+        // Each vendor gets its own delivery fee
+        const vendorTotal = vendorSubtotal + selectedDeliveryOption.price;
+        
+        orderDataArray.push({
+          userId,
+          userDetails,
+          cartItems: vendorItems,
+          paymentMethod: 'COD',
+          shippingAddress: {
+            firstName: formData.firstName,
+            lastName: formData.lastName,
+            address: formData.address,
+            apartment: formData.apartment,
+            state: formData.state,
+            city: formData.city,
+            postalCode: formData.postalCode,
+            id: formData.id,
+          },
+          email,
+          notification: formData.checked,
+          totalAmount: vendorTotal,
+          deliveryMethod: selectedDeliveryOption.type,
+          deliveryFee: selectedDeliveryOption.price,
+          borzoDetails: selectedDeliveryOption.borzoDetails,
+          storeInfo: vendorData,
+          deliveryCoordinates: {
+            latitude: formData.latitude || null,
+            longitude: formData.longitude || null
+          },
+          transactionId: transactionId, // Common transaction ID for all orders
+          isMultiVendor: true
+        });
+      });
+    } else {
+      // Single vendor case - keep existing behavior
     const storeInfo = vendorInfo || {
       address: "BhawBhaw Store, Delhi",
       contactName: "BhawBhaw Store",
@@ -221,7 +364,7 @@ const CheckoutPage = () => {
       postalCode: "110001"
     };
 
-    const orderData = {
+      orderDataArray.push({
       userId,
       userDetails,
       cartItems: cartItems,
@@ -242,28 +385,48 @@ const CheckoutPage = () => {
       deliveryMethod: selectedDeliveryOption.type,
       deliveryFee: selectedDeliveryOption.price,
       borzoDetails: selectedDeliveryOption.borzoDetails,
-      // Add delivery coordinates for Borzo
       storeInfo: storeInfo,
       deliveryCoordinates: {
         latitude: formData.latitude || null,
         longitude: formData.longitude || null
+        },
+        transactionId: transactionId,
+        isMultiVendor: false
+      });
       }
-    };
 
     try {
-      const response = await fetch(`/api/checkout/checkout`, {
+      // Process all orders
+      const responses = await Promise.all(
+        orderDataArray.map(orderData => 
+          fetch(`/api/checkout/checkout`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(orderData),
-      });
-
-      if (response.ok) {
-        const data = await response.json()
-        dispatch(setTotalVal(total))
-        dispatch(setDeliveryFee(deliveryFee))
-        router.push(`/payment-gateway?orderId=${data.orderId}`);
+          })
+        )
+      );
+      
+      // Check if all requests were successful
+      const allSuccessful = responses.every(response => response.ok);
+      
+      if (allSuccessful) {
+        // Get the order IDs
+        const responseData = await Promise.all(
+          responses.map(response => response.json())
+        );
+        
+        // Use the first order ID for redirection
+        // (frontend will fetch all orders related to the transaction)
+        const firstOrderId = responseData[0].orderId;
+        
+        dispatch(setTotalVal(total));
+        dispatch(setDeliveryFee(deliveryFee));
+        
+        // Include transaction ID in the redirect to allow fetching all related orders
+        router.push(`/payment-gateway?orderId=${firstOrderId}&transactionId=${transactionId}`);
       } else {
-        setError("Failed to process payment");
+        setError("Failed to process payment for some orders");
       }
     } catch (err) {
       console.error("Error processing payment:", err);

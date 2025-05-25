@@ -82,7 +82,7 @@ const OrderTrackingPage = () => {
 
   // Check if this is a Borzo delivery
   const isBorzoDelivery = order.deliveryMethod === 'borzo';
-  const borzoOrderId = order.borzoOrderDetails?.orderId;
+  const borzoOrderId = order.borzoDetails?.vendorDetails?.[0]?.orderId || null;
   
   return (
     <div className="container mx-auto px-4 py-8">
@@ -175,6 +175,7 @@ const OrderTrackingPage = () => {
           <DeliveryTracking 
             orderId={order.orderId} 
             borzoOrderId={borzoOrderId}
+            order={order}
           />
         </div>
 

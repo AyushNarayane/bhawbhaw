@@ -5,7 +5,7 @@ import Link from 'next/link';
 /**
  * Component for tracking Borzo delivery orders
  */
-const DeliveryTracking = ({ orderId, borzoOrderId }) => {
+const DeliveryTracking = ({ orderId, borzoOrderId, order }) => {
   const [trackingData, setTrackingData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -100,7 +100,10 @@ const DeliveryTracking = ({ orderId, borzoOrderId }) => {
       <div className="p-4 border rounded-lg bg-gray-50">
         <h3 className="font-semibold text-lg mb-2">Delivery Tracking</h3>
         <p className="text-gray-500">
-          Standard delivery tracking is not available. Your order will be delivered within 2-3 days.
+          {order?.borzoDetails ? 
+            "Order is being processed. Tracking will be available once a delivery partner is assigned." :
+            "Standard delivery tracking is not available. Your order will be delivered within 2-3 days."
+          }
         </p>
       </div>
     );

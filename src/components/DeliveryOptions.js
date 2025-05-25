@@ -35,94 +35,159 @@ const DeliveryOptions = ({
   // Check if Borzo delivery is available and calculate price
   useEffect(() => {
     const checkBorzoAvailability = async () => {
-      // Skip if we don't have valid shipping address
       if (!shippingAddress || !storeInfo) {
-        console.log('Missing shipping address or store info:', { shippingAddress, storeInfo });
+        console.log('DeliveryOptions: Missing shipping address or storeInfo:', { shippingAddress, storeInfo });
+        setDeliveryOptions(prev => prev.map(opt => opt.id === 'borzo' ? {...opt, available: false, price: null} : opt));
         return;
       }
-      
+
+      setLoading(true);
+      setError(null);
+
       try {
-        setLoading(true);
-        setError(null);
-        
-        // Check if delivery distance is within Borzo range
-        const isNearby = isWithinBorzoRange(storeInfo, shippingAddress);
-        console.log('Is within Borzo range:', isNearby, {
-          store: { lat: storeInfo.latitude, lng: storeInfo.longitude },
-          address: { lat: shippingAddress.latitude, lng: shippingAddress.longitude }
-        });
-        
-        if (isNearby) {
-          // Calculate Borzo delivery price
-          const response = await fetch('/api/delivery/borzo/calculate-price', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              shippingAddress,
-              storeInfo,
-              // Add minimal required details
-              cartItems: [], // Empty array to prevent null errors
-              userDetails: {
-                phone: shippingAddress.phone || '0000000000'
-              },
-              deliveryCoordinates: {
-                latitude: shippingAddress.latitude,
-                longitude: shippingAddress.longitude
-              }
-            }),
-          });
+        let allVendorsInRange = true;
+        let vendorsInRange = [];
 
-          const data = await response.json();
-          console.log('Borzo API response:', data);
+        // Parse shipping address coordinates to numbers
+        const deliveryCoords = {
+          latitude: parseFloat(shippingAddress.latitude),
+          longitude: parseFloat(shippingAddress.longitude)
+        };
 
-          if (data.success) {
-            // Update Borzo delivery option
-            setDeliveryOptions(prevOptions => 
-              prevOptions.map(option => 
-                option.id === 'borzo' 
-                  ? {
-                      ...option,
-                      price: data.deliveryFee,
-                      available: true,
-                      estimatedTime: data.deliveryTime?.minutes || 60,
-                      borzoDetails: data.borzoDetails
-                    }
-                  : option
-              )
-            );
-          } else {
-            // Borzo delivery not available
-            setDeliveryOptions(prevOptions => 
-              prevOptions.map(option => 
-                option.id === 'borzo' 
-                  ? {
-                      ...option,
-                      available: false,
-                      price: null
-                    }
-                  : option
-              )
-            );
+        // Check if storeInfo is a multi-vendor object
+        const vendorIds = Object.keys(storeInfo);
+        const isMultiVendor = vendorIds.length > 0 && typeof storeInfo[vendorIds[0]] === 'object' && storeInfo[vendorIds[0]] !== null;
+        
+        if (isMultiVendor) {
+          console.log("DeliveryOptions: Multi-vendor detected. Checking range for vendors:", vendorIds);
+          
+          for (const vendorId of vendorIds) {
+            const currentVendorInfo = storeInfo[vendorId];
+            if (!currentVendorInfo) continue;
+
+            // Parse vendor coordinates to numbers
+            const vendorCoords = {
+              ...currentVendorInfo,
+              latitude: parseFloat(currentVendorInfo.latitude),
+              longitude: parseFloat(currentVendorInfo.longitude)
+            };
+
+            if (isNaN(vendorCoords.latitude) || isNaN(vendorCoords.longitude)) {
+              console.warn(`DeliveryOptions: Invalid coordinates for vendor ${vendorId}`, currentVendorInfo);
+              allVendorsInRange = false;
+              break;
+            }
+
+            const isVendorNearby = isWithinBorzoRange(vendorCoords, deliveryCoords);
+            console.log(`DeliveryOptions: Vendor ${vendorId} within Borzo range:`, isVendorNearby, {
+              store: { lat: vendorCoords.latitude, lng: vendorCoords.longitude },
+              address: { lat: deliveryCoords.latitude, lng: deliveryCoords.longitude }
+            });
+
+            if (!isVendorNearby) {
+              allVendorsInRange = false;
+              break;
+            }
+
+            vendorsInRange.push({ ...vendorCoords, id: vendorId });
           }
         } else {
-          // Not within Borzo range
+          // Single vendor case
+          const vendorCoords = {
+            ...storeInfo,
+            latitude: parseFloat(storeInfo.latitude),
+            longitude: parseFloat(storeInfo.longitude)
+          };
+
+          if (isNaN(vendorCoords.latitude) || isNaN(vendorCoords.longitude)) {
+            console.warn("DeliveryOptions: Invalid coordinates for single vendor", storeInfo);
+            allVendorsInRange = false;
+          } else {
+            allVendorsInRange = isWithinBorzoRange(vendorCoords, deliveryCoords);
+            if (allVendorsInRange) {
+              vendorsInRange.push(vendorCoords);
+            }
+            console.log('DeliveryOptions: Single vendor within Borzo range:', allVendorsInRange, {
+              store: { lat: vendorCoords.latitude, lng: vendorCoords.longitude },
+              address: { lat: deliveryCoords.latitude, lng: deliveryCoords.longitude }
+            });
+          }
+        }
+
+        if (allVendorsInRange && vendorsInRange.length > 0) {
+          // Calculate Borzo delivery price for each vendor
+          let totalDeliveryFee = 0;
+          let maxEstimatedTime = 0;
+          const borzoResponses = [];
+
+          for (const vendorInfo of vendorsInRange) {
+            const response = await fetch('/api/delivery/borzo/calculate-price', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                shippingAddress,
+                storeInfo: vendorInfo,
+                cartItems: [],
+                userDetails: {
+                  phone: shippingAddress.phone || '0000000000'
+                },
+                deliveryCoordinates: deliveryCoords
+              }),
+            });
+
+            const data = await response.json();
+            console.log(`DeliveryOptions: Borzo API price calculation response for vendor ${vendorInfo.id}:`, data);
+
+            if (data.success) {
+              totalDeliveryFee += data.deliveryFee;
+              maxEstimatedTime = Math.max(maxEstimatedTime, data.deliveryTime?.minutes || 60);
+              borzoResponses.push({
+                vendorId: vendorInfo.id,
+                ...data.borzoDetails
+              });
+            } else {
+              throw new Error(`Failed to calculate price for vendor ${vendorInfo.id}`);
+            }
+          }
+
           setDeliveryOptions(prevOptions => 
             prevOptions.map(option => 
               option.id === 'borzo' 
                 ? {
                     ...option,
-                    available: false,
-                    price: null
+                    price: totalDeliveryFee,
+                    available: true,
+                    estimatedTime: maxEstimatedTime,
+                    borzoDetails: {
+                      multiVendor: isMultiVendor,
+                      vendorDetails: borzoResponses
+                    }
                   }
+                : option
+            )
+          );
+        } else {
+          console.log("DeliveryOptions: Borzo not available for one or more vendors.");
+          setDeliveryOptions(prevOptions => 
+            prevOptions.map(option => 
+              option.id === 'borzo' 
+                ? { ...option, available: false, price: null }
                 : option
             )
           );
         }
       } catch (error) {
-        console.error('Error checking Borzo availability:', error);
+        console.error('DeliveryOptions: Error checking Borzo availability:', error);
         setError('Failed to check express delivery availability');
+        setDeliveryOptions(prevOptions => 
+          prevOptions.map(option => 
+            option.id === 'borzo' 
+              ? { ...option, available: false, price: null }
+              : option
+          )
+        );
       } finally {
         setLoading(false);
       }
@@ -133,11 +198,19 @@ const DeliveryOptions = ({
 
   /**
    * Check if the delivery is within Borzo range
+   * @param {Object} store - Single store object with latitude and longitude
+   * @param {Object} address - Shipping address object with latitude and longitude
    */
   const isWithinBorzoRange = (store, address) => {
-    // If we have coordinates, use isNearbyDelivery function
-    if (store?.latitude && store?.longitude && 
-        address?.latitude && address?.longitude) {
+    // Ensure store and address objects and their coordinates are valid numbers
+    if (store && !isNaN(store.latitude) && !isNaN(store.longitude) &&
+        address && !isNaN(address.latitude) && !isNaN(address.longitude)) {
+      
+      console.log('isWithinBorzoRange: Calculating distance with:', {
+        storeLat: store.latitude, storeLng: store.longitude,
+        addressLat: address.latitude, addressLng: address.longitude
+      });
+
       return isNearbyDelivery(
         { latitude: store.latitude, longitude: store.longitude },
         { latitude: address.latitude, longitude: address.longitude },
@@ -145,13 +218,13 @@ const DeliveryOptions = ({
       );
     }
     
-    // If we don't have coordinates, default to checking postal codes
-    // This is a simple implementation - you should use a proper geocoding service in production
+    // Fallback to postal code check if coordinates are invalid
     if (store?.postalCode && address?.postalCode) {
+      console.warn('isWithinBorzoRange: Falling back to postal code check due to invalid coordinates.');
       return store.postalCode.substring(0, 3) === address.postalCode.substring(0, 3);
     }
     
-    return false; // Default to not available
+    return false;
   };
 
   /**

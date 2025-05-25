@@ -127,33 +127,95 @@ export async function cancelOrder(orderId) {
 /**
  * Format order data for Borzo API
  * @param {Object} orderDetails - Order details from the application
- * @returns {Object} - Formatted order data for Borzo API
+ * @returns {Object|Object[]} - Formatted order data for Borzo API, returns array if multiple vendors
  */
 export function formatOrderDataForBorzo(orderDetails) {
-  const { cartItems = [], shippingAddress, storeInfo } = orderDetails;
+  const { cartItems = [], shippingAddress, isMultiVendor } = orderDetails;
   
-  // Calculate total weight - default to minimum if not available
+  // If multi-vendor, group items by vendor
+  if (isMultiVendor) {
+    // Group items by vendor
+    const itemsByVendor = cartItems.reduce((acc, item) => {
+      const vendorId = item.vendorId || item.vendorID;
+      if (!acc[vendorId]) {
+        acc[vendorId] = [];
+      }
+      acc[vendorId].push(item);
+      return acc;
+    }, {});
+
+    // Format order for each vendor
+    return Object.entries(itemsByVendor).map(([vendorId, vendorItems]) => {
+      const vendorInfo = orderDetails.vendorInfo?.[vendorId] || {};
+      
+      // Calculate vendor-specific weight
+      const vendorWeight = vendorItems.reduce(
+        (sum, item) => sum + (item.weight || 0) * item.quantity,
+        0
+      ) || 1;
+
+      // Create vendor-specific description
+      const vendorItemsDescription = vendorItems.map(item => item.title).join(", ");
+
+      return {
+        type: "standard",
+        matter: vendorItemsDescription,
+        total_weight_kg: Math.max(vendorWeight, 1),
+        vehicle_type_id: 8,
+        is_client_notification_enabled: true,
+        is_contact_person_notification_enabled: true,
+        points: [
+          {
+            // Vendor pickup point
+            address: vendorInfo.address,
+            contact_person: {
+              name: vendorInfo.contactName,
+              phone: vendorInfo.contactPhone
+            },
+            latitude: vendorInfo.latitude,
+            longitude: vendorInfo.longitude,
+            client_order_id: `${orderDetails.orderId || 'tmp'}-${vendorId}-${orderDetails.transactionId || 'unknown'}`.substring(0, 40),
+            note: `Vendor: ${vendorInfo.contactName}, Order: ${orderDetails.orderId || 'temp-order'}`
+          },
+          {
+            // Customer delivery point
+            address: `${shippingAddress.address}, ${shippingAddress.city}, ${shippingAddress.state}, ${shippingAddress.postalCode}`,
+            contact_person: {
+              name: `${shippingAddress.firstName} ${shippingAddress.lastName}`,
+              phone: orderDetails.userDetails?.phone || '0000000000'
+            },
+            latitude: orderDetails.deliveryCoordinates?.latitude,
+            longitude: orderDetails.deliveryCoordinates?.longitude,
+            client_order_id: `${orderDetails.orderId || 'tmp'}-${vendorId}-${orderDetails.transactionId || 'unknown'}`.substring(0, 40),
+            note: `Order: ${orderDetails.orderId || 'temp-order'}, Transaction: ${orderDetails.transactionId || 'unknown'}`
+          }
+        ]
+      };
+    });
+  }
+  
+  // Single vendor order (existing logic)
+  const storeInfo = orderDetails.storeInfo || {};
   const totalWeight = cartItems.reduce(
     (sum, item) => sum + (item.weight || 0) * item.quantity, 
     0
-  ) || 1; // Default to 1kg if no weights specified
+  ) || 1;
   
-  // Combine all items into a single description
   const itemsDescription = cartItems.length > 0 
     ? cartItems.map(item => item.title).join(", ")
     : "Package delivery";
   
-  // Format the order for Borzo API
+  const vendorId = storeInfo.id || 'unknown-vendor';
+  
   return {
     type: "standard",
-    matter: `${itemsDescription}`,
-    total_weight_kg: Math.max(totalWeight, 1), // Minimum weight 1kg
-    vehicle_type_id: 8, // Default to motorcycle
+    matter: itemsDescription,
+    total_weight_kg: Math.max(totalWeight, 1),
+    vehicle_type_id: 8,
     is_client_notification_enabled: true,
     is_contact_person_notification_enabled: true,
     points: [
       {
-        // Store/pickup point
         address: storeInfo.address,
         contact_person: {
           name: storeInfo.contactName,
@@ -161,10 +223,10 @@ export function formatOrderDataForBorzo(orderDetails) {
         },
         latitude: storeInfo.latitude,
         longitude: storeInfo.longitude,
-        client_order_id: orderDetails.orderId || 'temp-order'
+        client_order_id: `${orderDetails.orderId || 'tmp'}-${vendorId}-${orderDetails.transactionId || 'unknown'}`.substring(0, 40),
+        note: `Vendor: ${storeInfo.contactName}, Order: ${orderDetails.orderId || 'temp-order'}`
       },
       {
-        // Customer delivery point
         address: `${shippingAddress.address}, ${shippingAddress.city}, ${shippingAddress.state}, ${shippingAddress.postalCode}`,
         contact_person: {
           name: `${shippingAddress.firstName} ${shippingAddress.lastName}`,
@@ -172,7 +234,8 @@ export function formatOrderDataForBorzo(orderDetails) {
         },
         latitude: orderDetails.deliveryCoordinates?.latitude,
         longitude: orderDetails.deliveryCoordinates?.longitude,
-        client_order_id: orderDetails.orderId || 'temp-order'
+        client_order_id: `${orderDetails.orderId || 'tmp'}-${vendorId}-${orderDetails.transactionId || 'unknown'}`.substring(0, 40),
+        note: `Order: ${orderDetails.orderId || 'temp-order'}, Transaction: ${orderDetails.transactionId || 'unknown'}`
       }
     ]
   };

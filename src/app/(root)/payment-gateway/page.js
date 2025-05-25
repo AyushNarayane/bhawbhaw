@@ -6,7 +6,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { setUser } from "@/redux/userSlice";
 import { ClipLoader } from "react-spinners";
 import { useRouter, useSearchParams } from "next/navigation";
-import { doc, getDoc, updateDoc } from "firebase/firestore";
+import { doc, getDoc, updateDoc, collection, query, where, getDocs } from "firebase/firestore";
 import { db } from "firebaseConfig";
 import OrderSummaryModal from "@/components/OrderSummaryModal";
 
@@ -18,9 +18,12 @@ const PaymentGateway = () => {
   const { total, deliveryFee } = useSelector((state) => state.cart);
   const [loading, setLoading] = useState(false);
   const [userId, setUserId] = useState();
-  const [orderDetails, setOrderDetails] = useState(null); // Store order details
+  const [orderDetails, setOrderDetails] = useState(null); // Store primary order details
+  const [allOrders, setAllOrders] = useState([]); // Store all related orders
+  const [isMultiVendor, setIsMultiVendor] = useState(false); // Flag for multi-vendor orders
   const params = useSearchParams();
   const orderId = params.get("orderId");
+  const transactionId = params.get("transactionId");
 
   useEffect(() => {
     setLoading(true);
@@ -31,6 +34,60 @@ const PaymentGateway = () => {
 
     setLoading(false);
   }, [dispatch]);
+
+  // Fetch order details when component mounts
+  useEffect(() => {
+    if (orderId) {
+      fetchOrderDetails();
+    }
+  }, [orderId, transactionId]);
+
+  // Fetch all orders and primary order details
+  const fetchOrderDetails = async () => {
+    try {
+      setLoading(true);
+      
+      // First, get the primary order
+      const orderRef = doc(db, "orders", orderId);
+      const orderDoc = await getDoc(orderRef);
+      
+      if (orderDoc.exists()) {
+        const orderData = orderDoc.data();
+        setOrderDetails(orderData);
+        
+        // Check if this is part of a multi-vendor transaction
+        const orderTransactionId = orderData.transactionId || transactionId;
+        setIsMultiVendor(orderData.isMultiVendor || false);
+        
+        // If this is a multi-vendor order and we have a transaction ID, fetch all related orders
+        if ((orderData.isMultiVendor || transactionId) && orderTransactionId) {
+          const ordersRef = collection(db, "orders");
+          const q = query(ordersRef, where("transactionId", "==", orderTransactionId));
+          const querySnapshot = await getDocs(q);
+          
+          const relatedOrders = [];
+          querySnapshot.forEach((doc) => {
+            relatedOrders.push({
+              id: doc.id,
+              ...doc.data()
+            });
+          });
+          
+          setAllOrders(relatedOrders);
+          setIsMultiVendor(relatedOrders.length > 1);
+        } else {
+          // If not multi-vendor, just use the current order
+          setAllOrders([{ id: orderId, ...orderData }]);
+        }
+      } else {
+        console.error("Order not found");
+      }
+    } catch (error) {
+      console.error("Error fetching order details:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handlePaymentSuccess = async (status) => {
     setIsPaymentSuccessful(status);
@@ -53,12 +110,10 @@ const PaymentGateway = () => {
           );
           await updateDoc(cartRef, { items: updatedItems });
         }
-
-        // Fetch order details
-        const orderRef = doc(db, "orders", orderId);
-        const orderDoc = await getDoc(orderRef);
-        if (orderDoc.exists()) {
-          setOrderDetails(orderDoc.data());
+        
+        // If not already fetched, fetch all order details
+        if (allOrders.length === 0) {
+          await fetchOrderDetails();
         }
 
         // Clear session storage
@@ -70,7 +125,6 @@ const PaymentGateway = () => {
       }
     }
   };
-  // console.log(orderDetails);
 
   const handleModalConfirm = () => {
     setShowModal(false);
@@ -93,11 +147,18 @@ const PaymentGateway = () => {
         deliveryFee={deliveryFee}
         onSuccess={handlePaymentSuccess}
         mode="checkout"
+        isMultiVendor={isMultiVendor}
+        allOrders={allOrders}
       />
 
       {/* Show the modal when payment is successful */}
       {showModal && (
-        <OrderSummaryModal order={orderDetails} onClose={handleModalConfirm} />
+        <OrderSummaryModal 
+          order={orderDetails} 
+          allOrders={allOrders}
+          isMultiVendor={isMultiVendor}
+          onClose={handleModalConfirm} 
+        />
       )}
     </div>
   );

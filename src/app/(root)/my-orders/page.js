@@ -10,8 +10,6 @@ const MyOrders = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const userId = useSelector((state) => state.user.userId); // Assuming `userId` is stored in Redux
-  const [isTrackingModalVisible, setIsTrackingModalVisible] = useState(false);
-  const [trackingInfo, setTrackingInfo] = useState(null);
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -99,15 +97,12 @@ const MyOrders = () => {
 
                 {/* Track Order Button */}
                 <div className="text-sm mb-6 flex justify-end items-center">
-                  <button
-                    onClick={() => {
-                      // setTrackingInfo(); // Replace with dynamic info
-                      setIsTrackingModalVisible(true);
-                    }}
+                  <Link
+                    href={`/my-orders/track?orderId=${order.id}`}
                     className="px-4 py-2 bg-blue-500 text-white rounded-xl hover:bg-blue-600"
                   >
                     Track Order
-                  </button>
+                  </Link>
                 </div>
 
                 {/* Items */}
@@ -145,42 +140,6 @@ const MyOrders = () => {
                 <p className="text-right mt-6 font-bold text-xl text-gray-800">
                   Total: INR {order.totalAmount}
                 </p>
-
-                {/* Modal for Order Tracking */}
-                {isTrackingModalVisible && (
-                  <div className="fixed inset-0 flex justify-center items-center bg-black/10 bg-opacity-50 z-10">
-                    <div className="bg-white p-6 rounded-xl shadow-lg w-full max-w-md">
-                      <h2 className="text-lg font-bold mb-4">Order Tracking</h2>
-                      <div className="space-y-4">
-                        <p><strong>Tracking Number:</strong> 1234567890</p>
-                        <p><strong>Status:</strong> In Transit</p>
-                        <p><strong>Estimated Delivery:</strong> January 20, 2025</p>
-                        <div className="mt-4">
-                          <h4 className="font-semibold">Updates:</h4>
-                          <ul className="list-disc pl-5">
-                            <li>
-                              <span className="font-bold">January 15, 2025:</span> Package dispatched from warehouse
-                            </li>
-                            <li>
-                              <span className="font-bold">January 16, 2025:</span> In transit, expected delivery on January 20, 2025
-                            </li>
-                            <li>
-                              <span className="font-bold">January 17, 2025:</span> Arrived at local distribution center
-                            </li>
-                          </ul>
-                        </div>
-                      </div>
-                      <div className="flex justify-end mt-4">
-                        <button
-                          onClick={() => setIsTrackingModalVisible(false)}
-                          className="px-4 py-2 bg-gray-300 rounded-xl"
-                        >
-                          Close
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                )}
               </div>
             ))}
           </div>
