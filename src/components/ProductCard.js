@@ -46,16 +46,55 @@ const ProductCard = ({ product, isRecommendation = false }) => {
     }
   }, [cartItems, wishlistItems, product.productId, product.id]);
 
-  const handleBuyAction = () => {
-    // if (!user) {
-    //   toast.error("Please log in to buy products.");
-    //   return;
-    // }
+  const handleBuyAction = async () => {
+    if (!user) {
+      toast.error("Please log in to buy products.");
+      return;
+    }
 
-    // sessionStorage.setItem('productId', product.productId);
-    setBuyLoading(true)
-    router.push(`/cart`)
-    setBuyLoading(false)
+    setBuyLoading(true);
+    try {
+      // First add to cart
+      const cartRef = doc(db, 'cart', user);
+      const cartDoc = await getDoc(cartRef);
+
+      // Ensure vendorID is included in the product data
+      const productWithVendor = {
+        ...product,
+        vendorID: product.vendorId || product.vendorID // Handle both possible property names
+      };
+
+      if (cartDoc.exists()) {
+        const cartData = cartDoc.data();
+        const existingProduct = cartData.items.find(item => item.productId === product.productId);
+
+        if (existingProduct) {
+          // Increment quantity if already in cart
+          const updatedItems = cartData.items.map(item =>
+            item.productId === product.productId ? { ...item, quantity: item.quantity + 1 } : item
+          );
+          await setDoc(cartRef, { items: updatedItems }, { merge: true });
+        } else {
+          // Add new product with vendor ID
+          await setDoc(
+            cartRef,
+            { items: [...cartData.items, { ...productWithVendor, quantity: 1 }] },
+            { merge: true }
+          );
+        }
+      } else {
+        // First item in cart
+        await setDoc(cartRef, { items: [{ ...productWithVendor, quantity: 1 }] });
+      }
+
+      // Then redirect to cart
+      router.push(`/cart`);
+    } catch (error) {
+      console.error("Error adding product to cart:", error);
+      toast.error("Failed to process your request");
+    } finally {
+      setBuyLoading(false);
+    }
   }
 
   const handleCartAction = async () => {
