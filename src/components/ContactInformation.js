@@ -22,14 +22,15 @@ const ContactInformation = ({ nextStep, handleFormDataChange, formData, savedAdd
     address: '',
     apartment: '',
     state: '',
-    city: '',
     postalCode: '',
   });
   const [userId, setUserId] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isCityValid, setIsCityValid] = useState(false);
   const router = useRouter();
   const dispatch = useDispatch();
   const selectedService = useSelector((state) => state.service.selectedService);
+  const [vendorPincode, setVendorPincode] = useState('');
 
   useEffect(() => {
     const storedUser = JSON.parse(localStorage.getItem('user'));
@@ -39,10 +40,71 @@ const ContactInformation = ({ nextStep, handleFormDataChange, formData, savedAdd
     if (storedUser?.userId) {
       setUserId(storedUser.userId);
     }
-    dispatch(setUser(storedUser))
-  }, []);
+    dispatch(setUser(storedUser));
 
-  // Handle selecting an address from the dropdown
+    // Fetch vendor's pincode from service
+    const fetchVendorPincode = async () => {
+      if (selectedService?.id) {
+        try {
+          // Fetch vendor ID for the selected service
+          const servicesRef = doc(db, "serviceProviders", selectedService.id);
+          const serviceDoc = await getDoc(servicesRef);
+          
+          if (serviceDoc.exists()) {
+            const vendorId = serviceDoc.data().vendorId;
+            
+            // Fetch vendor details
+            const vendorRef = doc(db, "vendors", vendorId);
+            const vendorDoc = await getDoc(vendorRef);
+            
+            if (vendorDoc.exists()) {
+              const vendorData = vendorDoc.data();
+              // Use pinCode from businessDetails
+              if (vendorData.businessDetails?.pinCode) {
+                setVendorPincode(vendorData.businessDetails.pinCode);
+              }
+            }
+          }
+        } catch (error) {
+          console.error("Error fetching vendor pincode:", error);
+        }
+      }
+    };
+
+    fetchVendorPincode();
+  }, [selectedService, dispatch]);
+
+  // Validation logic
+  const validateField = (name, value) => {
+    const newErrors = { ...errors };
+    if (name === 'email') {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      newErrors.email = emailRegex.test(value) ? '' : 'Please enter a valid email address.';
+    } else if (name === 'phoneNumber') {
+      const phoneRegex = /^[0-9]{10}$/;
+      newErrors.phoneNumber = phoneRegex.test(value) ? '' : 'Phone number must be 10 digits.';
+    } else if (name === 'city') {
+      if (!value) {
+        newErrors.city = 'City is required';
+        setIsCityValid(false);
+      } else if (selectedService?.vendorCity) {
+        // Convert both strings to lowercase for case-insensitive comparison
+        const userCity = value.toLowerCase().trim();
+        const vendorCity = selectedService.vendorCity.toLowerCase().trim();
+        
+        // Check if user's city contains vendor's city or vice versa
+        if (!userCity.includes(vendorCity) && !vendorCity.includes(userCity)) {
+          newErrors.city = `This service is only available in ${selectedService.vendorCity}`;
+          setIsCityValid(false);
+        } else {
+          newErrors.city = '';
+          setIsCityValid(true);
+        }
+      }
+    }
+    setErrors(newErrors);
+  };
+
   const handleAddressSelect = (addressId) => {
     if (addressId === 'new') {
       setFormVisible(true);
@@ -54,14 +116,21 @@ const ContactInformation = ({ nextStep, handleFormDataChange, formData, savedAdd
       setSelectedAddress(addressId);
       
       // Check if selected address city matches vendor city
-      if (selectedService?.vendorCity && selected.city.toLowerCase() !== selectedService.vendorCity.toLowerCase()) {
-        setErrors({
-          ...errors,
-          city: `This service is only available in ${selectedService.vendorCity}. Your address is in ${selected.city}`
-        });
-        toast.error(`This service is only available in ${selectedService.vendorCity}`);
-      } else {
-        setErrors({...errors, city: ''});
+      if (selectedService?.vendorCity) {
+        const userCity = selected.city.toLowerCase().trim();
+        const vendorCity = selectedService.vendorCity.toLowerCase().trim();
+        
+        if (!userCity.includes(vendorCity) && !vendorCity.includes(userCity)) {
+          setErrors({
+            ...errors,
+            city: `This service is only available in ${selectedService.vendorCity}. Your address is in ${selected.city}`
+          });
+          setIsCityValid(false);
+          toast.error(`This service is only available in ${selectedService.vendorCity}`);
+        } else {
+          setErrors({...errors, city: ''});
+          setIsCityValid(true);
+        }
       }
       
       handleFormDataChange({
@@ -109,7 +178,7 @@ const ContactInformation = ({ nextStep, handleFormDataChange, formData, savedAdd
       console.log(savedAddresses);
       
       // Update the savedAddresses state
-      savedAddresses.push(newAddress)
+      savedAddresses.push(newAddress);
 
       // Close the form and reset the form data
       setFormVisible(false);
@@ -119,7 +188,6 @@ const ContactInformation = ({ nextStep, handleFormDataChange, formData, savedAdd
         address: '',
         apartment: '',
         state: '',
-        city: '',
         postalCode: '',
       });
     } catch (error) {
@@ -129,46 +197,42 @@ const ContactInformation = ({ nextStep, handleFormDataChange, formData, savedAdd
     }
   };
 
-  // Validation logic
-  const validateField = (name, value) => {
-    const newErrors = { ...errors };
-    if (name === 'email') {
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      newErrors.email = emailRegex.test(value) ? '' : 'Please enter a valid email address.';
-    } else if (name === 'phoneNumber') {
-      const phoneRegex = /^[0-9]{10}$/;
-      newErrors.phoneNumber = phoneRegex.test(value) ? '' : 'Phone number must be 10 digits.';
-    } else if (name === 'city') {
-      // Check if user city matches vendor city
-      if (selectedService?.vendorCity && value.toLowerCase() !== selectedService.vendorCity.toLowerCase()) {
-        newErrors.city = `This service is only available in ${selectedService.vendorCity}`;
-      } else {
-        newErrors.city = '';
-      }
-    }
-    setErrors(newErrors);
-  };
-
   const handleInputChange = (name, value) => {
     handleFormDataChange({ ...formData, [name]: value });
     validateField(name, value);
   };
 
-  const handleContinue = () => {
-    // Check if there are any validation errors
-    if (errors.email || errors.phoneNumber || errors.city) {
-      toast.error("Please resolve all errors before continuing");
+  const handleFormDataForNewAddressChange = (field, value) => {
+    setFormDataForNewAddress({
+      ...formDataForNewAddress,
+      [field]: value,
+    });
+    
+    if (field === 'city') {
+      validateField('city', value);
+    }
+  };
+
+  const handleNextStep = () => {
+    // Validate required fields
+    if (!formData.city) {
+      setErrors(prev => ({
+        ...prev,
+        city: 'City is required to check service availability in your area.'
+      }));
+      toast.error('Please enter your city to verify service availability.');
       return;
     }
-    
-    // Verify the city matches the vendor's city
-    if (selectedService?.vendorCity && formData.city && 
-        formData.city.toLowerCase() !== selectedService.vendorCity.toLowerCase()) {
-      setErrors({
-        ...errors,
-        city: `This service is only available in ${selectedService.vendorCity}`
-      });
-      toast.error(`You can only book this service if you're in ${selectedService.vendorCity}`);
+
+    // Validate city match
+    if (!isCityValid) {
+      toast.error(`This service is only available in ${selectedService.vendorCity}`);
+      return;
+    }
+
+    // Check for any other errors
+    if (errors.email || errors.phoneNumber) {
+      toast.error('Please fix all errors before proceeding.');
       return;
     }
     
@@ -231,15 +295,28 @@ const ContactInformation = ({ nextStep, handleFormDataChange, formData, savedAdd
         </div>
 
         <div>
-          <label className="text-sm text-gray-700">City</label>
+          <label className="text-sm text-gray-700">City <span className="text-red-500">*</span></label>
           <input
             type="text"
             value={formData.city}
             onChange={(e) => handleInputChange('city', e.target.value)}
-            className={`mt-1 block text-black w-full rounded-md outline-none p-2 h-12 bg-[#F6F7FB] ${errors.city ? 'border-red-500' : ''}`}
+            className={`mt-1 block text-black w-full rounded-md outline-none p-2 h-12 bg-[#F6F7FB] ${errors.city ? 'border-2 border-red-500' : ''}`}
             placeholder="Enter your city"
+            required
           />
           {errors.city && <p className="text-sm text-red-500">{errors.city}</p>}
+        </div>
+
+        <div>
+          <label className="text-sm text-gray-700">Postal Code</label>
+          <input
+            type="text"
+            value={formData.postalCode}
+            onChange={(e) => handleInputChange('postalCode', e.target.value)}
+            className={`mt-1 block text-black w-full rounded-md outline-none p-2 h-12 bg-[#F6F7FB] ${errors.postalCode ? 'border-red-500' : ''}`}
+            placeholder="Enter your postal code"
+          />
+          {errors.postalCode && <p className="text-sm text-red-500">{errors.postalCode}</p>}
         </div>
 
         <div>
@@ -265,21 +342,17 @@ const ContactInformation = ({ nextStep, handleFormDataChange, formData, savedAdd
                 }}
                 className="space-y-4"
               >
-                {['firstName', 'lastName', 'address', 'apartment', 'state', 'city', 'postalCode',].map((field) => (
+                {['firstName', 'lastName', 'address', 'apartment', 'state', 'city', 'postalCode'].map((field) => (
                   <input
                     key={field}
                     type="text"
                     placeholder={field.charAt(0).toUpperCase() + field.slice(1)}
                     value={formDataForNewAddress[field]}
-                    onChange={(e) =>
-                      setFormDataForNewAddress({
-                        ...formDataForNewAddress,
-                        [field]: e.target.value,
-                      })
-                    }
-                    className="w-full px-4 py-3 border rounded-md outline-none"
+                    onChange={(e) => handleFormDataForNewAddressChange(field, e.target.value)}
+                    className={`w-full px-4 py-3 border rounded-md outline-none ${field === 'city' && errors.city ? 'border-red-500' : ''}`}
                   />
                 ))}
+                {errors.city && <p className="text-sm text-red-500">{errors.city}</p>}
 
                 <div className="flex justify-end space-x-2">
                   <button
@@ -303,8 +376,13 @@ const ContactInformation = ({ nextStep, handleFormDataChange, formData, savedAdd
 
         <div className="col-span-2 flex justify-between items-center">
           <button
-            onClick={handleContinue}
-            className="bg-black text-white px-8 py-3 rounded-md"
+            onClick={handleNextStep}
+            className={`px-8 py-3 rounded-md transition-all duration-200 ${
+              isCityValid && !errors.email && !errors.phoneNumber
+                ? 'bg-black text-white hover:bg-gray-800 cursor-pointer' 
+                : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+            }`}
+            disabled={!isCityValid || errors.email || errors.phoneNumber}
           >
             Continue
           </button>
