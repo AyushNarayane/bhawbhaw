@@ -55,7 +55,19 @@ const CalendarAndSlot = ({ nextStep, prevStep, handleFormDataChange }) => {
     setErrors(newErrors);
 
     if (Object.keys(newErrors).length === 0) {
-      handleFormDataChange({date, timeSlot, duration});
+      // Format the date for display
+      const formattedDate = new Date(date).toLocaleDateString('en-US', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      });
+
+      handleFormDataChange({
+        selectedDate: formattedDate,
+        selectedSlot: timeSlot,
+        duration: duration
+      });
       nextStep();
     }
   };

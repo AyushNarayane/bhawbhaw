@@ -75,7 +75,11 @@ const MultiStepForm = () => {
     if (section === 'contactInfo') {
       dispatch(setContactInfo(data));
     } else if (section === 'calendarAndSlot') {
-      dispatch(setCalendarAndSlot(data));
+      dispatch(setCalendarAndSlot({
+        selectedDate: data.selectedDate,
+        selectedSlot: data.selectedSlot,
+        duration: data.duration
+      }));
     }
   };
 
@@ -102,27 +106,112 @@ const MultiStepForm = () => {
   };
 
   const handleSubmit = async () => {
-    const response = await fetch('/api/services/bookService', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        userId,
-        formData: {
-          selectedService,
-          contactInfo: formData.contactInfo,
-          calendarAndSlot: formData.calendarAndSlot,
-        },
-      }),
-    });
+    try {
+      // Debug log to check the data structure
+      console.log('Form Data:', {
+        contactInfo: formData.contactInfo,
+        calendarAndSlot: formData.calendarAndSlot,
+        selectedService
+      });
 
-    if (response.ok) {
+      // First, get vendor's email from Firestore
+      const vendorRef = doc(db, 'vendors', selectedService.vendorId);
+      const vendorDoc = await getDoc(vendorRef);
+      
+      if (!vendorDoc.exists()) {
+        throw new Error('Vendor information not found');
+      }
+
+      const vendorEmail = vendorDoc.data().personalDetails?.email;
+      
+      if (!vendorEmail) {
+        console.warn('Vendor email not found in vendor document');
+      }
+
+      // Create the booking
+      const response = await fetch('/api/services/bookService', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId,
+          formData: {
+            selectedService,
+            contactInfo: formData.contactInfo,
+            calendarAndSlot: formData.calendarAndSlot,
+          },
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Booking failed');
+      }
+
+      // Validate required email addresses
+      if (!formData.contactInfo?.email) {
+        throw new Error('Customer email is required');
+      }
+
+      // Format date for email
+      const formattedDate = new Date(formData.calendarAndSlot.selectedDate).toLocaleDateString('en-US', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      });
+
+      // Prepare booking details with proper formatting
+      const bookingDetails = {
+        selectedService,
+        contactInfo: {
+          ...formData.contactInfo,
+          // Ensure full name is properly constructed
+          firstName: formData.contactInfo.firstName || '',
+          lastName: formData.contactInfo.lastName || '',
+        },
+        calendarAndSlot: {
+          ...formData.calendarAndSlot,
+          // Format date and time
+          selectedDate: formattedDate,
+          selectedSlot: formData.calendarAndSlot.selectedSlot || 'Not specified',
+        }
+      };
+
+      // Log the final data being sent
+      console.log('Sending email notification with:', {
+        userEmail: formData.contactInfo.email,
+        serviceProviderEmail: vendorEmail,
+        adminEmail: 'admin@bhawbhaw.com',
+        bookingDetails
+      });
+
+      // If booking is successful, send emails
+      const emailResponse = await fetch('/api/services/sendBookingEmails', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userEmail: formData.contactInfo.email,
+          serviceProviderEmail: vendorEmail || 'admin@bhawbhaw.com',
+          adminEmail: 'admin@bhawbhaw.com',
+          bookingDetails
+        }),
+      });
+
+      if (!emailResponse.ok) {
+        const errorData = await emailResponse.json();
+        console.error('Failed to send notification emails:', errorData);
+      }
+
       toast.success('Booking successful');
-      dispatch(setSelectedService(null))
+      dispatch(setSelectedService(null));
       dispatch(clearBookingData());
-    } else {
-      console.error('Booking failed');
+      router.push('/mybookings');
+    } catch (err) {
+      console.error('Error during booking:', err);
+      toast.error(err.message || 'Booking failed. Please try again.');
     }
   };
 

@@ -209,17 +209,17 @@ const ReviewInformation = ({ prevStep, formData = {}, handleSubmit }) => {
           <h3 className="text-lg font-semibold text-gray-700 mb-2">
             Appointment Information:
           </h3>
-          <div className="bg-white shadow-md p-4 rounded-lg mb-6">
+          <div className="bg-white shadow-md p-4 rounded-lg mb-4">
             <p className="text-gray-600">
               Date:{" "}
               <span className="font-semibold text-gray-800">
-                {calendarAndSlot.date}
+                {calendarAndSlot.selectedDate}
               </span>
             </p>
             <p className="text-gray-600">
               Time Slot:{" "}
               <span className="font-semibold text-gray-800">
-                {calendarAndSlot.timeSlot}
+                {calendarAndSlot.selectedSlot}
               </span>
             </p>
             <p className="text-gray-600">
