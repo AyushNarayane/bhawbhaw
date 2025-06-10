@@ -1,8 +1,10 @@
 import nodemailer from "nodemailer";
+import { db } from "../../../../firebaseConfig";
+import { collection, getDocs } from "firebase/firestore";
 
 export async function POST(request) {
   try {
-    const { userEmail, serviceProviderEmail, adminEmail, bookingDetails } = await request.json();
+    const { userEmail, serviceProviderEmail, bookingDetails } = await request.json();
 
     // Validate required fields
     if (!userEmail) {
@@ -19,7 +21,16 @@ export async function POST(request) {
       );
     }
 
-    console.log('Attempting to send emails to:', { userEmail, serviceProviderEmail, adminEmail });
+    // Fetch all admin emails from the admins collection
+    const adminsRef = collection(db, "admins");
+    const adminSnapshot = await getDocs(adminsRef);
+    const adminEmails = adminSnapshot.docs.map(doc => doc.data().email).filter(email => email);
+
+    if (adminEmails.length === 0) {
+      console.warn("No admin emails found in the admins collection");
+    }
+
+    console.log('Attempting to send emails to:', { userEmail, serviceProviderEmail, adminEmails });
 
     const transporter = nodemailer.createTransport({
       host: "smtp.gmail.com",
@@ -137,8 +148,8 @@ export async function POST(request) {
       });
     }
 
-    // Admin email
-    if (adminEmail) {
+    // Admin emails - send to all admins
+    adminEmails.forEach(adminEmail => {
       emails.push({
         from: `"BhawBhaw Services" <${process.env.GMAIL_USER}>`,
         to: adminEmail,
@@ -170,7 +181,7 @@ export async function POST(request) {
           </div>
         `,
       });
-    }
+    });
 
     if (emails.length === 0) {
       return new Response(

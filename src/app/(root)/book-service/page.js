@@ -182,7 +182,6 @@ const MultiStepForm = () => {
       console.log('Sending email notification with:', {
         userEmail: formData.contactInfo.email,
         serviceProviderEmail: vendorEmail,
-        adminEmail: 'admin@bhawbhaw.com',
         bookingDetails
       });
 
@@ -195,7 +194,6 @@ const MultiStepForm = () => {
         body: JSON.stringify({
           userEmail: formData.contactInfo.email,
           serviceProviderEmail: vendorEmail || 'admin@bhawbhaw.com',
-          adminEmail: 'admin@bhawbhaw.com',
           bookingDetails
         }),
       });
