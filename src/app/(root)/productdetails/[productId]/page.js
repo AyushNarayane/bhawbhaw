@@ -432,7 +432,7 @@ const ProductDetailsPage = ({ params }) => {
             </span>
           </div>
           <p className="text-2xl text-gray-800 font-semibold mb-4">
-            INR {product.price}
+            INR {product.maxRetailPrice}
           </p>
           <p className="text-gray-600 mb-4 leading-6 text-justify">
             {product.description}
