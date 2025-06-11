@@ -63,9 +63,19 @@ const ProductDetailsPage = ({ params }) => {
 
         if (productSnap.exists()) {
           const productData = productSnap.data();
+          console.log("Product Data:", productData); // Log full product data
           setProduct(productData);
-          setSelectedImage(product.images[0]);
-          fetchRelatedProducts(productData.subCategory);
+          setSelectedImage(productData.images[0]);
+          
+          // Log the subcategory before fetching related products
+          console.log("Product SubCategory:", productData.subCategory);
+          
+          if (productData.subCategory) {
+            fetchRelatedProducts(productData.subCategory);
+          } else {
+            console.error("No subcategory found for product");
+            setRelatedProducts([]);
+          }
         } else {
           console.error("Product not found.");
           router.push("/");
@@ -77,19 +87,32 @@ const ProductDetailsPage = ({ params }) => {
 
     const fetchRelatedProducts = async (subCategory) => {
       try {
+        console.log("Fetching related products for subCategory:", subCategory);
+        
+        // Query for all products in the same subcategory
         const q = query(
           collection(db, "products"),
-          where("subCategory", "==", subCategory),
-          where("status", "==", "approved")
+          where("subCategory", "==", subCategory)
         );
+        
         const querySnapshot = await getDocs(q);
-        const products = querySnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
+        console.log("Total products found with subcategory:", querySnapshot.size);
+        
+        const products = querySnapshot.docs
+          .map((doc) => ({
+            ...doc.data(),
+            productId: doc.id,
+            id: doc.id
+          }))
+          .filter(product => product.productId !== productId);
+        
+        console.log("Related products after filtering current product:", products.length);
+        console.log("Related products found:", products);
+        
         setRelatedProducts(products);
       } catch (error) {
         console.error("Error fetching related products:", error);
+        setRelatedProducts([]);
       }
     };
 
@@ -277,6 +300,11 @@ const ProductDetailsPage = ({ params }) => {
     (currentPage - 1) * productsPerPage,
     currentPage * productsPerPage
   );
+
+  console.log("Current page:", currentPage);
+  console.log("Products per page:", productsPerPage);
+  console.log("Total related products:", relatedProducts.length);
+  console.log("Displayed products:", displayedProducts);
 
   const handleAddReview = async () => {
     if (!user) {
@@ -576,48 +604,57 @@ const ProductDetailsPage = ({ params }) => {
       </div>
 
       <h2 className="text-2xl font-semibold mt-12 mb-6">Related Products</h2>
-      <div className="flex flex-wrap gap-10">
-        {displayedProducts.map((relatedProduct) => (
-          <ProductCard key={relatedProduct.id} product={relatedProduct} />
-        ))}
-      </div>
+      {relatedProducts.length === 0 ? (
+        <p className="text-gray-600">No related products found.</p>
+      ) : (
+        <div className="flex flex-wrap gap-5">
+          {displayedProducts.map((relatedProduct) => (
+            <ProductCard 
+              key={relatedProduct.productId} 
+              product={relatedProduct}
+            />
+          ))}
+        </div>
+      )}
 
       {/* Pagination Controls */}
-      <div className="flex justify-center mt-8 items-center">
-        <div
-          className={`cursor-pointer mr-12 ${
-            currentPage === 1 ? "text-[#C4B0A9]" : "text-[#85716B]"
-          }`}
-          onClick={() => currentPage > 1 && setCurrentPage(currentPage - 1)}
-        >
-          <FaArrowLeftLong size={24} />
-        </div>
-
-        {paginationNumbers.map((pageNumber) => (
-          <button
-            key={pageNumber}
-            className={`w-8 h-8 ${
-              currentPage === pageNumber
-                ? "bg-[#85716B] text-white"
-                : "bg-[#C4B0A9] text-white"
-            } rounded-full mx-2`}
-            onClick={() => setCurrentPage(pageNumber)}
+      {relatedProducts.length > 0 && (
+        <div className="flex justify-center mt-8 items-center">
+          <div
+            className={`cursor-pointer mr-12 ${
+              currentPage === 1 ? "text-[#C4B0A9]" : "text-[#85716B]"
+            }`}
+            onClick={() => currentPage > 1 && setCurrentPage(currentPage - 1)}
           >
-            {pageNumber}
-          </button>
-        ))}
+            <FaArrowLeftLong size={24} />
+          </div>
 
-        <div
-          className={`cursor-pointer ml-12 ${
-            currentPage === totalPages ? "text-[#C4B0A9]" : "text-[#85716B]"
-          }`}
-          onClick={() =>
-            currentPage < totalPages && setCurrentPage(currentPage + 1)
-          }
-        >
-          <FaArrowRightLong size={24} />
+          {paginationNumbers.map((pageNumber) => (
+            <button
+              key={pageNumber}
+              className={`w-8 h-8 ${
+                currentPage === pageNumber
+                  ? "bg-[#85716B] text-white"
+                  : "bg-[#C4B0A9] text-white"
+              } rounded-full mx-2`}
+              onClick={() => setCurrentPage(pageNumber)}
+            >
+              {pageNumber}
+            </button>
+          ))}
+
+          <div
+            className={`cursor-pointer ml-12 ${
+              currentPage === totalPages ? "text-[#C4B0A9]" : "text-[#85716B]"
+            }`}
+            onClick={() =>
+              currentPage < totalPages && setCurrentPage(currentPage + 1)
+            }
+          >
+            <FaArrowRightLong size={24} />
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Reviews Section */}
       <div className="mt-8">
