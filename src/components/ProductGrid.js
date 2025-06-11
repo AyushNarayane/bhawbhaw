@@ -178,20 +178,20 @@ const ProductGrid = () => {
   };
 
   return (
-    <div className="bg-white py-12 px-12 font-poppins">
+    <div className="bg-white py-12 font-poppins">
       <Toaster />
       <div className="flex">
         {/* Filters Section */}
         <ProductFilter onFilter={handleFilter} products={productData} />
 
         {/* Product Grid Section */}
-        <div className="w-full p-4">
+        <div className="w-full">
           {loadingNearby ? (
             <div className="text-center py-8">
               <p>Finding nearby products...</p>
             </div>
           ) : (
-            <div className="flex justify-start gap-5 flex-wrap">
+            <div className="grid grid-cols-4 gap-4">
               {displayedProducts.length > 0 ? (
                 displayedProducts.map((product) => (
                   <ProductCard key={product.productId} product={product} />

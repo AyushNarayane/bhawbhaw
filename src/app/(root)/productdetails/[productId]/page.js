@@ -607,7 +607,7 @@ const ProductDetailsPage = ({ params }) => {
       {relatedProducts.length === 0 ? (
         <p className="text-gray-600">No related products found.</p>
       ) : (
-        <div className="flex flex-wrap gap-5">
+        <div className="grid grid-cols-4 gap-4">
           {displayedProducts.map((relatedProduct) => (
             <ProductCard 
               key={relatedProduct.productId} 

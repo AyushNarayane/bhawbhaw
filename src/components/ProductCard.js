@@ -217,7 +217,7 @@ const ProductCard = ({ product, isRecommendation = false }) => {
   };
 
   return (
-    <div className="relative rounded-lg w-80 font-montserrat overflow-hidden p-4 group shadow-md hover:shadow-lg transition-shadow bg-white">
+    <div className="relative rounded-lg font-montserrat overflow-hidden p-4 group shadow-md hover:shadow-lg transition-shadow bg-white">
       {/* heart */}
       <div
         aria-disabled={wishlistLoading}
@@ -248,11 +248,11 @@ const ProductCard = ({ product, isRecommendation = false }) => {
       {/* Product Image */}
       <div className="bg-[#F3EAE7] mx-3 py-3 rounded-lg mt-10">
         <Image
+          src={product.images[0]}
+          alt={product.title}
           height={200}
           width={200}
           className="w-full h-48 object-contain"
-          src={product.images?.[0] || '/product-placeholder.webp'}
-          alt={product.title}
         />
       </div>
 
@@ -282,7 +282,7 @@ const ProductCard = ({ product, isRecommendation = false }) => {
           </div>
         </div>
 
-        <p className="text-gray-700 my-3 text-normal w-64 line-clamp-2">{product.description}</p>
+        <p className="text-gray-700 my-3 text-normal w-64 line-clamp-1">{product.description}</p>
 
         <div className="flex items-center">
           {Array.from({ length: Math.floor(product.rating || 4) }, (_, index) => (
