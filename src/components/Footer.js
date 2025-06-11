@@ -77,7 +77,7 @@ const Footer = () => {
 
       <div className="border-t border-gray-300 mt-12 pt-6 text-center font-light text-sm text-white mx-auto w-full sm:flex sm:justify-between sm:px-10">
         <p className="mb-4 sm:mb-0">
-          © 2025 Bhawbhaw.com
+          © 2025 Bhawbhaw.com | <Link href="/privacy-policy" className="hover:underline">Privacy Policy</Link>
         </p>
         <div>
           <ul className="flex justify-center sm:justify-start space-x-5">
