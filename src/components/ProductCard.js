@@ -48,7 +48,7 @@ const ProductCard = ({ product, isRecommendation = false }) => {
 
   const handleBuyAction = async () => {
     if (!user) {
-      toast.error("Please log in to buy products.");
+      router.push('/signin');
       return;
     }
 
@@ -99,7 +99,7 @@ const ProductCard = ({ product, isRecommendation = false }) => {
 
   const handleCartAction = async () => {
     if (!user) {
-      toast.error("Please log in to add products to your cart.");
+      router.push('/signin');
       return;
     }
 

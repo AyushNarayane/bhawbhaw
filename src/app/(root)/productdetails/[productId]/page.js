@@ -122,48 +122,43 @@ const ProductDetailsPage = ({ params }) => {
   // console.log(hasBuyed);
 
   const handleAddToCart = async () => {
+    if (!user) {
+      router.push('/signin');
+      return;
+    }
+
     if (product && user) {
-      const cartRef = doc(db, "cart", user);
+      const cartRef = doc(db, 'cart', user);
       const cartDoc = await getDoc(cartRef);
 
       if (cartDoc.exists()) {
         const cartData = cartDoc.data();
-        const existingProduct = cartData.items.find(
-          (item) => item.productId === productId
-        );
+        const existingProduct = cartData.items.find(item => item.productId === product.productId);
 
         if (existingProduct) {
           // If the product exists in the cart, update the quantity
-          await setDoc(
-            cartRef,
-            {
-              items: cartData.items.map((item) =>
-                item.productId === productId
-                  ? { ...item, quantity: item.quantity + quantity } // Increase quantity
-                  : item
-              ),
-            },
-            { merge: true }
-          );
+          await setDoc(cartRef, {
+            items: cartData.items.map(item =>
+              item.productId === product.productId
+                ? { ...item, quantity: item.quantity + quantity } // Increase quantity
+                : item
+            )
+          }, { merge: true });
         } else {
           // If the product does not exist in the cart, add it
-          await setDoc(
-            cartRef,
-            {
-              items: [...cartData.items, { ...product, quantity }], // Add new product with quantity
-            },
-            { merge: true }
-          );
+          await setDoc(cartRef, {
+            items: [...cartData.items, { ...product, quantity }] // Add new product with quantity
+          }, { merge: true });
         }
       } else {
         // Create a new cart if it doesn't exist
         await setDoc(cartRef, {
-          items: [{ ...product, quantity }], // Add new product with quantity
+          items: [{ ...product, quantity }] // Add new product with quantity
         });
       }
 
       setMessage(`${product.title} added to cart!`);
-      router.push("/cart");
+      router.push('/cart');
     }
   };
 

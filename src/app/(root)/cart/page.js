@@ -44,30 +44,30 @@ const Cart = () => {
     const fetchCartItems = async () => {
       try {
         if (!user) {
-          router.push('/signin')
+          router.push('/signin');
           return;
         }
 
-        const cartRef = doc(db, 'cart', user)
-        const cartDoc = await getDoc(cartRef)
+        const cartRef = doc(db, 'cart', user);
+        const cartDoc = await getDoc(cartRef);
 
         if (cartDoc.exists()) {
-          setCartItems(cartDoc.data().items)
+          setCartItems(cartDoc.data().items);
           const allProductIds = cartDoc.data().items.map(item => item.productId);
           setSelectedItems(allProductIds);
         }
       } catch (error) {
-        console.log(error)
+        console.log(error);
       }
-    }
+    };
 
     const fetchCoupons = async () => {
       try {
-        const response = await fetch(`/api/coupons/getAllCoupons`)
-        const data = await response.json()
+        const response = await fetch(`/api/coupons/getAllCoupons`);
+        const data = await response.json();
 
         if (response.ok) {
-          setCoupons(data.coupons)
+          setCoupons(data.coupons);
         }
       } catch (error) {
         console.log(error);
@@ -76,7 +76,7 @@ const Cart = () => {
 
     fetchCartItems();
     fetchCoupons();
-  }, [user]);
+  }, [user, router]);
 
   // console.log(coupons);
 
