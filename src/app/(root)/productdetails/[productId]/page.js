@@ -383,7 +383,14 @@ const ProductDetailsPage = ({ params }) => {
     }
   };
 
-  if (!product) return <div>Loading...</div>;
+  if (!product) return (
+    <div className="min-h-screen flex items-center justify-center">
+      <div className="flex flex-col items-center space-y-4">
+        <div className="w-16 h-16 border-4 border-[#E57A7A] border-t-transparent rounded-full animate-spin"></div>
+        <p className="text-[#E57A7A] font-medium">Loading product details...</p>
+      </div>
+    </div>
+  );
 
   return (
     <div className="container mx-auto p-6 bg-white text-black font-poppins">

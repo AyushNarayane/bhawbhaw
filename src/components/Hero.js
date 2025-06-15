@@ -33,23 +33,23 @@ const PetPromoBanner = () => {
   }, []);
 
   return (
-    <section className="relative bg-[#F3F4F6] pt-4 flex flex-wrap justify-center items-center">
+    <section className="relative bg-gradient-to-b from-gray-50 to-white pt-4 flex flex-wrap justify-center items-center">
       {/* Carousel Section */}
-      <div className="w-full px-6 lg:px-20">
+      <div className="w-full px-4 lg:px-16">
         <Carousel
           showThumbs={false}
           infiniteLoop={true}
           transitionTime={1000}
           autoPlay={true}
           showStatus={false}
-          className="max-w-7xl mx-auto"
+          className="max-w-7xl mx-auto rounded-2xl overflow-hidden shadow-2xl"
           renderArrowPrev={(clickHandler, hasPrev) =>
             hasPrev && (
               <button
                 onClick={clickHandler}
-                className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-gray-900/50 text-white p-3 rounded-full shadow-lg hover:bg-gray-700 transition z-10"
+                className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/80 text-gray-800 p-3 rounded-full shadow-lg hover:bg-white transition z-10"
               >
-                <AiOutlineLeft size={40} />
+                <AiOutlineLeft size={32} />
               </button>
             )
           }
@@ -57,29 +57,30 @@ const PetPromoBanner = () => {
             hasNext && (
               <button
                 onClick={clickHandler}
-                className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-gray-900/50 text-white p-3 rounded-full shadow-lg hover:bg-gray-700 transition z-10"
+                className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/80 text-gray-800 p-3 rounded-full shadow-lg hover:bg-white transition z-10"
               >
-                <AiOutlineRight size={40} />
+                <AiOutlineRight size={32} />
               </button>
             )
           }
         >
-          {/* Dynamically render carousel slides */}
           {images.length > 0 ? (
             images.map((image, index) => (
-              <div key={index} className="flex justify-center items-center">
+              <div key={index} className="relative">
                 <Image
-                  src={image} // Use the image URL fetched from Firestore
+                  src={image}
                   alt={`Banner ${index + 1}`}
-                  width={800}
+                  width={1920}
                   height={800}
-                  className="w-full h-auto lg:h-[34rem] object-contain"
+                  className="w-full h-[32rem] lg:h-[40rem] object-cover"
+                  priority={index === 0}
                 />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
               </div>
             ))
           ) : (
-            <div className="flex justify-center items-center">
-              <p>Loading banners...</p>
+            <div className="flex justify-center items-center h-[32rem] lg:h-[40rem] bg-gray-100">
+              <p className="text-gray-500 text-lg">Loading banners...</p>
             </div>
           )}
         </Carousel>
