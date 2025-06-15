@@ -116,6 +116,31 @@ const PaymentGateway = () => {
           await fetchOrderDetails();
         }
 
+        // Send order confirmation emails
+        try {
+          // For each order in allOrders, send emails
+          for (const order of allOrders) {
+            const emailResponse = await fetch('/api/products/sendOrderEmails', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                userEmail: order.email,
+                vendorEmail: order.storeInfo?.email,
+                orderDetails: order
+              }),
+            });
+
+            if (!emailResponse.ok) {
+              console.error('Failed to send order confirmation emails:', await emailResponse.json());
+            }
+          }
+        } catch (error) {
+          console.error('Error sending order confirmation emails:', error);
+          // Continue with the order even if email sending fails
+        }
+
         // Clear session storage
         sessionStorage.removeItem("selectedItems");
 
