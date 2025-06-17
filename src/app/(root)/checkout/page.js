@@ -469,6 +469,29 @@ const CheckoutPage = () => {
       setIsloading(true);
       console.log('Saving address with form data:', formData);
 
+      // Validate form data
+      const requiredFields = ['firstName', 'lastName', 'address', 'state', 'city', 'postalCode'];
+      const validationErrors = [];
+
+      // Check for empty or invalid fields
+      requiredFields.forEach(field => {
+        const value = formData[field]?.trim();
+        if (!value || value === '.' || value.length < 2) {
+          validationErrors.push(`${field.charAt(0).toUpperCase() + field.slice(1)} is required and must be valid`);
+        }
+      });
+
+      // Validate postal code (should be numeric and 6 digits for Indian postal codes)
+      if (!/^\d{6}$/.test(formData.postalCode)) {
+        validationErrors.push('Postal code must be 6 digits');
+      }
+
+      if (validationErrors.length > 0) {
+        setError(validationErrors.join(', '));
+        setIsloading(false);
+        return;
+      }
+
       if (!userId) {
         console.error("User ID is undefined.");
         return;
@@ -676,16 +699,24 @@ const CheckoutPage = () => {
             >
               {["firstName", "lastName", "address", "apartment", "state", "city", "postalCode"].map(
                 (field) => (
-                  <input
-                    key={field}
-                    type="text"
-                    placeholder={field.charAt(0).toUpperCase() + field.slice(1)}
-                    value={formData[field]}
-                    onChange={(e) =>
-                      setFormData({ ...formData, [field]: e.target.value })
-                    }
-                    className="w-full px-4 py-3 border rounded-md outline-none text-black"
-                  />
+                  <div key={field} className="flex flex-col">
+                    <input
+                      type="text"
+                      placeholder={field.charAt(0).toUpperCase() + field.slice(1)}
+                      value={formData[field]}
+                      onChange={(e) =>
+                        setFormData({ ...formData, [field]: e.target.value })
+                      }
+                      className="w-full px-4 py-3 border rounded-md outline-none text-black"
+                      minLength={2}
+                      required
+                      pattern={field === 'postalCode' ? '\\d{6}' : '[A-Za-z0-9\\s\\-\\.,]+'}
+                      title={field === 'postalCode' ? 'Please enter a valid 6-digit postal code' : 'Please enter a valid text'}
+                    />
+                    {field === 'postalCode' && (
+                      <span className="text-xs text-gray-500 mt-1">Must be 6 digits</span>
+                    )}
+                  </div>
                 )
               )}
               
