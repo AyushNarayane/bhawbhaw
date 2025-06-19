@@ -277,217 +277,220 @@ const Navbar = () => {
   }, [showSocials]);
 
   return (
-    <nav className="bg-[#39646e] text-white py-5 lg:px-12 sm:px-6 px-2 relative whitespace-nowrap">
-      <div className="flex justify-between items-center">
-        <div className="flex items-center">
-          <Link href="/">
-            <Image
-              src="/images/bhawbhawfavicon.png"
-              alt="BHAW Logo"
-              width={100}
-              height={100}
-              className="max-sm:h-14 h-16 w-auto mx-4 cursor-pointer"
-            />
-          </Link>
-        </div>
+    <>
+      {/* NAVBAR */}
+      <nav className="bg-[#39646e] shadow-lg text-white pt-6 pb-8 px-4 lg:px-16 relative">
+        <div className="flex items-start lg:items-center justify-between w-full">
+          {/* Logo - Large and vertically aligned */}
+          <div className="flex-shrink-0 flex flex-col justify-center" style={{ height: '80px' }}>
+            <Link href="/">
+              <Image
+                src="/images/bhawbhawfavicon.png"
+                alt="BHAW Logo"
+                width={120}
+                height={80}
+                className="h-20 w-auto mx-2"
+                priority
+              />
+            </Link>
+          </div>
 
-        {/* Navigation Links */}
-        <ul className="hidden lg:flex flex-grow justify-center lg:space-x-8 text-gray-600">
-          {navLinks.map((link, index) => (
-            <li key={index} className="relative">
-              {link.dropdown ? (
-                <div className="relative">
-                  <button
-                    ref={socialsRef}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setShowSocials(!showSocials);
-                    }}
-                    className="hover:text-black text-white cursor-pointer flex items-center"
+          {/* Navigation Links - aligned to middle of logo */}
+          <ul className="hidden lg:flex flex-grow items-center ml-8 space-x-10 text-lg font-bold tracking-wide h-20">
+            {navLinks.map((link, index) => (
+              <li key={index} className="relative flex items-center h-full">
+                {link.dropdown ? (
+                  <div className="relative">
+                    <button
+                      ref={socialsRef}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setShowSocials(!showSocials);
+                      }}
+                      className="hover:text-[#ffb315] text-white cursor-pointer flex items-center transition-colors duration-200"
+                    >
+                      {link.name}
+                      <FiChevronDown 
+                        className={`ml-1 transform transition-transform duration-200 ${
+                          showSocials ? 'rotate-180' : ''
+                        }`} 
+                      />
+                    </button>
+                    {showSocials && (
+                      <div 
+                        ref={dropdownRef}
+                        className="absolute top-full left-1/2 transform -translate-x-1/2 bg-white rounded-md shadow-lg z-50 mt-2 min-w-[160px]"
+                      >
+                        <ul className="py-1">
+                          <li>
+                            <Link 
+                              href="https://www.instagram.com/bhaw_bhaww/" 
+                              target="_blank" 
+                              rel="noopener noreferrer"
+                              className="flex items-center px-4 py-2 hover:bg-gray-100 text-sm text-gray-700"
+                              onClick={() => setShowSocials(false)}
+                            >
+                              <FaInstagram className="text-pink-600 mr-2" size={16} />
+                              Instagram
+                            </Link>
+                          </li>
+                          <li>
+                            <Link 
+                              href="https://youtube.com/@bhawbhaw-com?si=c4ryrGze594Jf5xA" 
+                              target="_blank" 
+                              rel="noopener noreferrer"
+                              className="flex items-center px-4 py-2 hover:bg-gray-100 text-sm text-gray-700"
+                              onClick={() => setShowSocials(false)}
+                            >
+                              <FaYoutube className="text-pink-600 mr-2" size={16} />
+                              Youtube
+                            </Link>
+                          </li>
+                          <li>
+                            <Link 
+                              href="https://www.facebook.com/profile.php?id=61568752592399" 
+                              target="_blank" 
+                              rel="noopener noreferrer"
+                              className="flex items-center px-4 py-2 hover:bg-gray-100 text-sm text-gray-700"
+                              onClick={() => setShowSocials(false)}
+                            >
+                              <FaFacebook className="text-blue-600 mr-2" size={16} />
+                              Facebook
+                            </Link>
+                          </li>
+                          <li>
+                            <Link 
+                              href="https://chat.whatsapp.com/LqGNKlnZjS149Fgz1eiRTA" 
+                              target="_blank" 
+                              rel="noopener noreferrer"
+                              className="flex items-center px-4 py-2 hover:bg-gray-100 text-sm text-gray-700"
+                              onClick={() => setShowSocials(false)}
+                            >
+                              <FaWhatsapp className="text-green-600 mr-2" size={16} />
+                              WhatsApp
+                            </Link>
+                          </li>
+                        </ul>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <Link
+                    href={link.href}
+                    onClick={() => setIsOpen(false)}
+                    className="hover:text-[#ffb315] text-white cursor-pointer transition-colors duration-200"
                   >
                     {link.name}
-                    <FiChevronDown 
-                      className={`ml-1 transform transition-transform duration-200 ${
-                        showSocials ? 'rotate-180' : ''
-                      }`} 
+                  </Link>
+                )}
+              </li>
+            ))}
+          </ul>
+
+          {/* Icons and Buttons - right aligned, vertically centered */}
+          <div className="flex items-center space-x-4 ml-auto h-20">
+            {user ? (
+              <>
+                <Link href="/recommendation" onClick={() => setIsOpen(false)}>
+                  <button>
+                    <img
+                      src="/images/navbar/heart.png"
+                      alt="Wishlist"
+                      className="w-7 h-7 hover:scale-110 transition-transform duration-200"
                     />
                   </button>
-                  
-                  {showSocials && (
-                    <div 
-                      ref={dropdownRef}
-                      className="absolute top-full left-1/2 transform -translate-x-1/2 bg-white rounded-md shadow-lg z-50 mt-2 min-w-[160px]"
-                    >
-                      <ul className="py-1">
-                        <li>
-                          <Link 
-                            href="https://www.instagram.com/bhaw_bhaww/" 
-                            target="_blank" 
-                            rel="noopener noreferrer"
-                            className="flex items-center px-4 py-2 hover:bg-gray-100 text-sm text-gray-700"
-                            onClick={() => setShowSocials(false)}
-                          >
-                            <FaInstagram className="text-pink-600 mr-2" size={16} />
-                            Instagram
-                          </Link>
-                        </li>
-                        <li>
-                          <Link 
-                            href="https://youtube.com/@bhawbhaw-com?si=c4ryrGze594Jf5xA" 
-                            target="_blank" 
-                            rel="noopener noreferrer"
-                            className="flex items-center px-4 py-2 hover:bg-gray-100 text-sm text-gray-700"
-                            onClick={() => setShowSocials(false)}
-                          >
-                            <FaYoutube className="text-pink-600 mr-2" size={16} />
-                            Youtube
-                          </Link>
-                        </li>
-                        <li>
-                          <Link 
-                            href="https://www.facebook.com/profile.php?id=61568752592399" 
-                            target="_blank" 
-                            rel="noopener noreferrer"
-                            className="flex items-center px-4 py-2 hover:bg-gray-100 text-sm text-gray-700"
-                            onClick={() => setShowSocials(false)}
-                          >
-                            <FaFacebook className="text-blue-600 mr-2" size={16} />
-                            Facebook
-                          </Link>
-                        </li>
-                        <li>
-                          <Link 
-                            href="https://chat.whatsapp.com/LqGNKlnZjS149Fgz1eiRTA" 
-                            target="_blank" 
-                            rel="noopener noreferrer"
-                            className="flex items-center px-4 py-2 hover:bg-gray-100 text-sm text-gray-700"
-                            onClick={() => setShowSocials(false)}
-                          >
-                            <FaWhatsapp className="text-green-600 mr-2" size={16} />
-                            WhatsApp
-                          </Link>
-                        </li>
-                      </ul>
-                    </div>
-                  )}
-                </div>
-              ) : (
-                <Link
-                  href={link.href}
-                  onClick={() => setIsOpen(false)}
-                  className="hover:text-black text-white cursor-pointer"
-                >
-                  {link.name}
                 </Link>
-              )}
-            </li>
-          ))}
-        </ul>
+                <Link href="/cart" onClick={() => setIsOpen(false)}>
+                  <button className="relative">
+                    <img
+                      src="/images/navbar/cart.png"
+                      alt="Cart"
+                      className="w-7 h-7 hover:scale-110 transition-transform duration-200"
+                    />
+                    {cartItemCount > 0 && (
+                      <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                        {cartItemCount}
+                      </span>
+                    )}
+                  </button>
+                </Link>
+                <ProfileDropdown onLogout={onLogout} />
+              </>
+            ) : (
+              <>
+                <Link href="/signin" onClick={() => setIsOpen(false)}>
+                  <button className="font-semibold px-5 py-2 bg-white text-[#39646e] rounded-full shadow hover:bg-[#ffb315] hover:text-white transition-colors duration-200">
+                    LOGIN
+                  </button>
+                </Link>
+                <Link href="/signup" onClick={() => setIsOpen(false)}>
+                  <button className="flex items-center justify-between w-full bg-[#ef4444] font-semibold hover:bg-[#ffb315] text-white sm:px-8 px-4 py-2 rounded-full shadow transition-colors duration-200">
+                    <p>
+                      Sign Up <span className="sm:inline-block hidden">Now</span>
+                    </p>
+                    <img
+                      src="/images/navbar/image.png"
+                      alt="Icon"
+                      className="w-5 h-5 ml-2"
+                    />
+                  </button>
+                </Link>
+              </>
+            )}
+          </div>
 
-        {/* Icons and Buttons */}
-        <div className="flex items-center space-x-4 ml-auto">
-          {user ? (
-            <>
-              <Link href="/recommendation" onClick={() => setIsOpen(false)}>
-                <button>
-                  <img
-                    src="/images/navbar/heart.png"
-                    alt="Wishlist"
-                    className="w-6 h-6"
-                  />
-                </button>
-              </Link>
-              <Link href="/cart" onClick={() => setIsOpen(false)}>
-                <button className="relative">
-                  <img
-                    src="/images/navbar/cart.png"
-                    alt="Cart"
-                    className="w-6 h-6"
-                  />
-                  {cartItemCount > 0 && (
-                    <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                      {cartItemCount}
-                    </span>
-                  )}
-                </button>
-              </Link>
-              <ProfileDropdown onLogout={onLogout} />
-            </>
-          ) : (
-            <>
-              <Link href="/signin" onClick={() => setIsOpen(false)}>
-                <button className="text-black px-4 py-2 bg-white rounded-full">
-                  LOGIN
-                </button>
-              </Link>
-              <Link href="/signup" onClick={() => setIsOpen(false)}>
-                <button className="flex items-center justify-between w-full bg-[#ef4444] font-semibold hover:bg-[#ffb315] text-white sm:px-8 px-4 py-2 rounded-full">
-                  <p>
-                    Sign Up <span className="sm:inline-block hidden">Now</span>
-                  </p>
-                  <img
-                    src="/images/navbar/image.png"
-                    alt="Icon"
-                    className="w-5 h-5 ml-2"
-                  />
-                </button>
-              </Link>
-            </>
-          )}
+          {/* Mobile Icon */}
+          <div className="lg:hidden flex items-center">
+            <button onClick={toggleDrawer} className="focus:outline-none">
+              <FiMenu className="w-7 h-7 ml-4 text-gray-200 hover:text-[#ffb315] transition-colors duration-200" />
+            </button>
+          </div>
         </div>
 
-        {/* Mobile Icon */}
-        <div className="lg:hidden flex items-center">
-          <button onClick={toggleDrawer} className="focus:outline-none">
-            <FiMenu className="w-6 h-6 ml-4 text-gray-600 hover:text-black" />
-          </button>
-        </div>
-      </div>
-
-      {/* Top Section: Search Bar */}
-      <div className="flex flex-col items-center mb-3">
-        <div ref={searchContainerRef} className="flex items-center border-2 border-gray-300 rounded-full px-4 py-1 max-w-2xl w-full relative">
-          <input
-            type="text"
-            value={searchTerm || transcript}
-            onChange={handleSearchChange}
-            onKeyDown={handleKeyDown}
-            placeholder="Search..."
-            className="bg-transparent outline-none ml-2 w-full"
-          />
-          <button onClick={handleSearch} className="ml-2 p-1 rounded-full">
-            <FiSearch className="text-white size-5" />
-          </button>
-          <button
-            onClick={handleVoiceSearch}
-            className="ml-2 p-1 bg-gray-200 rounded-full"
-          >
-            <Image
-              src="/images/navbar/voice-icon.png"
-              alt="Voice Search"
-              width={24}
-              height={24}
-              className="h-7 w-8 rounded-full"
+        {/* SEARCH BAR - inside navbar, centered, shorter */}
+        <div className="flex flex-col items-center mt-1">
+          <div ref={searchContainerRef} className="flex items-center bg-[#eaeaea] shadow-lg border border-gray-200 rounded-full px-4 py-3 max-w-md w-full relative">
+            <input
+              type="text"
+              value={searchTerm || transcript}
+              onChange={handleSearchChange}
+              onKeyDown={handleKeyDown}
+              placeholder="Search..."
+              className="bg-transparent outline-none text-gray-700 placeholder-gray-500 font-medium text-lg px-2 w-full"
             />
-          </button>
-          
-          {/* Display Suggestions */}
-          {suggestions.length > 0 && (
-            <div className="absolute top-full rounded-lg left-0 right-0 bg-white border border-gray-300 mt-1 max-h-60 overflow-y-auto z-[100]">
-              {suggestions.map((product) => (
-                <Link
-                  key={product.productId}
-                  href={`/productdetails/${product.productId}`}
-                  className="block px-4 py-2 text-black hover:bg-gray-100"
-                  onClick={() => setSuggestions([])}
-                >
-                  {product.title}
-                </Link>
-              ))}
-            </div>
-          )}
+            <button onClick={handleSearch} className="ml-2 p-2 rounded-full bg-[#ffb315] hover:bg-[#ef4444] transition-colors duration-200 shadow">
+              <FiSearch className="text-white size-5" />
+            </button>
+            <button
+              onClick={handleVoiceSearch}
+              className="ml-2 p-2 bg-gray-200 hover:bg-gray-300 transition-colors duration-200 rounded-full shadow"
+            >
+              <Image
+                src="/images/navbar/voice-icon.png"
+                alt="Voice Search"
+                width={24}
+                height={24}
+                className="h-6 w-6 rounded-full"
+              />
+            </button>
+            {/* Display Suggestions */}
+            {suggestions.length > 0 && (
+              <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-lg shadow-lg mt-2 max-h-60 overflow-y-auto z-[100]">
+                {suggestions.map((product) => (
+                  <Link
+                    key={product.productId}
+                    href={`/productdetails/${product.productId}`}
+                    className="block px-4 py-2 text-black hover:bg-gray-100 rounded-md transition-colors duration-150"
+                    onClick={() => setSuggestions([])}
+                  >
+                    {product.title}
+                  </Link>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
-      </div>
+      </nav>
 
       {/* Mobile Drawer Menu */}
       {isOpen && (
@@ -608,7 +611,7 @@ const Navbar = () => {
           </ul>
         </div>
       )}
-    </nav>
+    </>
   );
 };
 

@@ -99,9 +99,9 @@ function ServiceCard({ service }) {
       <Toaster />
 
       {/* Popular Badge */}
-      <span className="absolute top-4 left-4 bg-red-500 text-white text-sm font-semibold rounded-full px-4 py-1.5 z-10">
+      {/* <span className="absolute top-4 left-4 bg-red-500 text-white text-sm font-semibold rounded-full px-4 py-1.5 z-10">
         Popular
-      </span>
+      </span> */}
 
       {/* Service Image */}
       <div className="relative h-56 overflow-hidden">
