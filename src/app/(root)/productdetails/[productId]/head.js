@@ -25,7 +25,9 @@ export default async function Head({ params }) {
   }
 
   const url = `https://bhawbhaw-one.vercel.app/productdetails/${productId}`;
-  const image = product.images?.[0] || "/images/product-placeholder.webp";
+  const image = product.images?.[0]?.startsWith('http')
+    ? product.images[0]
+    : `https://bhawbhaw-one.vercel.app${product.images?.[0] || '/images/product-placeholder.webp'}`;
 
   return (
     <>
@@ -34,7 +36,7 @@ export default async function Head({ params }) {
       {/* Open Graph tags */}
       <meta property="og:title" content={product.title} />
       <meta property="og:description" content={product.description} />
-      <meta property="og:image" content={product.images[0]} />
+      <meta property="og:image" content={image} />
       <meta property="og:url" content={url} />
       <meta property="og:type" content="product" />
       {/* Twitter Card tags */}
