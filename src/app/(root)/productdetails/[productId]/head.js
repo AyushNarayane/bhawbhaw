@@ -34,7 +34,7 @@ export default async function Head({ params }) {
       {/* Open Graph tags */}
       <meta property="og:title" content={product.title} />
       <meta property="og:description" content={product.description} />
-      <meta property="og:image" content={image} />
+      <meta property="og:image" content={product.images[0]} />
       <meta property="og:url" content={url} />
       <meta property="og:type" content="product" />
       {/* Twitter Card tags */}
