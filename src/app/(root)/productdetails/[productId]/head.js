@@ -1,15 +1,14 @@
-import { doc, getDoc } from "firebase/firestore";
-import { db } from "firebaseConfig";
-
 export default async function Head({ params }) {
   const { productId } = params;
   let product = null;
 
   try {
-    const productRef = doc(db, "products", productId);
-    const productSnap = await getDoc(productRef);
-    if (productSnap.exists()) {
-      product = productSnap.data();
+    // Use your deployed API endpoint for server-side fetching
+    const apiUrl = `https://bhawbhaw-one.vercel.app/api/products/getProductById?productId=${productId}`;
+    const res = await fetch(apiUrl, { cache: "no-store" }); // no-store to always get fresh data
+    const data = await res.json();
+    if (data.success) {
+      product = data.product;
     }
   } catch (e) {
     // fallback or log error
