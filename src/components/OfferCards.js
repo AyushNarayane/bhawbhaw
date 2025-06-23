@@ -11,7 +11,7 @@ const OfferCards = () => {
     },
     {
       title: "Holiday travel",
-      description: "",
+      description: "Travel with your pet",
       image: "/images/Home/f4.jpg",
       buttonText: "Discover Now",
     },
@@ -23,7 +23,7 @@ const OfferCards = () => {
     },
     {
       title: "Pet Events",
-      description: "",
+      description: "Join us for a day of fun and games",
       image: "/images/Home/f1.jpg",
       buttonText: "Discover Now",
     },
