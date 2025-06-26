@@ -15,7 +15,10 @@ const Page = () => {
   const [categories, setCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [city, setCity] = useState("");
-  const [hasSubmittedCity, setHasSubmittedCity] = useState(false);
+  const [showCityModal, setShowCityModal] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [loadingMessageIndex, setLoadingMessageIndex] = useState(0);
 
   const router = useRouter();
   const dispatch = useDispatch();
@@ -34,6 +37,17 @@ const Page = () => {
     "Pet Accessories and Supplies",
   ];
 
+  const loadingMessages = [
+    "🐾 Finding pet services in your area...",
+    "🔍 Searching for the best providers...",
+    "📋 Checking service availability...",
+    "🌟 Discovering amazing pet care options...",
+    "💫 Almost there, just a moment...",
+    "🎯 Matching you with perfect services...",
+    "✨ Loading your personalized results...",
+    "🏠 Connecting with local pet experts..."
+  ];
+
   // Extract unique categories
   const extractCategories = (services) => {
     const uniqueCategories = [
@@ -46,10 +60,12 @@ const Page = () => {
 
   // Fetch services once city is submitted
   useEffect(() => {
-    if (!hasSubmittedCity) return;
+    if (showCityModal || !city) return;
 
     const fetchServices = async () => {
       try {
+        setIsLoading(true);
+        setError("");
         const response = await fetch(
           `/api/services/getAllServices?city=${encodeURIComponent(city)}`
         );
@@ -60,14 +76,18 @@ const Page = () => {
           extractCategories(data);
         } else {
           console.error("Error fetching services");
+          setError("Failed to fetch services. Please try again.");
         }
       } catch (error) {
         console.error("Error fetching services:", error);
+        setError("An error occurred while fetching services. Please try again later.");
+      } finally {
+        setIsLoading(false);
       }
     };
 
     fetchServices();
-  }, [city, hasSubmittedCity]);
+  }, [city, showCityModal]);
 
   // Filter services by search and category
   useEffect(() => {
@@ -92,78 +112,209 @@ const Page = () => {
     filter();
   }, [searchQuery, selectedCategory, services]);
 
+  // Rotate loading messages every 2 seconds
+  useEffect(() => {
+    if (!isLoading) {
+      setLoadingMessageIndex(0);
+      return;
+    }
+
+    const interval = setInterval(() => {
+      setLoadingMessageIndex((prevIndex) => 
+        (prevIndex + 1) % loadingMessages.length
+      );
+    }, 2000);
+
+    return () => clearInterval(interval);
+  }, [isLoading, loadingMessages.length]);
+
   const handleServiceClick = (service) => {
     dispatch(setSelectedService(service));
     router.push(`/service-providers`);
   };
 
-  // Show city input first
-  if (!hasSubmittedCity) {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100 font-poppins">
-        <h2 className="text-2xl font-semibold mb-4 text-gray-800">
-          Enter Your City
-        </h2>
-        <input
-          type="text"
-          placeholder="e.g., Mumbai"
-          value={city}
-          onChange={(e) => setCity(e.target.value)}
-          className="px-4 py-2 border border-gray-300 rounded-md w-64 text-gray-700 mb-4"
-        />
-        <button
-          onClick={() => setHasSubmittedCity(true)}
-          className="bg-red-600 text-white px-6 py-2 rounded-md hover:bg-red-700"
-        >
-          Show Services
-        </button>
-      </div>
-    );
-  }
+  const handleCitySubmit = () => {
+    if (city.trim()) {
+      setShowCityModal(false);
+    }
+  };
+
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter') {
+      handleCitySubmit();
+    }
+  };
 
   return (
-    <div className="bg-gray-50 min-h-screen mx-auto py-8 font-poppins">
+    <div className="bg-gray-50 min-h-screen mx-auto py-8 font-poppins relative">
+      {/* City Input Modal */}
+      {showCityModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-8 max-w-md w-full mx-4 shadow-xl">
+            <div className="text-center">
+              <div className="w-16 h-16 bg-gradient-to-r from-red-500 to-pink-500 rounded-full flex items-center justify-center mx-auto mb-4 animate-float">
+                <span className="text-2xl">🏠</span>
+              </div>
+              <h2 className="text-2xl font-semibold mb-4 text-gray-800">
+                Enter Your City
+              </h2>
+              <p className="text-gray-600 mb-6">
+                We'll show you all the pet services available in your area
+              </p>
+              <input
+                type="text"
+                placeholder="e.g., Mumbai, Delhi, Bangalore"
+                value={city}
+                onChange={(e) => setCity(e.target.value)}
+                onKeyPress={handleKeyPress}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-700 mb-4 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                autoFocus
+              />
+              <button
+                onClick={handleCitySubmit}
+                disabled={!city.trim()}
+                className="w-full bg-red-600 text-white px-6 py-3 rounded-lg hover:bg-red-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors duration-200"
+              >
+                Find Services
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <h1 className="text-4xl font-bold text-center text-gray-800">
-          Explore Our Services
-        </h1>
-        <h1 className="text-sm text-gray-500 text-center mt-2 mb-6">
-          Showing available services in{" "}
-          <span className="font-medium">{city}</span>
-        </h1>
-
-        {/* Filters */}
-        <div className="flex items-center justify-between flex-wrap gap-4 mb-8 px-6">
-          {/* Search Input */}
-          <div className="flex items-center bg-white border border-gray-300 rounded-lg p-2 w-full max-w-md">
-            <FaSearch className="text-gray-500 mr-2" />
-            <input
-              type="text"
-              placeholder="Search services..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full outline-none text-gray-700"
-            />
-          </div>
-
-          {/* Category Filter */}
-          <select
-            value={selectedCategory}
-            onChange={(e) => setSelectedCategory(e.target.value)}
-            className="bg-white border border-gray-300 rounded-lg px-4 py-2 text-gray-700"
-          >
-            {categories.map((category) => (
-              <option key={category} value={category}>
-                {category}
-              </option>
-            ))}
-          </select>
+        <div className="text-center mb-8">
+          <h1 className="text-4xl font-bold text-gray-800">
+            Services in Your City
+          </h1>
+          {city && (
+            <>
+              <h1 className="text-sm text-gray-500 mt-2 mb-4">
+                Showing available services in{" "}
+                <span className="font-medium">{city}</span>
+              </h1>
+              <button
+                onClick={() => setShowCityModal(true)}
+                className="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700 text-sm"
+              >
+                Change City
+              </button>
+            </>
+          )}
         </div>
+
+        {/* Filters - Only show if city is selected */}
+        {city && (
+          <div className="flex items-center justify-between flex-wrap gap-4 mb-8 px-6">
+            {/* Search Input */}
+            <div className="flex items-center bg-white border border-gray-300 rounded-lg p-2 w-full max-w-md">
+              <FaSearch className="text-gray-500 mr-2" />
+              <input
+                type="text"
+                placeholder="Search services..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full outline-none text-gray-700"
+              />
+            </div>
+
+            {/* Category Filter */}
+            <select
+              value={selectedCategory}
+              onChange={(e) => setSelectedCategory(e.target.value)}
+              className="bg-white border border-gray-300 rounded-lg px-4 py-2 text-gray-700"
+            >
+              {categories.map((category) => (
+                <option key={category} value={category}>
+                  {category}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
 
         {/* Service Grid */}
         <div className="flex justify-start flex-wrap gap-6 max-sm:justify-center">
-          {filteredServices.length > 0 ? (
+          {!city ? (
+            <div className="w-full text-center py-12">
+              <div className="w-16 h-16 bg-gradient-to-r from-red-500 to-pink-500 rounded-full flex items-center justify-center mx-auto mb-4 animate-float">
+                <span className="text-2xl">🐾</span>
+              </div>
+              <p className="text-lg text-gray-600 mb-4">Please enter your city to see available services</p>
+              <button
+                onClick={() => setShowCityModal(true)}
+                className="bg-red-600 text-white px-6 py-2 rounded-md hover:bg-red-700"
+              >
+                Enter City
+              </button>
+            </div>
+          ) : isLoading ? (
+            <div className="w-full text-center py-12">
+              {/* Animated Pet Paw Icon */}
+              <div className="relative mb-6">
+                <div className="inline-block animate-float">
+                  <div className="w-16 h-16 bg-gradient-to-r from-red-500 to-pink-500 rounded-full flex items-center justify-center shadow-lg animate-glow">
+                    <span className="text-2xl">🐾</span>
+                  </div>
+                </div>
+                {/* Orbiting dots */}
+                <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                  <div className="w-3 h-3 bg-red-400 rounded-full animate-ping"></div>
+                </div>
+                <div className="absolute top-1/2 right-0 transform translate-x-1/2 -translate-y-1/2">
+                  <div className="w-2 h-2 bg-pink-400 rounded-full animate-pulse"></div>
+                </div>
+                <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-1/2">
+                  <div className="w-2 h-2 bg-red-300 rounded-full animate-bounce"></div>
+                </div>
+              </div>
+              
+              {/* Loading Message with Fade Animation */}
+              <div className="min-h-[2rem] flex items-center justify-center">
+                <p className="text-lg text-gray-700 font-medium animate-message-fade">
+                  {loadingMessages[loadingMessageIndex]}
+                </p>
+              </div>
+              
+              {/* Progress Bar */}
+              <div className="mt-6 max-w-md mx-auto">
+                <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+                  <div className="h-full bg-gradient-to-r from-red-500 to-pink-500 rounded-full animate-progress-fill" 
+                       style={{ width: `${((loadingMessageIndex + 1) / loadingMessages.length) * 100}%` }}>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Loading Dots */}
+              <div className="mt-4 flex justify-center space-x-2">
+                {[0, 1, 2].map((dot) => (
+                  <div
+                    key={dot}
+                    className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                      dot === loadingMessageIndex % 3 
+                        ? 'bg-red-500 scale-125' 
+                        : 'bg-gray-300'
+                    }`}
+                    style={{
+                      animationDelay: `${dot * 0.2}s`,
+                      animation: dot === loadingMessageIndex % 3 ? 'bounce 1s infinite' : 'none'
+                    }}
+                  ></div>
+                ))}
+              </div>
+            </div>
+          ) : error ? (
+            <div className="w-full text-center py-8">
+              <p className="text-red-600 mb-4">{error}</p>
+              <button
+                onClick={() => setShowCityModal(true)}
+                className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700"
+              >
+                Try Different City
+              </button>
+            </div>
+          ) : filteredServices.length > 0 ? (
             filteredServices.map((service) => (
               <ServiceCard
                 key={service.createdAt}
@@ -172,9 +323,15 @@ const Page = () => {
               />
             ))
           ) : (
-            <p className="text-gray-500 col-span-full text-center">
-              No services found.
-            </p>
+            <div className="w-full text-center py-8">
+              <p className="text-gray-500 mb-4">No services found in {city}.</p>
+              <button
+                onClick={() => setShowCityModal(true)}
+                className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700"
+              >
+                Try Different City
+              </button>
+            </div>
           )}
         </div>
       </div>
