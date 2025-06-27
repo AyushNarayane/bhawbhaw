@@ -11,7 +11,7 @@ export default function Services() {
   const [categories, setCategories] = useState([]);
 
   useEffect(() => {
-    fetch("/api/services/getAllServices")
+    fetch("/api/services/getAllServicesNoCity")
       .then((response) => response.json())
       .then((data) => {
         setServices(data.filter(service => service.status === 'verified'));
