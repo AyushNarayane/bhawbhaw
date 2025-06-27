@@ -19,6 +19,8 @@ const Page = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [loadingMessageIndex, setLoadingMessageIndex] = useState(0);
+  const [locationLoading, setLocationLoading] = useState(false);
+  const [locationError, setLocationError] = useState("");
 
   const router = useRouter();
   const dispatch = useDispatch();
@@ -145,6 +147,61 @@ const Page = () => {
     }
   };
 
+  // Function to get district from coordinates using Google Maps API
+  const detectDistrictFromLocation = async () => {
+    setLocationLoading(true);
+    setLocationError("");
+    try {
+      if (!navigator.geolocation) {
+        setLocationError("Geolocation is not supported by your browser");
+        setLocationLoading(false);
+        return;
+      }
+      const position = await new Promise((resolve, reject) => {
+        navigator.geolocation.getCurrentPosition(resolve, reject);
+      });
+      const { latitude, longitude } = position.coords;
+      // Use Google Maps Geocoding API
+      const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
+      const response = await fetch(
+        `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${apiKey}`
+      );
+      if (!response.ok) throw new Error("Failed to fetch location data");
+      const data = await response.json();
+      if (data.status !== "OK") throw new Error("Could not determine district from location");
+      // Find district in address components
+      let foundDistrict = "";
+      for (const result of data.results) {
+        for (const comp of result.address_components) {
+          if (comp.types.includes("administrative_area_level_2")) {
+            foundDistrict = comp.long_name;
+            break;
+          }
+        }
+        if (foundDistrict) break;
+      }
+      if (!foundDistrict) {
+        // Fallback to city or administrative_area_level_1
+        for (const result of data.results) {
+          for (const comp of result.address_components) {
+            if (comp.types.includes("locality") || comp.types.includes("administrative_area_level_1")) {
+              foundDistrict = comp.long_name;
+              break;
+            }
+          }
+          if (foundDistrict) break;
+        }
+      }
+      if (!foundDistrict) throw new Error("Could not extract district from location");
+      setCity(foundDistrict);
+      setShowCityModal(false);
+    } catch (error) {
+      setLocationError(error.message || "Could not detect your location. Please try again.");
+    } finally {
+      setLocationLoading(false);
+    }
+  };
+
   return (
     <div className="bg-gray-50 min-h-screen mx-auto py-8 font-poppins relative">
       {/* City Input Modal */}
@@ -156,27 +213,36 @@ const Page = () => {
                 <span className="text-2xl">🏠</span>
               </div>
               <h2 className="text-2xl font-semibold mb-4 text-gray-800">
-                Enter Your City
+                Enter Your District
               </h2>
               <p className="text-gray-600 mb-6">
                 We'll show you all the pet services available in your area
               </p>
               <input
                 type="text"
-                placeholder="e.g., Mumbai, Delhi, Bangalore"
+                placeholder="e.g., Mumbai Suburban, Pune, Bengaluru Urban"
                 value={city}
                 onChange={(e) => setCity(e.target.value)}
                 onKeyPress={handleKeyPress}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-700 mb-4 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
                 autoFocus
+                disabled={locationLoading}
               />
               <button
                 onClick={handleCitySubmit}
-                disabled={!city.trim()}
-                className="w-full bg-red-600 text-white px-6 py-3 rounded-lg hover:bg-red-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors duration-200"
+                disabled={!city.trim() || locationLoading}
+                className="w-full bg-red-600 text-white px-6 py-3 rounded-lg hover:bg-red-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors duration-200 mb-2"
               >
                 Find Services
               </button>
+              <button
+                onClick={detectDistrictFromLocation}
+                disabled={locationLoading}
+                className="w-full bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors duration-200"
+              >
+                {locationLoading ? "Detecting Location..." : "Detect My Location"}
+              </button>
+              {locationError && <p className="text-red-500 mt-2">{locationError}</p>}
             </div>
           </div>
         </div>
@@ -186,7 +252,7 @@ const Page = () => {
         {/* Header */}
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-gray-800">
-            Services in Your City
+            Services in Your Area
           </h1>
           {city && (
             <>
@@ -198,7 +264,7 @@ const Page = () => {
                 onClick={() => setShowCityModal(true)}
                 className="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700 text-sm"
               >
-                Change City
+                Change District
               </button>
             </>
           )}
@@ -241,12 +307,12 @@ const Page = () => {
               <div className="w-16 h-16 bg-gradient-to-r from-red-500 to-pink-500 rounded-full flex items-center justify-center mx-auto mb-4 animate-float">
                 <span className="text-2xl">🐾</span>
               </div>
-              <p className="text-lg text-gray-600 mb-4">Please enter your city to see available services</p>
+              <p className="text-lg text-gray-600 mb-4">Please enter your district to see available services</p>
               <button
                 onClick={() => setShowCityModal(true)}
                 className="bg-red-600 text-white px-6 py-2 rounded-md hover:bg-red-700"
               >
-                Enter City
+                Enter District
               </button>
             </div>
           ) : isLoading ? (
@@ -311,7 +377,7 @@ const Page = () => {
                 onClick={() => setShowCityModal(true)}
                 className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700"
               >
-                Try Different City
+                Try Different District
               </button>
             </div>
           ) : filteredServices.length > 0 ? (
@@ -329,7 +395,7 @@ const Page = () => {
                 onClick={() => setShowCityModal(true)}
                 className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700"
               >
-                Try Different City
+                Try Different District
               </button>
             </div>
           )}
