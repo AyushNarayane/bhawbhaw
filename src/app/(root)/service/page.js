@@ -252,7 +252,7 @@ const Page = () => {
         {/* Header */}
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-gray-800">
-            Services in Your Area
+            Service Providers in Your Area
           </h1>
           {city && (
             <>
