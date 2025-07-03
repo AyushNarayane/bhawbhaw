@@ -155,6 +155,7 @@ const Page = () => {
       if (!navigator.geolocation) {
         setLocationError("Geolocation is not supported by your browser");
         setLocationLoading(false);
+        setShowCityModal(true);
         return;
       }
       const position = await new Promise((resolve, reject) => {
@@ -197,17 +198,34 @@ const Page = () => {
       setShowCityModal(false);
     } catch (error) {
       setLocationError(error.message || "Could not detect your location. Please try again.");
+      setShowCityModal(true);
     } finally {
       setLocationLoading(false);
     }
   };
 
+  // Automatically detect location on mount
+  useEffect(() => {
+    if (!city && showCityModal) {
+      detectDistrictFromLocation();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   return (
     <div className="bg-gray-50 min-h-screen mx-auto py-8 font-poppins relative">
       {/* City Input Modal */}
-      {showCityModal && (
+      {showCityModal && !locationLoading && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-8 max-w-md w-full mx-4 shadow-xl">
+          <div className="bg-white rounded-lg p-8 max-w-md w-full mx-4 shadow-xl relative">
+            {/* Close Button */}
+            <button
+              onClick={() => setShowCityModal(false)}
+              className="absolute top-2 right-2 text-gray-400 hover:text-gray-700 text-2xl font-bold focus:outline-none"
+              aria-label="Close"
+            >
+              &times;
+            </button>
             <div className="text-center">
               <div className="w-16 h-16 bg-gradient-to-r from-red-500 to-pink-500 rounded-full flex items-center justify-center mx-auto mb-4 animate-float">
                 <span className="text-2xl">🏠</span>
@@ -242,6 +260,35 @@ const Page = () => {
               >
                 {locationLoading ? "Detecting Location..." : "Detect My Location"}
               </button>
+              {locationError && <p className="text-red-500 mt-2">{locationError}</p>}
+            </div>
+          </div>
+        </div>
+      )}
+      {showCityModal && locationLoading && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-8 max-w-md w-full mx-4 shadow-xl relative">
+            {/* Close Button */}
+            <button
+              onClick={() => setShowCityModal(false)}
+              className="absolute top-2 right-2 text-gray-400 hover:text-gray-700 text-2xl font-bold focus:outline-none"
+              aria-label="Close"
+            >
+              &times;
+            </button>
+            <div className="text-center">
+              <div className="w-16 h-16 bg-gradient-to-r from-red-500 to-pink-500 rounded-full flex items-center justify-center mx-auto mb-4 animate-float">
+                <span className="text-2xl">🐾</span>
+              </div>
+              <h2 className="text-xl font-semibold mb-4 text-gray-800">
+                Detecting your location...
+              </h2>
+              <p className="text-gray-600 mb-6">
+                Please wait while we try to detect your district automatically.
+              </p>
+              <div className="w-full flex justify-center items-center">
+                <div className="loader ease-linear rounded-full border-8 border-t-8 border-gray-200 h-12 w-12"></div>
+              </div>
               {locationError && <p className="text-red-500 mt-2">{locationError}</p>}
             </div>
           </div>
