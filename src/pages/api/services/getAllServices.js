@@ -14,7 +14,7 @@ export default async function handler(req, res) {
 
   try {
     // Get all service providers
-    const servicesCollection = collection(db, 'serviceProviders');
+    const servicesCollection = collection(db, 'services');
     const servicesSnapshot = await getDocs(servicesCollection);
 
     const services = [];

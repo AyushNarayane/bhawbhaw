@@ -12,8 +12,8 @@ const Page = () => {
   const [services, setServices] = useState([]);
   const [filteredServices, setFilteredServices] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
-  const [categories, setCategories] = useState([]);
-  const [selectedCategory, setSelectedCategory] = useState("All");
+  const [departments, setDepartments] = useState(["All"]);
+  const [selectedDepartment, setSelectedDepartment] = useState("All");
   const [city, setCity] = useState("");
   const [showCityModal, setShowCityModal] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
@@ -50,14 +50,13 @@ const Page = () => {
     "🏠 Connecting with local pet experts..."
   ];
 
-  // Extract unique categories
-  const extractCategories = (services) => {
-    const uniqueCategories = [
+  // Extract unique departments
+  const extractDepartments = (services) => {
+    const uniqueDepartments = [
       "All",
-      ...new Set(services.map((service) => service.serviceType)),
-      ...additionalCategories,
+      ...Array.from(new Set(services.map((service) => service.department).filter(Boolean)))
     ];
-    setCategories(uniqueCategories);
+    setDepartments(uniqueDepartments);
   };
 
   // Fetch services once city is submitted
@@ -75,7 +74,7 @@ const Page = () => {
           const data = await response.json();
           setServices(data);
           setFilteredServices(data);
-          extractCategories(data);
+          extractDepartments(data);
         } else {
           console.error("Error fetching services");
           setError("Failed to fetch services. Please try again.");
@@ -102,9 +101,9 @@ const Page = () => {
         );
       }
 
-      if (selectedCategory !== "All") {
+      if (selectedDepartment !== "All") {
         result = result.filter(
-          (service) => service.serviceType === selectedCategory
+          (service) => service.department === selectedDepartment
         );
       }
 
@@ -112,7 +111,7 @@ const Page = () => {
     };
 
     filter();
-  }, [searchQuery, selectedCategory, services]);
+  }, [searchQuery, selectedDepartment, services]);
 
   // Rotate loading messages every 2 seconds
   useEffect(() => {
@@ -299,7 +298,7 @@ const Page = () => {
         {/* Header */}
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-gray-800">
-            Service Providers in Your Area
+            Services in Your Area
           </h1>
           {city && (
             <>
@@ -332,15 +331,15 @@ const Page = () => {
               />
             </div>
 
-            {/* Category Filter */}
+            {/* Department Filter */}
             <select
-              value={selectedCategory}
-              onChange={(e) => setSelectedCategory(e.target.value)}
+              value={selectedDepartment}
+              onChange={(e) => setSelectedDepartment(e.target.value)}
               className="bg-white border border-gray-300 rounded-lg px-4 py-2 text-gray-700"
             >
-              {categories.map((category) => (
-                <option key={category} value={category}>
-                  {category}
+              {departments.map((department) => (
+                <option key={department} value={department}>
+                  {department}
                 </option>
               ))}
             </select>
