@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { db } from "firebaseConfig";
-import { collection, getDocs, query, where } from "firebase/firestore";
+import { doc, getDoc } from "firebase/firestore";
 import Image from "next/image";
 import { setSelectedService } from "@/redux/serviceSlice";
 import { useRouter } from "next/navigation";
@@ -23,45 +23,23 @@ const ServiceProviders = () => {
       try {
         setLoading(true);
 
-        // console.log(selectedService);
-
-        // Fetch all vendor IDs for the selected service
-        const servicesRef = collection(db, "serviceProviders");
-        const serviceQuery = query(
-          servicesRef,
-          where("__name__", "==", selectedService.id) // Use __name__ to compare document ID
-        );
-        const serviceSnapshot = await getDocs(serviceQuery);
-        // console.log(serviceSnapshot);
-
-
-        const vendorIds = serviceSnapshot.docs.map(
-          (doc) => doc.data().vendorId
-        );
-
-        if (vendorIds.length === 0) {
+        // Directly get vendor using the vendorId from service
+        if (!selectedService.vendorId) {
           setVendors([]);
           setLoading(false);
           return;
         }
 
-        // Fetch vendor details using the IDs
-        const vendorsRef = collection(db, "vendors");
-        const vendorQuery = query(
-          vendorsRef,
-          where("__name__", "in", vendorIds)
-        ); // "__name__" refers to the document ID
-        const vendorSnapshot = await getDocs(vendorQuery);
+        const vendorRef = doc(db, "vendors", selectedService.vendorId);
+        const vendorDoc = await getDoc(vendorRef);
 
-        const fetchedVendors = vendorSnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-
-        setVendors(fetchedVendors);
-        console.log(fetchedVendors);
+        if (vendorDoc.exists()) {
+          setVendors([{ id: vendorDoc.id, ...vendorDoc.data() }]);
+        } else {
+          setVendors([]);
+        }
       } catch (error) {
-        console.error("Error fetching vendors:", error);
+        console.error("Error fetching vendor:", error);
       } finally {
         setLoading(false);
       }
@@ -69,7 +47,7 @@ const ServiceProviders = () => {
 
     fetchVendors();
     
-  }, [selectedService.id]);
+  }, [selectedService.vendorId]);
 
     const handleBookService = (vendor) => {
       if (!userId) {

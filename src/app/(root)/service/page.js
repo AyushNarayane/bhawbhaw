@@ -1,12 +1,13 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { FaSearch } from "react-icons/fa";
 import { useRouter } from "next/navigation";
 import ServiceCard from "@/components/ServiceCard";
 import { useDispatch } from "react-redux";
 import { setSelectedService } from "@/redux/serviceSlice";
 import ProtectedHomeRoute from "@/components/ProtectedHomeRoute";
+import ServiceCategories from "@/components/ServiceCategories";
 
 const Page = () => {
   const [services, setServices] = useState([]);
@@ -15,12 +16,15 @@ const Page = () => {
   const [departments, setDepartments] = useState(["All"]);
   const [selectedDepartment, setSelectedDepartment] = useState("All");
   const [city, setCity] = useState("");
-  const [showCityModal, setShowCityModal] = useState(true);
+  const [showCityModal, setShowCityModal] = useState(false); // Initialize to false
+  const [hasDetectedLocation, setHasDetectedLocation] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [loadingMessageIndex, setLoadingMessageIndex] = useState(0);
   const [locationLoading, setLocationLoading] = useState(false);
   const [locationError, setLocationError] = useState("");
+  const [selectedServiceCategory, setSelectedServiceCategory] = useState(null);
+  const servicesSectionRef = useRef(null);
 
   const router = useRouter();
   const dispatch = useDispatch();
@@ -107,11 +111,17 @@ const Page = () => {
         );
       }
 
+      if (selectedServiceCategory && selectedServiceCategory !== "All") {
+        result = result.filter(
+          (service) => service.department === selectedServiceCategory
+        );
+      }
+
       setFilteredServices(result);
     };
 
     filter();
-  }, [searchQuery, selectedDepartment, services]);
+  }, [searchQuery, selectedDepartment, services, selectedServiceCategory]);
 
   // Rotate loading messages every 2 seconds
   useEffect(() => {
@@ -150,11 +160,11 @@ const Page = () => {
   const detectDistrictFromLocation = async () => {
     setLocationLoading(true);
     setLocationError("");
+    setHasDetectedLocation(true); // Mark that a detection attempt has been made
     try {
       if (!navigator.geolocation) {
         setLocationError("Geolocation is not supported by your browser");
         setLocationLoading(false);
-        setShowCityModal(true);
         return;
       }
       const position = await new Promise((resolve, reject) => {
@@ -166,38 +176,35 @@ const Page = () => {
       const response = await fetch(
         `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${apiKey}`
       );
-      if (!response.ok) throw new Error("Failed to fetch location data");
       const data = await response.json();
-      if (data.status !== "OK") throw new Error("Could not determine district from location");
-      // Find district in address components
-      let foundDistrict = "";
-      for (const result of data.results) {
-        for (const comp of result.address_components) {
-          if (comp.types.includes("administrative_area_level_2")) {
-            foundDistrict = comp.long_name;
+
+      if (data.status === "OK" && data.results.length > 0) {
+        const addressComponents = data.results[0].address_components;
+        let detectedCity = "";
+        for (const component of addressComponents) {
+          if (component.types.includes("locality")) {
+            detectedCity = component.long_name;
             break;
+          } else if (component.types.includes("administrative_area_level_2")) {
+            // Fallback to administrative_area_level_2 (district) if locality not found
+            detectedCity = component.long_name;
+          } else if (component.types.includes("administrative_area_level_1") && !detectedCity) {
+            // Fallback to administrative_area_level_1 (state) if locality/district not found
+            detectedCity = component.long_name;
           }
         }
-        if (foundDistrict) break;
-      }
-      if (!foundDistrict) {
-        // Fallback to city or administrative_area_level_1
-        for (const result of data.results) {
-          for (const comp of result.address_components) {
-            if (comp.types.includes("locality") || comp.types.includes("administrative_area_level_1")) {
-              foundDistrict = comp.long_name;
-              break;
-            }
-          }
-          if (foundDistrict) break;
+
+        if (detectedCity) {
+          setCity(detectedCity);
+        } else {
+          setLocationError("Could not determine district from your location.");
         }
+      } else {
+        setLocationError("Could not determine district from your location.");
       }
-      if (!foundDistrict) throw new Error("Could not extract district from location");
-      setCity(foundDistrict);
-      setShowCityModal(false);
     } catch (error) {
-      setLocationError(error.message || "Could not detect your location. Please try again.");
-      setShowCityModal(true);
+      console.error("Error detecting location:", error);
+      setLocationError("Error detecting location. Please try manually.");
     } finally {
       setLocationLoading(false);
     }
@@ -205,64 +212,72 @@ const Page = () => {
 
   // Automatically detect location on mount
   useEffect(() => {
-    if (!city && showCityModal) {
+    // Only attempt auto-detection if city is not set and it's the very first load (hasDetectedLocation is false)
+    if (!city && !hasDetectedLocation) {
       detectDistrictFromLocation();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [city, hasDetectedLocation]);
+
+  const handleCategoryClick = (category) => {
+    setSelectedServiceCategory(category);
+    // Scroll to services after a short delay to allow state update
+    setTimeout(() => {
+      servicesSectionRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }, 100);
+  };
 
   return (
     <div className="bg-gray-50 min-h-screen mx-auto py-8 font-poppins relative">
       {/* City Input Modal */}
       {showCityModal && !locationLoading && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-8 max-w-md w-full mx-4 shadow-xl relative">
-            {/* Close Button */}
-            <button
-              onClick={() => setShowCityModal(false)}
-              className="absolute top-2 right-2 text-gray-400 hover:text-gray-700 text-2xl font-bold focus:outline-none"
-              aria-label="Close"
-            >
-              &times;
-            </button>
-            <div className="text-center">
-              <div className="w-16 h-16 bg-gradient-to-r from-red-500 to-pink-500 rounded-full flex items-center justify-center mx-auto mb-4 animate-float">
-                <span className="text-2xl">🏠</span>
-              </div>
-              <h2 className="text-2xl font-semibold mb-4 text-gray-800">
-                Enter Your District
-              </h2>
-              <p className="text-gray-600 mb-6">
-                We'll show you all the pet services available in your area
-              </p>
-              <input
-                type="text"
-                placeholder="e.g., Mumbai Suburban, Pune, Bengaluru Urban"
-                value={city}
-                onChange={(e) => setCity(e.target.value)}
-                onKeyPress={handleKeyPress}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-700 mb-4 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                autoFocus
-                disabled={locationLoading}
-              />
-              <button
-                onClick={handleCitySubmit}
-                disabled={!city.trim() || locationLoading}
-                className="w-full bg-red-600 text-white px-6 py-3 rounded-lg hover:bg-red-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors duration-200 mb-2"
-              >
-                Find Services
-              </button>
-              <button
-                onClick={detectDistrictFromLocation}
-                disabled={locationLoading}
-                className="w-full bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors duration-200"
-              >
-                {locationLoading ? "Detecting Location..." : "Detect My Location"}
-              </button>
-              {locationError && <p className="text-red-500 mt-2">{locationError}</p>}
+        <div className="bg-white rounded-lg p-8 max-w-md w-full mx-4 shadow-xl relative">
+          {/* Close Button */}
+          <button
+            onClick={() => setShowCityModal(false)}
+            className="absolute top-2 right-2 text-gray-400 hover:text-gray-700 text-2xl font-bold focus:outline-none"
+            aria-label="Close"
+          >
+            &times;
+          </button>
+          <div className="text-center">
+            <div className="w-16 h-16 bg-gradient-to-r from-red-500 to-pink-500 rounded-full flex items-center justify-center mx-auto mb-4 animate-float">
+              <span className="text-2xl">🏠</span>
             </div>
+            <h2 className="text-2xl font-semibold mb-4 text-gray-800">
+              Enter Your District
+            </h2>
+            <p className="text-gray-600 mb-6">
+              We'll show you all the pet services available in your area
+            </p>
+            <input
+              type="text"
+              placeholder="e.g., Mumbai Suburban, Pune, Bengaluru Urban"
+              value={city}
+              onChange={(e) => setCity(e.target.value)}
+              onKeyPress={handleKeyPress}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-700 mb-4 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+              autoFocus
+              disabled={locationLoading}
+            />
+            <button
+              onClick={handleCitySubmit}
+              disabled={!city.trim() || locationLoading}
+              className="w-full bg-red-600 text-white px-6 py-3 rounded-lg hover:bg-red-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors duration-200 mb-2"
+            >
+              Find Services
+            </button>
+            <button
+              onClick={detectDistrictFromLocation}
+              disabled={locationLoading}
+              className="w-full bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors duration-200"
+            >
+              {locationLoading ? "Detecting Location..." : "Detect My Location"}
+            </button>
+            {locationError && <p className="text-red-500 mt-2">{locationError}</p>}
           </div>
         </div>
+      </div>
       )}
       {showCityModal && locationLoading && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -302,10 +317,21 @@ const Page = () => {
           </h1>
           {city && (
             <>
-              <h1 className="text-sm text-gray-500 mt-2 mb-4">
-                Showing available services in{" "}
-                <span className="font-medium">{city}</span>
-              </h1>
+              <h2 className="text-2xl font-bold mb-4 text-gray-800">Services in {city}</h2>
+              <ServiceCategories onSelectCategory={handleCategoryClick} />
+              <div ref={servicesSectionRef} className="mb-4 flex items-center justify-center w-full max-w-md mx-auto">
+                {/* Search Input */}
+                <div className="flex items-center bg-white border border-gray-300 rounded-lg p-2 w-full">
+                  <FaSearch className="text-gray-500 mr-2" />
+                  <input
+                    type="text"
+                    placeholder="Search services..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="w-full outline-none text-gray-700"
+                  />
+                </div>
+              </div>
               <button
                 onClick={() => setShowCityModal(true)}
                 className="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700 text-sm"
@@ -319,18 +345,6 @@ const Page = () => {
         {/* Filters - Only show if city is selected */}
         {city && (
           <div className="flex items-center justify-between flex-wrap gap-4 mb-8 px-6">
-            {/* Search Input */}
-            <div className="flex items-center bg-white border border-gray-300 rounded-lg p-2 w-full max-w-md">
-              <FaSearch className="text-gray-500 mr-2" />
-              <input
-                type="text"
-                placeholder="Search services..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full outline-none text-gray-700"
-              />
-            </div>
-
             {/* Department Filter */}
             <select
               value={selectedDepartment}
@@ -353,13 +367,29 @@ const Page = () => {
               <div className="w-16 h-16 bg-gradient-to-r from-red-500 to-pink-500 rounded-full flex items-center justify-center mx-auto mb-4 animate-float">
                 <span className="text-2xl">🐾</span>
               </div>
-              <p className="text-lg text-gray-600 mb-4">Please enter your district to see available services</p>
-              <button
-                onClick={() => setShowCityModal(true)}
-                className="bg-red-600 text-white px-6 py-2 rounded-md hover:bg-red-700"
-              >
-                Enter District
-              </button>
+              {locationLoading ? (
+                <p className="text-lg text-gray-600 mb-4">Detecting your location...</p>
+              ) : locationError ? (
+                <>
+                  <p className="text-lg text-red-600 mb-4">{locationError}</p>
+                  <button
+                    onClick={() => setShowCityModal(true)}
+                    className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 text-sm"
+                  >
+                    Enter District Manually
+                  </button>
+                </>
+              ) : (
+                <>
+                  <p className="text-lg text-gray-600 mb-4">Please enter your district to see available services</p>
+                  <button
+                    onClick={() => setShowCityModal(true)}
+                    className="bg-red-600 text-white px-6 py-2 rounded-md hover:bg-red-700"
+                  >
+                    Enter District
+                  </button>
+                </>
+              )}
             </div>
           ) : isLoading ? (
             <div className="w-full text-center py-12">
