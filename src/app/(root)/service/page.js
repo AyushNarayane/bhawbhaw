@@ -24,6 +24,7 @@ const Page = () => {
   const [locationLoading, setLocationLoading] = useState(false);
   const [locationError, setLocationError] = useState("");
   const [selectedServiceCategory, setSelectedServiceCategory] = useState(null);
+  const [hasSelectedCategory, setHasSelectedCategory] = useState(false);
   const servicesSectionRef = useRef(null);
 
   const router = useRouter();
@@ -139,6 +140,13 @@ const Page = () => {
     return () => clearInterval(interval);
   }, [isLoading, loadingMessages.length]);
 
+  useEffect(() => {
+    if (hasSelectedCategory && filteredServices.length > 0 && servicesSectionRef.current) {
+      servicesSectionRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      setHasSelectedCategory(false);
+    }
+  }, [filteredServices, hasSelectedCategory]);
+
   const handleServiceClick = (service) => {
     dispatch(setSelectedService(service));
     router.push(`/service-providers`);
@@ -220,10 +228,7 @@ const Page = () => {
 
   const handleCategoryClick = (category) => {
     setSelectedServiceCategory(category);
-    // Scroll to services after a short delay to allow state update
-    setTimeout(() => {
-      servicesSectionRef.current?.scrollIntoView({ behavior: 'smooth' });
-    }, 100);
+    router.push('#services-section');
   };
 
   return (
@@ -319,7 +324,7 @@ const Page = () => {
             <>
               <h2 className="text-2xl font-bold mb-4 text-gray-800">Services in {city}</h2>
               <ServiceCategories onSelectCategory={handleCategoryClick} />
-              <div ref={servicesSectionRef} className="mb-4 flex items-center justify-center w-full max-w-md mx-auto">
+              <div id="services-section" className="mb-4 flex items-center justify-center w-full max-w-md mx-auto">
                 {/* Search Input */}
                 <div className="flex items-center bg-white border border-gray-300 rounded-lg p-2 w-full">
                   <FaSearch className="text-gray-500 mr-2" />
