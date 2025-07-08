@@ -9,7 +9,7 @@ import PaymentOptions from "./PaymentOptions";
 import CouponSection from "./CouponSection";
 import Popup from "./Popup";
 
-const ReviewInformation = ({ prevStep, formData = {}, handleSubmit }) => {
+const ReviewInformation = ({ prevStep, formData = {}, handleSubmit, service }) => {
   const [isPopupVisible, setIsPopupVisible] = useState(false);
   const [isPopupVisible1, setIsPopupVisible1] = useState(false);
   const [isPopupVisible2, setIsPopupVisible2] = useState(false);
@@ -22,7 +22,7 @@ const ReviewInformation = ({ prevStep, formData = {}, handleSubmit }) => {
   const [showCouponModal, setShowCouponModal] = useState(false);
   const [validatingCoupon, setValidatingCoupon] = useState(false);
   const [discountAmount, setDiscountAmount] = useState(0);
-  const [total, setTotal] = useState(1000); // Example default total
+  const [total, setTotal] = useState(service ? service.sessionCharges : 0);
   const { contactInfo, calendarAndSlot } = formData;
   const userId = useSelector((state) => state.user.userId);
   const router = useRouter();
@@ -166,44 +166,37 @@ const ReviewInformation = ({ prevStep, formData = {}, handleSubmit }) => {
   const closePopup1 = () => setIsPopupVisible1(false);
   const closePopup2 = () => setIsPopupVisible2(false);
 
+  // Handle the payment button click
+  const handleProceedToPayment = () => {
+    if (typeof handleSubmit === 'function') {
+      handleSubmit();
+    }
+  };
+
   return (
     <div className="p-6 bg-white rounded-lg shadow-lg text-black">
       <Toaster />
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        {/* Left Column: Review Information */}
-        <div>
+      <div className="grid grid-cols-1">
+        {/* Review Information */}
+        <div className="max-w-2xl mx-auto w-full">
           <h2 className="text-2xl font-bold mb-6 text-gray-800">
             Review Your Information
           </h2>
-
-          <h3 className="text-lg font-semibold text-gray-700 mb-2">
-            Contact Information:
-          </h3>
-          <div className="bg-white shadow-md p-4 rounded-lg mb-4">
-            <p className="text-gray-600">
-              Full Name:{" "}
-              <span className="font-semibold text-gray-800">
-                {contactInfo.fullName}
-              </span>
-            </p>
-            <p className="text-gray-600">
-              Email:{" "}
-              <span className="font-semibold text-gray-800">
-                {contactInfo.email}
-              </span>
-            </p>
-            <p className="text-gray-600">
-              Address:{" "}
-              <span className="font-semibold text-gray-800">
-                {contactInfo.address}
-              </span>
-            </p>
-            <p className="text-gray-600">
-              Phone Number:{" "}
-              <span className="font-semibold text-gray-800">
-                {contactInfo.phoneNumber}
-              </span>
-            </p>
+          
+          {/* Proceed to Payment Button */}
+          <div className="mt-8 text-center">
+            <button
+              onClick={handleProceedToPayment}
+              disabled={isLoading}
+              className={`px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors ${
+                isLoading ? 'opacity-75 cursor-not-allowed' : ''
+              }`}
+            >
+              {isLoading ? 'Processing...' : 'Proceed to Payment'}
+            </button>
+            {error && (
+              <p className="mt-2 text-red-500 text-sm">{error}</p>
+            )}
           </div>
 
           <h3 className="text-lg font-semibold text-gray-700 mb-2">
@@ -233,51 +226,31 @@ const ReviewInformation = ({ prevStep, formData = {}, handleSubmit }) => {
 
         {/* Right Column: Coupons and Payment */}
         <div>
-          <CouponSection
-            coupon={coupon}
-            setCoupon={setCoupon}
-            handleApplyCoupon={handleApplyCoupon}
-            showCouponModal={showCouponModal}
-            setShowCouponModal={setShowCouponModal}
-            validatingCoupon={validatingCoupon}
-            coupons={coupons}
-            error={error}
-          />
-
-          {!paymentCompleted && (
-            <PaymentOptions
-              total={total}
-              onSuccess={handlePaymentSuccess}
-              mode="service"
-            />
-          )}
-
-          {error && <p className="text-red-500 text-sm mt-4">{error}</p>}
-
           {isPopupVisible && (
             <Popup
-              imageSrc="/images/services/popup.png"
-              title="Your booking was successful!"
-              message=""
-              closePopup={closePopup}
+              isOpen={isPopupVisible}
+              onClose={closePopup}
+              title="Booking Submitted!"
+              message="Your booking request has been received. Please complete the payment to confirm your appointment."
+              buttonText="OK"
             />
           )}
-
           {isPopupVisible1 && (
             <Popup
-              imageSrc="/images/services/cancel.png"
-              title="Invalid Coupon!"
-              message="The coupon code you entered is not valid."
-              closePopup={closePopup1}
+              isOpen={isPopupVisible1}
+              onClose={closePopup1}
+              title="Invalid Coupon"
+              message="The coupon code you entered is not valid. Please check and try again."
+              buttonText="OK"
             />
           )}
-
           {isPopupVisible2 && (
             <Popup
-              imageSrc="/images/services/cancel.png"
-              title="Minimum Subtotal Not Attained!"
-              message="To apply this coupon, your subtotal must be a bit higher."
-              closePopup={closePopup2}
+              isOpen={isPopupVisible2}
+              onClose={closePopup2}
+              title="Minimum Price Not Met"
+              message="The total amount is less than the minimum required amount for this coupon."
+              buttonText="OK"
             />
           )}
         </div>
