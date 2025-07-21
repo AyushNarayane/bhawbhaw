@@ -180,7 +180,7 @@ const ProductGrid = () => {
   return (
     <div className="bg-white py-12 font-poppins">
       <Toaster />
-      <div className="flex">
+      <div className="flex flex-col lg:flex-row">
         {/* Filters Section */}
         <ProductFilter onFilter={handleFilter} products={productData} />
 
@@ -191,7 +191,7 @@ const ProductGrid = () => {
               <p>Finding nearby products...</p>
             </div>
           ) : (
-            <div className="grid grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
               {displayedProducts.length > 0 ? (
                 displayedProducts.map((product) => (
                   <ProductCard key={product.productId} product={product} />

@@ -217,7 +217,7 @@ const ProductCard = ({ product, isRecommendation = false }) => {
   };
 
   return (
-    <div className="relative rounded-lg font-montserrat overflow-hidden p-4 group shadow-md hover:shadow-lg transition-shadow bg-white">
+    <div className="relative rounded-lg font-montserrat overflow-hidden p-2 sm:p-4 group shadow-md hover:shadow-lg transition-shadow bg-white">
       {/* heart */}
       <div
         aria-disabled={wishlistLoading}
@@ -246,27 +246,27 @@ const ProductCard = ({ product, isRecommendation = false }) => {
       </div>
 
       {/* Product Image */}
-      <div className="bg-[#F3EAE7] mx-3 py-3 rounded-lg mt-10">
+      <div className="bg-[#F3EAE7] mx-2 sm:mx-3 py-2 sm:py-3 rounded-lg mt-8 sm:mt-10">
         <Image
           src={product.images[0]}
           alt={product.title}
           height={200}
           width={200}
-          className="w-full h-48 object-contain"
+          className="w-full h-40 sm:h-48 object-contain"
         />
       </div>
 
       {/* Product Details */}
       <div className="py-4">
-        <div className="flex justify-between items-center mb-2">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-1 sm:mb-2">
           <Link
             href={`/productdetails/${product.productId}`}
-            className="font-black text-xl text-[#2C2C2C] hover:underline underline-offset-2 line-clamp-1"
+            className="font-black text-base sm:text-xl text-[#2C2C2C] hover:underline underline-offset-2 line-clamp-2 sm:line-clamp-1"
           >
             {product.title}
           </Link>
-          <div className="flex flex-col items-end">
-            <span className="text-lg font-semibold text-gray-800">
+          <div className="flex flex-col items-start sm:items-end mt-1 sm:mt-0">
+            <span className="text-base sm:text-lg font-semibold text-gray-800">
               {product.sellingPrice}
             </span>
             {product.maxRetailPrice && (
@@ -282,7 +282,7 @@ const ProductCard = ({ product, isRecommendation = false }) => {
           </div>
         </div>
 
-        <p className="text-gray-700 my-3 text-normal w-64 line-clamp-1">{product.description}</p>
+        <p className="text-gray-700 my-2 sm:my-3 text-sm sm:text-normal w-full line-clamp-1">{product.description}</p>
 
         <div className="flex items-center">
           {Array.from({ length: Math.floor(product.rating || 4) }, (_, index) => (
@@ -299,18 +299,18 @@ const ProductCard = ({ product, isRecommendation = false }) => {
         </div>
       </div>
 
-      <div className="relative flex justify-center gap-5 items-center mt-4 z-20">
+      <div className="relative flex flex-col sm:flex-row justify-center gap-2 sm:gap-5 items-center mt-2 sm:mt-4 z-20">
         <button
           onClick={handleCartAction}
           disabled={cartLoading}
-          className="border bg-baw-light py-2 w-full px-4 rounded-full whitespace-nowrap font-semibold"
+          className="border bg-baw-light py-2 w-full px-3 sm:px-4 rounded-full text-sm font-semibold"
         >
           {/* {isProductInCart ? 'Remove from Cart' : 'Add to Cart'} */}
           {cartLoading ? <ClipLoader color="#f47450" loading={cartLoading} size={17} /> : "Add to Cart"}
         </button>
         <button
           onClick={handleBuyAction}
-          className="bg-baw-red py-2 w-full px-4 rounded-full whitespace-nowrap font-semibold"
+          className="bg-baw-red py-2 w-full px-3 sm:px-4 rounded-full text-sm font-semibold"
           disabled={buyLoading}
         >
           {buyLoading ? <ClipLoader color="#f47450" loading={buyLoading} size={17} /> : 'Buy Now'}
